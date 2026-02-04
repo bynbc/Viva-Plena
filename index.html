@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VivaPlena - Gestão Operacional Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --sat: env(safe-area-inset-top);
+          --sar: env(safe-area-inset-right);
+          --sab: env(safe-area-inset-bottom);
+          --sal: env(safe-area-inset-left);
+        }
+
+        body { 
+          font-family: 'Plus Jakarta Sans', sans-serif; 
+          margin: 0;
+          padding: 0;
+          background: #fdfdfd; /* Background mais claro para o look branco */
+          min-height: 100vh;
+          overflow-x: hidden;
+          -webkit-tap-highlight-color: transparent;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        /* Glassmorphism Ultra-Refined (Specs User) */
+        .glass {
+          background: rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(32px) saturate(180%);
+          -webkit-backdrop-filter: blur(32px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+        }
+
+        .glass-header {
+          background: rgba(255, 255, 255, 0.25);
+          backdrop-filter: blur(32px) saturate(200%);
+          -webkit-backdrop-filter: blur(32px) saturate(200%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-card {
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(28px) saturate(160%);
+          -webkit-backdrop-filter: blur(28px) saturate(160%);
+          border: 1px solid rgba(255, 255, 255, 0.35);
+          box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.03);
+        }
+
+        /* High Contrast Glass for White Elements */
+        .glass-white {
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(32px);
+          -webkit-backdrop-filter: blur(32px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Mobile Adjustments */
+        .pb-safe { padding-bottom: var(--sab); }
+        .pt-safe { padding-top: var(--sat); }
+        
+        .mobile-modal-active {
+          overflow: hidden !important;
+          position: fixed;
+          width: 100%;
+        }
+
+        /* Interactive Elements */
+        .tap-target {
+          min-height: 44px;
+          min-width: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+          background: rgba(16, 185, 129, 0.2); 
+          border-radius: 10px;
+        }
+
+        /* Animations */
+        .animate-spring {
+          animation: spring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes spring {
+          0% { transform: scale(0.95); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+
+        .bg-blob {
+          position: fixed;
+          width: 60vw;
+          height: 60vw;
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.02) 100%);
+          filter: blur(100px);
+          border-radius: 50%;
+          z-index: -1;
+          pointer-events: none;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div class="bg-blob top-[-10%] left-[-10%]"></div>
+    <div class="bg-blob bottom-[-10%] right-[-10%]"></div>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

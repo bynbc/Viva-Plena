@@ -1,0 +1,7 @@
+{
+  "name": "VivaPlena SaaS",
+  "description": "Uma plataforma operacional completa para gestão de clínicas e comunidades terapêuticas com foco em humanização e eficiência.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
