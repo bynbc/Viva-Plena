@@ -16,8 +16,11 @@ import Documents from './components/Documents';
 
 // Imports dos Modais Globais
 import GlobalNewModal from './components/GlobalNewModal';
-import GlobalEditModal from './components/GlobalEditModal'; // <--- O Modal de Edição novo
+import GlobalEditModal from './components/GlobalEditModal';
 import LoginScreen from './components/LoginScreen';
+
+// NOVO: Importa o Robô de Notificação
+import MedicationNotifier from './components/common/MedicationNotifier';
 
 // Contextos e Utilitários
 import { BrainProvider, useBrain } from './context/BrainContext';
@@ -91,34 +94,17 @@ const AppContent: React.FC = () => {
       <Layout>
         {renderModule()}
       </Layout>
-// Imports lá em cima...
-import MedicationNotifier from './components/common/MedicationNotifier'; // <--- IMPORTA ISSO
 
-const AppContent: React.FC = () => {
-  // ... código existente ...
-
-  return (
-    <div className="antialiased text-slate-900 min-h-screen relative">
-      <Layout>
-        {renderModule()}
-      </Layout>
-      
-      {/* ADICIONA O ROBÔ AQUI: */}
+      {/* AQUI ESTÁ O ROBÔ DE NOTIFICAÇÃO */}
       <MedicationNotifier />
 
-      <GlobalNewModal ... />
-      <GlobalEditModal ... />
-    </div>
-  );
-};
-      
       {/* MODAL DE CRIAÇÃO (Botão +) */}
       <GlobalNewModal 
         isOpen={brain.ui.isNewModalOpen} 
         onClose={() => setUI({ isNewModalOpen: false })} 
       />
       
-      {/* MODAL DE EDIÇÃO (Lápis) - Conectado aqui! */}
+      {/* MODAL DE EDIÇÃO (Lápis) */}
       <GlobalEditModal /> 
     </div>
   );
