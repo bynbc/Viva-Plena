@@ -102,7 +102,7 @@ export const repo = {
     return supabase.from('clinics').select('*').eq('id', id).single();
   },
 
-  // --- PACIENTES (COM CORREÇÃO DE DELETE) ---
+  // --- PACIENTES ---
   async listPatients(clinicId: string) {
     return supabase.from('patients').select('*').eq('clinic_id', clinicId).order('name');
   },
@@ -131,16 +131,12 @@ export const repo = {
     return supabase.from('patients').update(patch).eq('id', patientId).eq('clinic_id', clinicId);
   },
 
-  // AQUI ESTÁ A MÁGICA: Limpa tudo antes de apagar o paciente
   async deletePatient(clinicId: string, id: string) {
-    // 1. Apaga filhos (Remédios, Evoluções, etc)
     await supabase.from('medications').delete().eq('patient_id', id).eq('clinic_id', clinicId);
     await supabase.from('records').delete().eq('patient_id', id).eq('clinic_id', clinicId);
     await supabase.from('occurrences').delete().eq('patient_id', id).eq('clinic_id', clinicId);
     await supabase.from('documents').delete().eq('patient_id', id).eq('clinic_id', clinicId);
     await supabase.from('agenda').delete().eq('patient_id', id).eq('clinic_id', clinicId);
-
-    // 2. Apaga o Pai (Paciente)
     return supabase.from('patients').delete().eq('id', id).eq('clinic_id', clinicId);
   },
 
@@ -192,7 +188,7 @@ export const repo = {
     return supabase.from('settings').upsert({ clinic_id: clinicId, key, value }, { onConflict: 'clinic_id,key' });
   },
 
-  // --- USUÁRIOS ---
+  // --- USUÁRIOS (ATUALIZADO PARA EXCLUSÃO REAL E TROCA DE SENHA) ---
   async listClinicUsers(clinicId: string) {
     const { data, error } = await supabase
       .from('clinic_users')
@@ -217,7 +213,12 @@ export const repo = {
       is_active: true
     }]).select().single();
 
-    if (userError) throw userError;
+    if (userError) {
+      if (userError.code === '23505') { 
+         throw { message: 'Este nome de usuário já está em uso. Tente outro ou fale com o suporte.' };
+      }
+      throw userError;
+    }
 
     const { error: linkError } = await supabase.from('clinic_users').insert([{
       clinic_id: clinicId,
@@ -230,17 +231,26 @@ export const repo = {
   },
   
   async updateClinicUser(clinicId: string, userId: string, data: any) {
+    // ATUALIZAÇÃO DE PERMISSÕES
     if (data.permissions) {
       return supabase.from('clinic_users').update({ permissions: data.permissions }).eq('clinic_id', clinicId).eq('user_id', userId);
     }
+    // ATUALIZAÇÃO DE CARGO
     if (data.role) {
        return supabase.from('app_users').update({ role: data.role }).eq('id', userId);
+    }
+    // ATUALIZAÇÃO DE SENHA (NOVO)
+    if (data.password_hash) {
+       return supabase.from('app_users').update({ password_hash: data.password_hash }).eq('id', userId);
     }
     return { error: null };
   },
 
   async deleteClinicUser(clinicId: string, userId: string) {
-    return supabase.from('clinic_users').delete().eq('clinic_id', clinicId).eq('user_id', userId);
+    // 1. Remove o vínculo com a clínica
+    await supabase.from('clinic_users').delete().eq('clinic_id', clinicId).eq('user_id', userId);
+    // 2. Remove o usuário do sistema (Login) - ISSO LIBERA O NOME
+    return supabase.from('app_users').delete().eq('id', userId);
   },
 
   // --- MEDICAÇÃO ---
