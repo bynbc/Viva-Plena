@@ -129,13 +129,13 @@ const Users: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              {/* CAMPO: USUÁRIO (Apenas leitura na edição para evitar bugs de ID, mas pode mudar se quiser) */}
+              {/* CAMPO: USUÁRIO */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Login (Username)</label>
                 <div className="relative">
                   <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                   <input 
-                    disabled={modalMode === 'edit'} // Bloqueia mudança de nome na edição pra não perder histórico
+                    disabled={modalMode === 'edit'}
                     type="text" 
                     value={formData.username} 
                     onChange={(e) => setFormData({...formData, username: e.target.value})} 
@@ -233,7 +233,7 @@ const Users: React.FC = () => {
                   </button>
                 )}
                 
-                {/* SETA AGORA É UM BOTÃO DE EDITAR */}
+                {/* SETA FUNCIONAL */}
                 <button 
                   onClick={() => openEdit(user)}
                   className="w-12 h-12 flex items-center justify-center text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-2xl transition-all"
@@ -243,7 +243,7 @@ const Users: React.FC = () => {
               </div>
             </div>
 
-            {/* Permissões (Visuais apenas, edição via modal se quiser expandir no futuro) */}
+            {/* Permissões */}
             <div className="mt-6 pt-6 border-t border-slate-50 space-y-3">
                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest opacity-60">Permissões Ativas</p>
                <div className="flex flex-wrap gap-2">
