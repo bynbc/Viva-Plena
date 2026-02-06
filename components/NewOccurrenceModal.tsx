@@ -1,99 +1,133 @@
-import React, { useState, useMemo } from 'react';
-import { X, AlertCircle, Search, CheckCircle2, Loader2, ShieldAlert, User as UserIcon, Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, Loader2, Save } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
-import { useAuth } from '../context/AuthContext';
-import { Occurrence } from '../types';
 import MobileModal from './common/MobileModal';
 
 const NewOccurrenceModal: React.FC = () => {
-  const { brain, setQuickAction, push, navigate, setUI, addToast } = useBrain();
-  const { hasPermission } = useAuth();
-  
+  const { brain, setQuickAction, push, addToast } = useBrain();
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(brain.ui.selectedPatientId);
-  const [type, setType] = useState<string>('Comportamental');
-  const [severity, setSeverity] = useState<any>('MEDIUM');
+  
+  // ESTADOS DO FORMULÁRIO
+  const [patientId, setPatientId] = useState('');
+  const [severity, setSeverity] = useState('Média'); // Padrão em Português
   const [description, setDescription] = useState('');
-  const [isPatientListOpen, setIsPatientListOpen] = useState(false);
+  const [type, setType] = useState('Comportamental');
 
-  const canCreate = hasPermission('occurrences');
-  const activePatients = brain.patients.filter(p => p.status === 'active');
-
-  const filteredPatients = useMemo(() => {
-    if (!search) return activePatients;
-    return activePatients.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
-  }, [search, activePatients]);
-
-  const selectedPatient = useMemo(() => brain.patients.find(p => p.id === selectedPatientId), [selectedPatientId, brain.patients]);
+  const activePatients = brain.patients?.filter(p => p.status === 'active') || [];
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canCreate || !selectedPatientId || !severity) return;
+    if (!patientId) return addToast("Selecione o paciente.", "warning");
+    if (!description) return addToast("Descreva o ocorrido.", "warning");
 
     setLoading(true);
     try {
+      const patient = activePatients.find(p => p.id === patientId);
+      
       await push('occurrences', {
-        patient_id: selectedPatientId,
-        title: `${type}: ${selectedPatient?.name.split(' ')[0]}`,
-        description: description.trim(),
-        severity: severity,
+        id: crypto.randomUUID(),
+        patient_id: patientId,
+        patient_name: patient?.name,
+        type,
+        severity, // Vai salvar como 'Leve', 'Média', etc.
+        description,
         status: 'open',
-        occurred_at: new Date().toISOString()
+        date: new Date().toISOString().split('T')[0]
       });
 
+      addToast("Ocorrência registrada!", "success");
       setQuickAction(null);
-      if (selectedPatientId) {
-        setUI({ selectedPatientId, activeTab: 'occurrences' });
-        navigate('patient-profile');
-      } else {
-        navigate('occurrences');
-      }
     } catch (err) {
-      // Error handled by push wrapper
+      console.error(err);
+      addToast("Erro ao salvar.", "error");
     } finally {
       setLoading(false);
     }
   };
 
+  // OPÇÕES DE GRAVIDADE TRADUZIDAS E COM CORES
+  const severities = [
+    { label: 'Leve', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+    { label: 'Média', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { label: 'Grave', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+    { label: 'Crítica', color: 'bg-rose-50 text-rose-700 border-rose-200' }
+  ];
+
   const footer = (
-    <div className="flex flex-col sm:flex-row gap-3">
-      <button type="button" disabled={loading} onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-white border border-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500">Cancelar</button>
-      <button form="new-occurrence-form" type="submit" disabled={loading || !selectedPatientId || !severity} className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-3 ${loading || !selectedPatientId || !severity ? 'bg-slate-200 text-slate-400' : 'bg-rose-600 text-white'}`}>{loading ? <Loader2 className="animate-spin" size={20} /> : 'Registrar Ocorrência'}</button>
+    <div className="flex gap-3 w-full">
+      <button type="button" onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-slate-100 rounded-2xl font-bold text-[10px] uppercase text-slate-500">Cancelar</button>
+      <button form="new-occ-form" type="submit" disabled={loading} className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-[10px] uppercase shadow-lg hover:bg-rose-700 transition-all">
+        {loading ? <Loader2 className="animate-spin mx-auto" size={18} /> : 'Registrar'}
+      </button>
     </div>
   );
 
   return (
-    <MobileModal title="Nova Ocorrência" subtitle="Incidente Operacional" icon={AlertCircle} iconColor="bg-rose-600" onClose={() => !loading && setQuickAction(null)} footer={footer}>
-      <form id="new-occurrence-form" onSubmit={handleSave} className="space-y-6">
-        <div className="space-y-2 relative">
+    <MobileModal 
+      title="Nova Ocorrência" 
+      subtitle="Registro Disciplinar" 
+      icon={AlertTriangle} 
+      iconColor="bg-rose-600" 
+      onClose={() => setQuickAction(null)} 
+      footer={footer}
+    >
+      <form id="new-occ-form" onSubmit={handleSave} className="space-y-6">
+        
+        {/* SELEÇÃO DE PACIENTE */}
+        <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Paciente Envolvido *</label>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input type="text" value={selectedPatient?.name || search} onFocus={() => setIsPatientListOpen(true)} onChange={(e) => { setSearch(e.target.value); setSelectedPatientId(null); setIsPatientListOpen(true); }} placeholder="Buscar paciente..." className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:bg-white" />
-          </div>
-          {isPatientListOpen && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-20 max-h-60 overflow-y-auto">
-              {filteredPatients.map(p => (
-                <button key={p.id} type="button" onClick={() => { setSelectedPatientId(p.id); setSearch(p.name); setIsPatientListOpen(false); }} className="w-full flex items-center gap-3 p-4 hover:bg-rose-50 text-left border-b border-slate-50 last:border-0"><UserIcon size={16} className="text-slate-400" /><span className="text-sm font-bold text-slate-800">{p.name}</span></button>
-              ))}
-            </div>
-          )}
+          <select required value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-rose-500 transition-colors">
+            <option value="">Selecione...</option>
+            {activePatients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
         </div>
 
+        {/* GRAVIDADE (BOTOES LADO A LADO) */}
         <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Gravidade *</label>
           <div className="grid grid-cols-4 gap-2">
-            {['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map(lv => (
-              <button key={lv} type="button" onClick={() => setSeverity(lv)} className={`py-3 rounded-xl border text-[9px] font-black transition-all ${severity === lv ? 'bg-rose-600 text-white border-rose-600' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>{lv}</button>
+            {severities.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setSeverity(item.label)}
+                className={`py-3 rounded-xl border text-[10px] font-black uppercase transition-all ${
+                  severity === item.label 
+                    ? `${item.color} shadow-sm scale-[1.02]` 
+                    : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
+                }`}
+              >
+                {item.label}
+              </button>
             ))}
           </div>
         </div>
 
+        {/* TIPO */}
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Descrição</label>
-          <textarea rows={6} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Detalhes do ocorrido..." className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:bg-white resize-none" />
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Tipo de Incidente</label>
+          <select value={type} onChange={e => setType(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-rose-500">
+            <option value="Comportamental">Comportamental</option>
+            <option value="Agressão Verbal">Agressão Verbal</option>
+            <option value="Agressão Física">Agressão Física</option>
+            <option value="Posse de Ilícitos">Posse de Ilícitos</option>
+            <option value="Outros">Outros</option>
+          </select>
         </div>
+
+        {/* DESCRIÇÃO */}
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Relato do Ocorrido *</label>
+          <textarea 
+            required
+            rows={4}
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:bg-white focus:border-rose-500 resize-none"
+            placeholder="Descreva detalhadamente o que aconteceu..."
+          />
+        </div>
+
       </form>
     </MobileModal>
   );
