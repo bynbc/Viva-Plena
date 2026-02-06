@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useBrain } from '../context/BrainContext';
 import PasswordInput from './common/PasswordInput';
-import { LogIn, AlertTriangle, Database, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { LogIn, AlertTriangle, Database, ShieldCheck, User as UserIcon, Lock } from 'lucide-react';
 
 const LoginScreen: React.FC = () => {
   const { login } = useAuth();
@@ -106,12 +106,14 @@ const LoginScreen: React.FC = () => {
         <div className="glass bg-white/[0.03] rounded-[40px] p-8 lg:p-12 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           
           <div className="text-center mb-10 relative z-10">
-            <div className="w-20 h-20 bg-[#059669] rounded-[30px] flex items-center justify-center text-white font-black text-4xl shadow-lg mx-auto mb-6 border border-white/10">
-              V
+            {/* ÍCONE Z */}
+            <div className="w-20 h-20 bg-emerald-600 rounded-[30px] flex items-center justify-center text-white font-black text-4xl shadow-lg mx-auto mb-6 border border-white/10">
+              Z
             </div>
             
-            <h1 className="text-4xl font-extrabold text-white tracking-tight mb-1">VivaPlena</h1>
-            <p className="text-[#10b981] font-bold uppercase tracking-[0.25em] text-[10px] opacity-90">
+            {/* NOME NOVO */}
+            <h1 className="text-4xl font-extrabold text-white tracking-tight mb-1">Z-Grow</h1>
+            <p className="text-emerald-500 font-bold uppercase tracking-[0.25em] text-[10px] opacity-90">
               SISTEMA OPERACIONAL
             </p>
           </div>
@@ -121,13 +123,16 @@ const LoginScreen: React.FC = () => {
               <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest pl-5">
                 USUÁRIO
               </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Ex: Julian.adm"
-                className="w-full px-8 py-4 bg-white/[0.04] border border-white/10 rounded-full text-white text-sm focus:outline-none focus:bg-white/[0.08] focus:border-[#10b981]/50 transition-all font-medium placeholder:text-white/20 shadow-inner"
-              />
+              <div className="relative">
+                <UserIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Seu identificador"
+                  className="w-full pl-14 pr-8 py-4 bg-white/[0.04] border border-white/10 rounded-full text-white text-sm focus:outline-none focus:bg-white/[0.08] focus:border-emerald-500/50 transition-all font-medium placeholder:text-white/20 shadow-inner"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -138,7 +143,7 @@ const LoginScreen: React.FC = () => {
                 value={password} 
                 onChange={setPassword} 
                 placeholder="••••••••" 
-                className="bg-white/[0.04] border-white/10 text-white rounded-full py-4 px-8 text-sm focus:bg-white/[0.08] placeholder:text-white/20"
+                className="bg-white/[0.04] border-white/10 text-white rounded-full py-4 px-8 text-sm focus:bg-white/[0.08] placeholder:text-white/20 focus:border-emerald-500/50"
               />
             </div>
 
@@ -153,13 +158,13 @@ const LoginScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#10b981] hover:bg-[#059669] text-white py-4 rounded-full font-black text-sm uppercase tracking-widest interactive shadow-xl shadow-[#10b981]/20 flex items-center justify-center gap-3 mt-4 transition-all duration-300"
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-full font-black text-sm uppercase tracking-widest interactive shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-3 mt-4 transition-all duration-300 active:scale-[0.98]"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    <span>AUTENTICAR</span>
+                    <span>ACESSAR SISTEMA</span>
                     <LogIn size={18} />
                   </>
                 )}
@@ -168,6 +173,10 @@ const LoginScreen: React.FC = () => {
               {brain.ui.debugMode && renderDiagnosticMap()}
             </div>
           </form>
+          
+          <div className="mt-8 text-center opacity-30 hover:opacity-50 transition-opacity">
+             <p className="text-[9px] font-bold text-white uppercase tracking-widest">© 2025 Z-Grow S.O.</p>
+          </div>
         </div>
       </div>
     </div>
