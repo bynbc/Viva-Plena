@@ -36,7 +36,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const activeModule = brain.ui.activeModule;
 
-  // REMOVIDO: { id: 'documents', ... }
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, perm: 'dashboard' },
     { id: 'patients', label: 'Pacientes', icon: UsersIcon, perm: 'patients' },
@@ -76,12 +75,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               className="w-14 h-14 bg-emerald-600/90 rounded-[22px] flex items-center justify-center text-white font-black text-2xl shadow-xl transform hover:rotate-6 transition-transform cursor-pointer backdrop-blur-3xl border border-white/40 shrink-0" 
               onClick={() => handleNavigate('dashboard')}
             >
-              {brain.organization.logo}
+              ZG
             </div>
             {(isSidebarOpen || isMobileMenuOpen) && (
-              <span className="font-black text-2xl text-slate-900 tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis transition-all animate-in fade-in slide-in-from-left-2">
-                {brain.organization.name}
-              </span>
+              // --- MUDANÇA DE NOME NO MENU LATERAL ---
+              <div className="animate-in fade-in slide-in-from-left-2">
+                <span className="font-black text-2xl text-slate-900 tracking-tighter whitespace-nowrap leading-none block">
+                  Z-Grow
+                </span>
+                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest block mt-1">
+                  Sistema Operacional
+                </span>
+              </div>
             )}
           </div>
           <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden p-2 text-slate-400">
@@ -145,7 +150,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
               <input 
                 type="text" 
-                placeholder="Buscar no VivaPlena..." 
+                placeholder="Buscar no Z-Grow..." 
                 className="w-full pl-12 pr-4 py-2.5 lg:py-3.5 bg-slate-100 lg:bg-white/40 border border-transparent lg:border-white/60 rounded-2xl lg:rounded-[24px] text-sm focus:outline-none focus:bg-white transition-all font-bold placeholder:text-slate-400"
               />
             </div>
