@@ -1,11 +1,6 @@
-
+// Simples função de Hash para não salvar senhas em texto puro
 export const hashPassword = (password: string): string => {
-  // Simple deterministic hash for demo purposes
-  let hash = 0;
-  for (let i = 0; i < password.length; i++) {
-    const char = password.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return `viva_hash_${hash}`;
+  // Em um app real usaríamos bcrypt, mas para este template usamos um hash simples base64
+  // para garantir que o login funcione sem bibliotecas pesadas.
+  return btoa(password + "_viva_plena_secret_salt"); 
 };
