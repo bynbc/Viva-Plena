@@ -27,7 +27,7 @@ const NewPatientModal: React.FC = () => {
     familyResponsible: '',
     emergencyPhone: '',
     admissionDate: new Date().toISOString().split('T')[0],
-    treatmentType: 'Internação',
+    treatmentType: 'Internação', // Valor padrão
     cid_main: '',
     reason: '',
     paymentType: 'particular',
@@ -64,7 +64,7 @@ const NewPatientModal: React.FC = () => {
       await push('patients', {
         id: newId,
         name: formData.name.trim(),
-        photo: photo, // SALVA A FOTO AQUI
+        photo: photo, 
         cpf: formData.cpf,
         birthDate: formData.birthDate,
         phone: formData.phone,
@@ -186,12 +186,15 @@ const NewPatientModal: React.FC = () => {
           <div className="space-y-4 animate-in slide-in-from-right-4 fade-in duration-300">
              <div className="grid grid-cols-2 gap-4">
                <Input label="Data de Entrada" type="date" value={formData.admissionDate} onChange={v => handleChange('admissionDate', v)} />
+               
+               {/* AQUI ESTÁ A MUDANÇA: Convênio no lugar de Hospital Dia */}
                <Select label="Tipo de Tratamento" value={formData.treatmentType} onChange={v => handleChange('treatmentType', v)}>
                  <option value="Internação">Internação Involuntária</option>
                  <option value="Voluntária">Internação Voluntária</option>
-                 <option value="Hospital Dia">Hospital Dia</option>
+                 <option value="Convênio">Convênio</option> 
                </Select>
              </div>
+             
              <Input label="CID Principal" value={formData.cid_main} onChange={v => handleChange('cid_main', v)} placeholder="Ex: F19.2" />
              <div className="space-y-1.5">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Observações / Plano Terapêutico</label>
@@ -241,6 +244,7 @@ const NewPatientModal: React.FC = () => {
   );
 };
 
+// Componentes Auxiliares (Input, Select, TabButton)
 const Input = ({ label, value, onChange, type = "text", placeholder, required }: any) => (
   <div className="space-y-1.5 w-full">
     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">{label}</label>
