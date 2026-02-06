@@ -91,7 +91,27 @@ const AppContent: React.FC = () => {
       <Layout>
         {renderModule()}
       </Layout>
+// Imports lá em cima...
+import MedicationNotifier from './components/common/MedicationNotifier'; // <--- IMPORTA ISSO
 
+const AppContent: React.FC = () => {
+  // ... código existente ...
+
+  return (
+    <div className="antialiased text-slate-900 min-h-screen relative">
+      <Layout>
+        {renderModule()}
+      </Layout>
+      
+      {/* ADICIONA O ROBÔ AQUI: */}
+      <MedicationNotifier />
+
+      <GlobalNewModal ... />
+      <GlobalEditModal ... />
+    </div>
+  );
+};
+      
       {/* MODAL DE CRIAÇÃO (Botão +) */}
       <GlobalNewModal 
         isOpen={brain.ui.isNewModalOpen} 
