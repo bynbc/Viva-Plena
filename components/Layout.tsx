@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Users as UsersIcon, FileText, AlertCircle, 
-  Calendar, Files, BarChart3, Settings as SettingsIcon, Plus, 
-  Search, Bell, Menu, User, LogOut, ShieldCheck, Pill, Wallet, X, ChevronRight, UserPlus
+  Calendar, BarChart3, Settings as SettingsIcon, 
+  Search, Bell, Menu, User, LogOut, ShieldCheck, Pill, Wallet, X 
 } from 'lucide-react';
-import { ModuleType, QuickActionType } from '../types';
+import { ModuleType } from '../types';
 import { useBrain } from '../context/BrainContext';
 import { useAuth } from '../context/AuthContext';
 import PermissionGuard from './common/PermissionGuard';
@@ -17,9 +17,9 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { brain, navigate, setQuickAction, logout } = useBrain();
-  const { user, hasPermission } = useAuth();
+  const { user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Estado para o menu mobile lateral
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         setIsSidebarOpen(false);
       } else {
         setIsSidebarOpen(true);
-        setIsMobileMenuOpen(false); // Fecha o menu mobile se crescer a tela
+        setIsMobileMenuOpen(false);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -36,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const activeModule = brain.ui.activeModule;
 
+  // REMOVIDO: { id: 'documents', ... }
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, perm: 'dashboard' },
     { id: 'patients', label: 'Pacientes', icon: UsersIcon, perm: 'patients' },
@@ -44,7 +45,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { id: 'medication', label: 'Medicação', icon: Pill, perm: 'medication' },
     { id: 'occurrences', label: 'Ocorrências', icon: AlertCircle, perm: 'occurrences' },
     { id: 'finance', label: 'Financeiro', icon: Wallet, perm: 'finance' },
-    { id: 'documents', label: 'Documentos', icon: Files, perm: 'documents' }, // Garanta que Documentos está aqui
     { id: 'reports', label: 'Relatórios', icon: BarChart3, perm: 'reports' },
     { id: 'users', label: 'Usuários', icon: ShieldCheck, perm: 'users' },
     { id: 'settings', label: 'Configurações', icon: SettingsIcon, perm: 'settings' },
@@ -52,15 +52,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleNavigate = (id: string) => {
     navigate(id as ModuleType);
-    setIsMobileMenuOpen(false); // Fecha o menu mobile ao clicar
+    setIsMobileMenuOpen(false);
   };
 
   return (
     <div className="flex flex-col lg:flex-row h-screen overflow-hidden lg:p-6 gap-0 lg:gap-6 bg-slate-50/30 max-w-full">
       <Toast />
       
-      {/* --- SIDEBAR (DESKTOP & MOBILE OVERLAY) --- */}
-      {/* Fundo escuro para mobile quando menu aberto */}
       <div 
         className={`fixed inset-0 bg-slate-900/50 z-40 lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -86,7 +84,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </span>
             )}
           </div>
-          {/* Botão de fechar só no mobile */}
           <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden p-2 text-slate-400">
             <X size={24} />
           </button>
@@ -125,13 +122,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col gap-0 lg:gap-6 overflow-hidden relative max-w-full">
-        
-        {/* Header - Refined White Glass */}
         <header className="h-16 lg:h-24 glass-header lg:rounded-[48px] flex items-center justify-between px-6 lg:px-10 shrink-0 relative z-20 pt-safe bg-white/80 lg:bg-rgba(255,255,255,0.25)">
           <div className="flex items-center gap-4 lg:gap-8 flex-1 min-w-0">
-            {/* Botão Menu Mobile (Abre a Sidebar) */}
             <div className="lg:hidden shrink-0">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -140,8 +133,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Menu size={24} />
               </button>
             </div>
-
-            {/* Botão Menu Desktop (Expande/Retrai Sidebar) */}
             <div className="hidden lg:flex shrink-0">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -150,7 +141,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Menu size={24} />
               </button>
             </div>
-
             <div className="relative max-w-xs lg:max-w-md w-full group ml-2 lg:ml-0">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
               <input 
@@ -160,13 +150,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               />
             </div>
           </div>
-
           <div className="flex items-center gap-3 lg:gap-6 shrink-0 ml-4">
             <button className="hidden sm:flex tap-target text-slate-500 hover:bg-white/60 rounded-2xl relative transition-all border border-transparent hover:border-white/40">
               <Bell size={22} />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border border-white shadow-sm"></span>
             </button>
-            
             <div 
               className="flex items-center gap-2 lg:gap-4 group cursor-pointer hover:bg-white/60 p-1 lg:p-2 rounded-2xl lg:rounded-[28px] transition-all"
               onClick={() => navigate('settings', 'users')}
@@ -182,7 +170,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        {/* Content Container */}
         <main className="flex-1 glass lg:rounded-[56px] overflow-hidden relative border-white/40 max-w-full bg-white/30 lg:bg-rgba(255,255,255,0.2)">
           <div className="absolute inset-0 overflow-y-auto overflow-x-hidden p-5 lg:p-12 scroll-smooth custom-scrollbar pb-12">
             {children}
@@ -190,10 +177,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </main>
       </div>
 
-      {/* BOTTOM NAV FOI REMOVIDA DAQUI */}
-
       <QuickActionModals />
-
     </div>
   );
 };
