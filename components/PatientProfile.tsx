@@ -86,17 +86,19 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ patientId, onBack }) =>
         <button onClick={onBack} className="p-3 lg:p-5 glass hover:bg-white/60 rounded-[16px] lg:rounded-[24px] border border-white/60 transition-all shadow-lg interactive">
           <ArrowLeft size={20} lg:size={24} className="text-slate-600" />
         </button>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-1">
-             <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase rounded-lg tracking-widest border border-emerald-200">
-                {patient.treatmentType || 'Internação'}
-             </span>
-             {patient.cid_main && (
-               <span className="px-3 py-1 bg-rose-100 text-rose-700 text-[9px] font-black uppercase rounded-lg tracking-widest border border-rose-200">
-                  CID: {patient.cid_main}
-               </span>
-             )}
-          </div>
+        <div className="lg:col-span-1 space-y-4 lg:space-y-6">
+  <div className="glass bg-white/10 p-6 lg:p-10 rounded-[32px] lg:rounded-[56px] border border-white/50 text-center backdrop-blur-3xl shadow-xl relative overflow-hidden">
+    
+    {/* AVATAR COM FOTO OU INICIAIS */}
+    <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-[24px] lg:rounded-[36px] mx-auto mb-6 lg:mb-8 shadow-xl border-4 border-white/30 overflow-hidden relative bg-emerald-600">
+      {patient.photo ? (
+        <img src={patient.photo} alt={patient.name} className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-emerald-600 text-white font-black text-3xl lg:text-5xl">
+          {patient.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+        </div>
+      )}
+    </div>
           <h1 className="text-2xl lg:text-4xl font-black text-slate-950 tracking-tight leading-tight">{patient.name}</h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
