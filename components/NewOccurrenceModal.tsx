@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Loader2, Save } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import MobileModal from './common/MobileModal';
 
@@ -7,9 +7,9 @@ const NewOccurrenceModal: React.FC = () => {
   const { brain, setQuickAction, push, addToast } = useBrain();
   const [loading, setLoading] = useState(false);
   
-  // ESTADOS DO FORMULÁRIO
+  // ESTADOS
   const [patientId, setPatientId] = useState('');
-  const [severity, setSeverity] = useState('Média'); // Padrão em Português
+  const [severity, setSeverity] = useState('Média'); // Traduzido
   const [description, setDescription] = useState('');
   const [type, setType] = useState('Comportamental');
 
@@ -29,7 +29,7 @@ const NewOccurrenceModal: React.FC = () => {
         patient_id: patientId,
         patient_name: patient?.name,
         type,
-        severity, // Vai salvar como 'Leve', 'Média', etc.
+        severity,
         description,
         status: 'open',
         date: new Date().toISOString().split('T')[0]
@@ -45,7 +45,7 @@ const NewOccurrenceModal: React.FC = () => {
     }
   };
 
-  // OPÇÕES DE GRAVIDADE TRADUZIDAS E COM CORES
+  // OPÇÕES TRADUZIDAS
   const severities = [
     { label: 'Leve', color: 'bg-blue-50 text-blue-700 border-blue-200' },
     { label: 'Média', color: 'bg-amber-50 text-amber-700 border-amber-200' },
@@ -72,8 +72,6 @@ const NewOccurrenceModal: React.FC = () => {
       footer={footer}
     >
       <form id="new-occ-form" onSubmit={handleSave} className="space-y-6">
-        
-        {/* SELEÇÃO DE PACIENTE */}
         <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Paciente Envolvido *</label>
           <select required value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-rose-500 transition-colors">
@@ -82,7 +80,6 @@ const NewOccurrenceModal: React.FC = () => {
           </select>
         </div>
 
-        {/* GRAVIDADE (BOTOES LADO A LADO) */}
         <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Gravidade *</label>
           <div className="grid grid-cols-4 gap-2">
@@ -103,7 +100,6 @@ const NewOccurrenceModal: React.FC = () => {
           </div>
         </div>
 
-        {/* TIPO */}
         <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Tipo de Incidente</label>
           <select value={type} onChange={e => setType(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-rose-500">
@@ -115,7 +111,6 @@ const NewOccurrenceModal: React.FC = () => {
           </select>
         </div>
 
-        {/* DESCRIÇÃO */}
         <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Relato do Ocorrido *</label>
           <textarea 
@@ -124,10 +119,9 @@ const NewOccurrenceModal: React.FC = () => {
             value={description}
             onChange={e => setDescription(e.target.value)}
             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:bg-white focus:border-rose-500 resize-none"
-            placeholder="Descreva detalhadamente o que aconteceu..."
+            placeholder="Descreva detalhadamente..."
           />
         </div>
-
       </form>
     </MobileModal>
   );
