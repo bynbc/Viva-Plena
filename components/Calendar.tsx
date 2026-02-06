@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Calendar as CalendarIcon, Clock, Plus, User as UserIcon, Search, ChevronRight, Filter } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, User as UserIcon, Search, Trash2, Filter } from 'lucide-react';
 import { useBrain, useAgenda } from '../context/BrainContext';
 import { LoadingIndicator } from './common/Loading';
 import EmptyState from './common/EmptyState';
 
 const Calendar: React.FC = () => {
-  const { setQuickAction, loading } = useBrain();
+  const { setQuickAction, loading, remove, addToast } = useBrain();
   const { agenda } = useAgenda();
   const [search, setSearch] = useState('');
 
@@ -25,6 +25,20 @@ const Calendar: React.FC = () => {
     });
     return Object.entries(groups);
   }, [sortedEvents]);
+
+  // --- FUNÇÃO DE DELETAR ---
+  const handleDelete = async (e: React.MouseEvent, id: string, title: string) => {
+    e.stopPropagation(); // Evita cliques acidentais se o card tiver link no futuro
+    if (confirm(`Deseja cancelar o evento "${title}"?`)) {
+      try {
+        await remove('agenda', id);
+        // O remove já chama o toast de sucesso no BrainContext, mas se quiser garantir:
+        // addToast('Evento cancelado.', 'success');
+      } catch (err) {
+        console.error("Erro ao excluir agenda:", err);
+      }
+    }
+  };
 
   if (loading) return <LoadingIndicator />;
 
@@ -81,7 +95,7 @@ const Calendar: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 {events.map((event) => (
-                  <div key={event.id} className="glass-card bg-white/40 hover:bg-white/70 p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] border-white/60 shadow-sm flex items-center justify-between gap-6 transition-all group cursor-pointer active:scale-[0.99] min-w-0">
+                  <div key={event.id} className="glass-card bg-white/40 hover:bg-white/70 p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] border-white/60 shadow-sm flex items-center justify-between gap-6 transition-all group min-w-0">
                     <div className="flex items-center gap-5 lg:gap-8 min-w-0 flex-1">
                       <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-2xl bg-amber-500/10 text-amber-700 flex flex-col items-center justify-center border border-amber-500/20 shadow-inner shrink-0 group-hover:bg-amber-500/20 transition-colors">
                         <Clock size={20} className="mb-0.5" />
@@ -99,7 +113,15 @@ const Calendar: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    <ChevronRight size={24} className="text-slate-300 group-hover:text-amber-600 group-hover:translate-x-1 transition-all shrink-0" />
+                    
+                    {/* BOTÃO DE EXCLUIR */}
+                    <button 
+                      onClick={(e) => handleDelete(e, event.id, event.title)}
+                      className="p-4 bg-white border border-slate-100 text-slate-300 hover:text-rose-600 hover:border-rose-100 rounded-2xl transition-all shadow-sm active:scale-95"
+                      title="Excluir Agendamento"
+                    >
+                      <Trash2 size={20} />
+                    </button>
                   </div>
                 ))}
               </div>
