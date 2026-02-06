@@ -15,9 +15,17 @@ const Users: React.FC = () => {
   const [newRole, setNewRole] = useState<'ADMIN' | 'NORMAL'>('NORMAL');
 
   const defaultPermissions: Permissions = {
-    dashboard: true, patients: true, records: true, occurrences: true, 
-    agenda: true, medication: true, finance: true, documents: true, 
-    reports: true, settings: false, users: false
+    dashboard: true, 
+    patients: true, 
+    records: true, 
+    occurrences: true, 
+    agenda: true, 
+    medication: true, 
+    finance: false, // <--- TRAVADO POR PADRÃO
+    documents: true, 
+    reports: true, 
+    settings: false, 
+    users: false
   };
 
   const adminPermissions: Permissions = {
