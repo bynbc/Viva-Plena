@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { FileText, Search, Loader2, Tag, User as UserIcon, Plus, X } from 'lucide-react';
+import { FileText, Search, Loader2, Tag, User as UserIcon, X, Activity } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import { useAuth } from '../context/AuthContext';
 import { DailyRecord } from '../types';
@@ -13,6 +12,7 @@ const NewRecordModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(brain.ui.selectedPatientId);
+  const [category, setCategory] = useState('Geral'); // Nova Categoria
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -37,15 +37,17 @@ const NewRecordModal: React.FC = () => {
     if (!canCreate || !selectedPatientId || content.length < 5) return;
 
     setLoading(true);
+    
+    // Criação do Registro com Categoria
     const newRecord: Partial<DailyRecord> = {
       id: crypto.randomUUID(),
       patient_id: selectedPatientId,
       patient_name: selectedPatient?.name || 'Desconhecido',
       content: content.trim(),
+      category: category, // Salva a categoria
       tags,
       created_at: new Date().toISOString(),
-      created_by: user?.username || 'system',
-      author_role: user?.role || 'NORMAL'
+      created_by: user?.username || 'system'
     };
 
     try {
@@ -85,7 +87,7 @@ const NewRecordModal: React.FC = () => {
             : 'bg-blue-600 text-white hover:bg-blue-700'
         }`}
       >
-        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Registrar Evolução'}
+        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Assinar Evolução'}
       </button>
     </div>
   );
@@ -93,7 +95,7 @@ const NewRecordModal: React.FC = () => {
   return (
     <MobileModal
       title="Nova Evolução"
-      subtitle="Registro Diário"
+      subtitle="Registro Clínico"
       icon={FileText}
       iconColor="bg-blue-600"
       onClose={() => !loading && setQuickAction(null)}
@@ -132,19 +134,38 @@ const NewRecordModal: React.FC = () => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Descrição *</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Categoria da Evolução</label>
+            <div className="relative">
+                <Activity className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <select 
+                    value={category} 
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full pl-12 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:bg-white cursor-pointer appearance-none"
+                >
+                    <option value="Geral">Geral / Rotina</option>
+                    <option value="Enfermagem">Enfermagem</option>
+                    <option value="Psicologia">Psicologia</option>
+                    <option value="Psiquiatria">Psiquiatria</option>
+                    <option value="Terapia Ocupacional">Terapia Ocupacional</option>
+                    <option value="Serviço Social">Serviço Social</option>
+                </select>
+            </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Relatório Técnico *</label>
           <textarea
             required
             rows={8}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Relate o estado do paciente..."
+            placeholder="Descreva o estado do paciente, intercorrências e condutas..."
             className="w-full px-5 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-sm font-semibold focus:outline-none focus:bg-white resize-none"
           />
         </div>
 
         <div className="space-y-3">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Tags</label>
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Tags / Marcadores</label>
           <div className="flex flex-wrap gap-2">
             {tags.map(tag => (
               <span key={tag} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black uppercase flex items-center gap-2">
@@ -164,7 +185,7 @@ const NewRecordModal: React.FC = () => {
                 setTagInput('');
               }
             }}
-            placeholder="Nova tag + Enter..."
+            placeholder="Digite e dê Enter (Ex: Agitação, Insônia)..."
             className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold focus:outline-none"
           />
         </div>
