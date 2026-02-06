@@ -55,26 +55,51 @@ export interface Clinic {
   is_active: boolean;
 }
 
+// ARQUIVO: types.ts
+// Procure a "export interface Patient" e SUBSTITUA por essa:
+
 export interface Patient {
   id: string;
   clinic_id: string;
   name: string;
   cpf?: string;
+  rg?: string; // Novo
+  birthDate?: string; // Novo
   status: 'active' | 'discharged' | 'waiting' | 'inactive';
-  notes?: string;
-  created_by: string;
-  created_at: string;
-  age?: number;
-  room?: string;
+  
+  // Contato e Endereço
+  phone?: string;
+  email?: string;
+  address?: string; // Novo
+  zip_code?: string; // Novo
+  city?: string; // Novo
+  state?: string; // Novo
+
+  // Responsável / Emergência
+  emergencyContact?: string; // Nome
+  emergencyPhone?: string; // Telefone
+  familyResponsible?: string; // Responsável Financeiro/Legal
+  
+  // Clínico e Tratamento
   admissionDate?: string;
   exitForecast?: string;
-  emergencyContact?: string;
-  familyResponsible?: string;
-  treatmentType?: string;
-  paymentType?: string;
-  monthly_fee?: number;
-  reason?: string;
+  treatmentType?: 'Internação' | 'Hospital Dia' | 'Ambulatorial'; // Ajustado
+  cid_main?: string; // Código CID (Ex: F19)
+  reason?: string; // Diagnóstico descritivo
   prescriptions?: string[];
+  
+  // Financeiro
+  paymentType?: 'particular' | 'convenio' | 'social'; // Novo
+  insuranceName?: string; // Nome do convênio (se houver)
+  insuranceNumber?: string; // Carteirinha
+  monthly_fee?: number;
+  
+  // Auditoria
+  created_by: string;
+  created_at: string;
+  
+  notes?: string;
+  room?: string;
   metrics?: { label: string; value: string; trend: string }[];
 }
 
