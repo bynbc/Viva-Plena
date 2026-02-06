@@ -123,9 +123,11 @@ export interface DailyRecord {
   patient_id: string;
   patient_name?: string;
   content: string;
+  category?: string; // <--- ADICIONA ESSA LINHA
   tags: string[];
   created_by: string;
   created_at: string;
+  author_role?: string; // Adiciona essa também se não tiver, pra saber quem escreveu
 }
 
 export interface Occurrence {
