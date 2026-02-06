@@ -14,8 +14,9 @@ const Calendar: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('todos'); // 'todos', 'consulta', 'terapia', 'reuniao'
 
   const sortedEvents = useMemo(() => {
-    return [...agenda]
-      .filter(e => {
+    return (
+    // REMOVIDO "overflow-hidden" DAQUI
+    <div className="space-y-8 lg:space-y-12 animate-in fade-in duration-700 px-1 lg:px-0 pb-28 lg:pb-20" onClick={() => setIsFilterOpen(false)}>
         // 1. Filtro de Texto (Busca)
         const matchesSearch = e.title.toLowerCase().includes(search.toLowerCase()) || 
                               e.patient_name?.toLowerCase().includes(search.toLowerCase());
