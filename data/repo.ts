@@ -3,6 +3,8 @@ import {
   Patient, DailyRecord, Occurrence, AgendaEvent, 
   DocumentRecord, UserPermissions, AppUser 
 } from '../types';
+// IMPORTANTE: Agora importamos a segurança
+import { hashPassword } from '../utils/security';
 
 export const PLAN_LIMITS = {
   ESSENCIAL: { patients: 20, users: 5 },
@@ -78,7 +80,15 @@ export const repo = {
 
     if (!user) return { success: false, errorCode: 'USER_NOT_FOUND' };
     if (!user.is_active) return { success: false, errorCode: 'USER_DISABLED' };
-    if (p !== user.password_hash) return { success: false, errorCode: 'PASSWORD_MISMATCH' };
+
+    // --- CORREÇÃO AQUI: Compara o HASH, não o texto puro ---
+    const inputHash = hashPassword(p);
+    if (inputHash !== user.password_hash) {
+      // Fallback: Se a senha no banco não estiver hash (legado), tenta comparar direto
+      if (p !== user.password_hash) {
+        return { success: false, errorCode: 'PASSWORD_MISMATCH' };
+      }
+    }
 
     const { data: clinicUser, error: cuError } = await supabase
       .from('clinic_users')
@@ -188,7 +198,7 @@ export const repo = {
     return supabase.from('settings').upsert({ clinic_id: clinicId, key, value }, { onConflict: 'clinic_id,key' });
   },
 
-  // --- USUÁRIOS (ATUALIZADO PARA EXCLUSÃO REAL E TROCA DE SENHA) ---
+  // --- USUÁRIOS ---
   async listClinicUsers(clinicId: string) {
     const { data, error } = await supabase
       .from('clinic_users')
@@ -231,15 +241,12 @@ export const repo = {
   },
   
   async updateClinicUser(clinicId: string, userId: string, data: any) {
-    // ATUALIZAÇÃO DE PERMISSÕES
     if (data.permissions) {
       return supabase.from('clinic_users').update({ permissions: data.permissions }).eq('clinic_id', clinicId).eq('user_id', userId);
     }
-    // ATUALIZAÇÃO DE CARGO
     if (data.role) {
        return supabase.from('app_users').update({ role: data.role }).eq('id', userId);
     }
-    // ATUALIZAÇÃO DE SENHA (NOVO)
     if (data.password_hash) {
        return supabase.from('app_users').update({ password_hash: data.password_hash }).eq('id', userId);
     }
@@ -247,9 +254,7 @@ export const repo = {
   },
 
   async deleteClinicUser(clinicId: string, userId: string) {
-    // 1. Remove o vínculo com a clínica
     await supabase.from('clinic_users').delete().eq('clinic_id', clinicId).eq('user_id', userId);
-    // 2. Remove o usuário do sistema (Login) - ISSO LIBERA O NOME
     return supabase.from('app_users').delete().eq('id', userId);
   },
 
