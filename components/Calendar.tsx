@@ -14,16 +14,15 @@ const Calendar: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('todos'); // 'todos', 'consulta', 'terapia', 'reuniao'
 
   const sortedEvents = useMemo(() => {
-    return (
-    // REMOVIDO "overflow-hidden" DAQUI
-    <div className="space-y-8 lg:space-y-12 animate-in fade-in duration-700 px-1 lg:px-0 pb-28 lg:pb-20" onClick={() => setIsFilterOpen(false)}>
+    return [...agenda]
+      .filter(e => {
         // 1. Filtro de Texto (Busca)
         const matchesSearch = e.title.toLowerCase().includes(search.toLowerCase()) || 
                               e.patient_name?.toLowerCase().includes(search.toLowerCase());
         
         // 2. Filtro de Categoria (Botão Filtrar)
         const matchesType = filterType === 'todos' ? true : 
-                            e.title.toLowerCase().includes(filterType.toLowerCase()); // Filtra pelo título (ex: "Terapia de Grupo")
+                            e.title.toLowerCase().includes(filterType.toLowerCase());
 
         return matchesSearch && matchesType;
       })
@@ -50,7 +49,8 @@ const Calendar: React.FC = () => {
   if (loading) return <LoadingIndicator />;
 
   return (
-    <div className="space-y-8 lg:space-y-12 animate-in fade-in duration-700 px-1 lg:px-0 pb-20 max-w-full overflow-hidden" onClick={() => setIsFilterOpen(false)}>
+    // AQUI ESTAVA O PROBLEMA DO CELULAR: Removido 'overflow-hidden' e adicionado 'pb-28'
+    <div className="space-y-8 lg:space-y-12 animate-in fade-in duration-700 px-1 lg:px-0 pb-28 lg:pb-20" onClick={() => setIsFilterOpen(false)}>
       <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl lg:text-5xl font-black text-slate-950 tracking-tighter text-glow">Agenda</h1>
@@ -89,7 +89,7 @@ const Calendar: React.FC = () => {
 
           {/* MENU DROPDOWN */}
           {isFilterOpen && (
-            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50">
               <div className="p-2 space-y-1">
                 {['todos', 'consulta', 'terapia', 'reunião', 'visita'].map((type) => (
                   <button
