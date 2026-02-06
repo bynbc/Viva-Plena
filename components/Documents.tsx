@@ -15,7 +15,9 @@ const Documents: React.FC = () => {
   const documents = brain.documents || [];
 
   const filteredDocs = useMemo(() => {
-    return documents.filter(doc => {
+    return (
+    // REMOVIDO "overflow-hidden" DAQUI
+    <div className="space-y-8 lg:space-y-12 animate-in fade-in duration-700 px-1 lg:px-0 pb-28 lg:pb-20" onClick={() => setIsFilterOpen(false)}>
       // 1. Filtro de Texto
       const matchesSearch = doc.name.toLowerCase().includes(search.toLowerCase()) || 
                             doc.patient_name?.toLowerCase().includes(search.toLowerCase());
