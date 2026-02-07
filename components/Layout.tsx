@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Users as UsersIcon, FileText, AlertCircle, 
   Calendar, BarChart3, Settings as SettingsIcon, 
-  Search, Bell, Menu, User, LogOut, ShieldCheck, Pill, Wallet, X 
+  Search, Bell, Menu, User, LogOut, ShieldCheck, Pill, Wallet, X, CheckCircle 
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { useBrain } from '../context/BrainContext';
@@ -16,10 +16,13 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { brain, navigate, setQuickAction, logout } = useBrain();
+  const { brain, navigate, setQuickAction, logout, removeToast } = useBrain();
   const { user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // ESTADO PARA O MENU DE NOTIFICAÇÕES
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,6 +38,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   const activeModule = brain.ui.activeModule;
+  const notifications = brain.ui.toasts; // Usando os Toasts como notificações por enquanto
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, perm: 'dashboard' },
@@ -78,7 +82,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               ZG
             </div>
             {(isSidebarOpen || isMobileMenuOpen) && (
-              // --- MUDANÇA DE NOME NO MENU LATERAL ---
               <div className="animate-in fade-in slide-in-from-left-2">
                 <span className="font-black text-2xl text-slate-900 tracking-tighter whitespace-nowrap leading-none block">
                   Z-Grow
@@ -155,11 +158,42 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               />
             </div>
           </div>
-          <div className="flex items-center gap-3 lg:gap-6 shrink-0 ml-4">
-            <button className="hidden sm:flex tap-target text-slate-500 hover:bg-white/60 rounded-2xl relative transition-all border border-transparent hover:border-white/40">
+          
+          <div className="flex items-center gap-3 lg:gap-6 shrink-0 ml-4 relative">
+            
+            {/* BOTÃO DE NOTIFICAÇÃO FUNCIONAL */}
+            <button 
+              onClick={() => setIsNotifOpen(!isNotifOpen)}
+              className="hidden sm:flex tap-target text-slate-500 hover:bg-white/60 rounded-2xl relative transition-all border border-transparent hover:border-white/40"
+            >
               <Bell size={22} />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border border-white shadow-sm"></span>
+              {notifications.length > 0 && (
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border border-white shadow-sm animate-pulse"></span>
+              )}
             </button>
+
+            {/* DROPDOWN DE NOTIFICAÇÕES */}
+            {isNotifOpen && (
+              <div className="absolute top-full right-0 mt-4 w-80 bg-white rounded-[24px] shadow-2xl border border-slate-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                  <h4 className="font-black text-slate-900 text-xs uppercase tracking-widest">Notificações</h4>
+                  <span className="text-[10px] font-bold text-slate-400 bg-white px-2 py-1 rounded-lg">{notifications.length}</span>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400 text-xs font-bold">Sem novidades por aqui.</div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div key={notif.id} className="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors flex justify-between items-start gap-2">
+                        <p className="text-xs font-medium text-slate-600 leading-relaxed">{notif.message}</p>
+                        <button onClick={() => removeToast(notif.id)} className="text-slate-300 hover:text-slate-500"><X size={14} /></button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
             <div 
               className="flex items-center gap-2 lg:gap-4 group cursor-pointer hover:bg-white/60 p-1 lg:p-2 rounded-2xl lg:rounded-[28px] transition-all"
               onClick={() => navigate('settings', 'users')}
