@@ -112,7 +112,7 @@ const LoginScreen: React.FC = () => {
             </div>
             
             {/* NOME NOVO */}
-            <h1 className="text-4xl font-extrabold text-white tracking-tight mb-1">Z-Grow</h1>
+            <h1 className="text-4xl font-extrabold text-white tracking-tight mb-1">Vida Plena</h1>
             <p className="text-emerald-500 font-bold uppercase tracking-[0.25em] text-[10px] opacity-90">
               SISTEMA OPERACIONAL
             </p>
@@ -175,7 +175,7 @@ const LoginScreen: React.FC = () => {
           </form>
           
           <div className="mt-8 text-center opacity-30 hover:opacity-50 transition-opacity">
-             <p className="text-[9px] font-bold text-white uppercase tracking-widest">© 2025 Z-Grow S.O.</p>
+             <p className="text-[9px] font-bold text-white uppercase tracking-widest">© 2025 Vida Plena S.O.</p>
           </div>
         </div>
       </div>
