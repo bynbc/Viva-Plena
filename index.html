@@ -9,9 +9,7 @@ import { AuthProvider } from './context/AuthContext';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {/* O BrainProvider fornece os dados (Estoque, Pacientes, etc) */}
     <BrainProvider>
-      {/* O AuthProvider fornece o login (usado no LoginScreen) */}
       <AuthProvider>
         <App />
       </AuthProvider>
