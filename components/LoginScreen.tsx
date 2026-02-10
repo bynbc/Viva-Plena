@@ -108,7 +108,7 @@ const LoginScreen: React.FC = () => {
           <div className="text-center mb-10 relative z-10">
             {/* ÍCONE Z */}
             <div className="w-20 h-20 bg-emerald-600 rounded-[30px] flex items-center justify-center text-white font-black text-4xl shadow-lg mx-auto mb-6 border border-white/10">
-              Z
+              V
             </div>
             
             {/* NOME NOVO */}
