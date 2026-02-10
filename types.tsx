@@ -43,6 +43,7 @@ export interface AppUser {
   job_title?: string;
   shift?: string;
   document_cpf?: string;
+  permissions?: UserPermissions;
 }
 
 export type User = AppUser;
@@ -59,20 +60,29 @@ export interface Clinic {
   name: string;
   plan: 'ESSENCIAL' | 'PROFISSIONAL' | 'ENTERPRISE';
   is_active: boolean;
+  patient_limit?: number;
 }
 
+// ATUALIZADO: Interface alinhada com o banco de dados (snake_case)
 export interface Patient {
   id: string;
   clinic_id: string;
   name: string;
+  photo_url?: string; // Novo campo de foto
   cpf?: string;
   rg?: string;
   sus_number?: string;
+  
+  // Datas (Aceita os dois formatos para compatibilidade)
   birthDate?: string;
+  birthdate?: string;
+  
   status: 'active' | 'discharged' | 'evaded' | 'deceased' | 'waiting';
   
   phone?: string;
   email?: string;
+  
+  // Endereço
   address?: string;
   address_street?: string;
   address_city?: string;
@@ -80,10 +90,15 @@ export interface Patient {
   city?: string;
   state?: string;
 
+  // Contatos de Emergência/Família
   emergencyContact?: string;
   emergencyPhone?: string;
-  familyResponsible?: string;
-  familyContact?: string;
+  
+  familyResponsible?: string; // Legado
+  familyresponsible?: string; // Banco de dados (snake_case)
+  
+  familyContact?: string; // Legado
+  familycontact?: string; // Banco de dados (snake_case)
   
   admissionDate?: string;
   entry_date?: string;
@@ -105,8 +120,13 @@ export interface Patient {
   
   prescriptions?: string[];
   
+  // Financeiro
   paymentType?: 'particular' | 'convenio' | 'social';
+  paymenttype?: 'particular' | 'convenio' | 'social'; // Banco
+  
   insuranceName?: string;
+  insurancename?: string; // Banco
+  
   insuranceNumber?: string;
   insurance_details?: any;
   monthly_fee?: number;
@@ -126,7 +146,8 @@ export interface InventoryItem {
   category: 'Alimentos' | 'Limpeza' | 'Equipamentos' | 'Medicamentos' | 'Outros';
   quantity: number;
   unit: string;
-  min_stock: number;
+  min_stock?: number;
+  min_threshold?: number; // Atualizado para o novo padrão
   updated_at: string;
 }
 
@@ -148,9 +169,10 @@ export interface HealthRecord {
   clinic_id: string;
   patient_id: string;
   patient_name?: string;
-  professional_id: string;
+  professional_id?: string;
   professional_name?: string;
-  specialty: 'Psicologia' | 'Medicina' | 'Enfermagem' | 'Assistência Social';
+  specialty?: 'Psicologia' | 'Medicina' | 'Enfermagem' | 'Assistência Social';
+  type?: string;
   content: string;
   confidential_notes?: string;
   created_at: string;
@@ -165,7 +187,7 @@ export interface Transaction {
   type: 'income' | 'expense';
   status: 'paid' | 'pending' | 'overdue';
   category: string;
-  due_date: string;
+  due_date?: string;
   date: string;
   created_at?: string;
 }
@@ -177,7 +199,7 @@ export interface DailyRecord {
   patient_name?: string;
   content: string;
   category?: string;
-  tags: string[];
+  tags?: string[];
   created_by: string;
   created_at: string;
   type?: string;
@@ -193,7 +215,7 @@ export interface Occurrence {
   severity: string;
   status: 'open' | 'resolved' | 'archived';
   created_by: string;
-  occurred_at: string;
+  occurred_at?: string;
   created_at: string;
   type?: string;
   date?: string;
@@ -219,14 +241,16 @@ export interface DocumentRecord {
   clinic_id: string;
   patient_id?: string;
   patient_name?: string;
-  name: string;
+  name?: string;
+  title?: string;
   type: string;
   notes?: string;
-  file_name: string;
-  file_mime: string;
-  file_size: number;
-  file_data_url: string;
-  created_by: string;
+  file_url?: string;
+  file_name?: string;
+  file_mime?: string;
+  file_size?: number;
+  file_data_url?: string;
+  created_by?: string;
   created_at: string;
 }
 
