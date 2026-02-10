@@ -25,42 +25,37 @@ import PTI from './components/PTI';
 import HealthRecords from './components/HealthRecords';
 import HumanResources from './components/HumanResources';
 
-// Modais Globais
-import GlobalNewModal from './components/GlobalNewModal';
+// IMPORTANTE: O Gerenciador de Modais que faltava
+import QuickActionModals from './components/QuickActionModals';
 import GlobalEditModal from './components/GlobalEditModal';
 import MedicationNotifier from './components/common/MedicationNotifier';
 
 function App() {
-  const { brain, refreshData, navigate } = useBrain(); // Adicionei navigate
+  const { brain, refreshData, navigate } = useBrain();
   const { activeModule } = brain.ui;
 
   // Atualiza dados periodicamente
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (brain.session.isAuthenticated) {
-        refreshData();
-      }
-    }, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    if (brain.session.isAuthenticated) {
+      refreshData();
+      const interval = setInterval(refreshData, 30000); // 30s
+      return () => clearInterval(interval);
+    }
   }, [brain.session.isAuthenticated]);
 
-  // Função de Renderização (Movida para dentro para ter acesso ao 'brain' e 'navigate')
-  const renderModule = (module: string) => {
-    switch (module) {
-      // Módulos Principais
+  // Roteador Simples
+  const renderModule = () => {
+    if (brain.ui.selectedPatientId) {
+      return <PatientProfile />;
+    }
+
+    switch (activeModule) {
+      // Módulos Clínicos
       case 'dashboard':
         return <Dashboard />;
       case 'patients':
-        return <Patients onSelectPatient={(id) => {
-             // Quando selecionar um paciente, navega para o perfil
-             // Nota: O ID deve ser setado no estado global em uma implementação ideal
-             navigate('patient-profile'); 
-        }} />;
-      case 'patient-profile':
-        return <PatientProfile />;
-      
-      // Módulos Clínicos (NOVOS)
-      case 'pti':
+        return <Patients onSelectPatient={(id) => navigate('patients', undefined)} />;
+      case 'pti': 
         return <PTI />;
       case 'health-records':
         return <HealthRecords />;
@@ -74,7 +69,7 @@ function App() {
         return <DailyRecords />;
       case 'occurrences':
         return <Occurrences />;
-      case 'inventory': // NOVO
+      case 'inventory':
         return <Inventory />;
       case 'documents':
         return <Documents />;
@@ -86,7 +81,7 @@ function App() {
         return <Reports />;
       case 'users':
         return <Users />;
-      case 'human-resources': // NOVO
+      case 'human-resources':
         return <HumanResources />;
       case 'settings':
         return <Settings />;
@@ -116,16 +111,16 @@ function App() {
     <>
       <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
       
+      {/* AQUI ESTAVA FALTANDO: O componente que exibe os modais quando você clica */}
+      <QuickActionModals />
+      <GlobalEditModal />
       <MedicationNotifier />
 
       <Layout>
         <div className="animate-in fade-in duration-500">
-          {renderModule(activeModule)}
+          {renderModule()}
         </div>
       </Layout>
-
-      <GlobalNewModal />
-      <GlobalEditModal />
     </>
   );
 }
