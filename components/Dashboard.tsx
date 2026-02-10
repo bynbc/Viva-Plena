@@ -36,10 +36,10 @@ const Dashboard: React.FC = () => {
         return now.getTime() - sched.getTime() > 15 * 60000; // 15 min de tolerância
     });
 
-    const criticalOccurrences = brain.occurrences.filter(o => 
-        o.status === 'open' && (o.severity === 'Crítica' || o.severity === 'Grave' || o.severity === 'critical')
-    );
-
+    // Dentro do useMemo no Dashboard.tsx
+const criticalOccurrences = brain.occurrences.filter(o => 
+    o.status === 'open' && (o.severity === 'CRITICAL' || o.severity === 'Crítica' || (o.severity as string) === 'critical')
+);
     // --- AGENDA UNIFICADA ---
     const today = new Date().toISOString().split('T')[0];
     
