@@ -6,6 +6,25 @@ import {
 import { useBrain } from '../context/BrainContext';
 import { Patient } from '../types';
 
+// Função de Excluir
+const handleDelete = async () => {
+  if (confirm("Tem certeza que deseja excluir este acolhido?")) {
+     // Atualiza status para 'deleted' em vez de apagar do banco (Soft Delete)
+     await update('patients', patient.id, { status: 'deleted' });
+     navigate('patients');
+  }
+};
+
+// Função de Salvar Edição (Se tiver um modo de edição ativo)
+const handleUpdate = async () => {
+   await update('patients', patient.id, { 
+      name: editedName, 
+      phone: editedPhone 
+      // ... outros campos
+   });
+   setIsEditing(false);
+};
+
 const PatientProfile: React.FC = () => {
   const { brain, navigate, setQuickAction } = useBrain(); // Correção: navigate no lugar de setUI
   const [activeTab, setActiveTab] = useState<'overview' | 'records' | 'history'>('overview');
