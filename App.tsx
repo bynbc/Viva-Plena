@@ -31,7 +31,7 @@ import GlobalEditModal from './components/GlobalEditModal';
 import MedicationNotifier from './components/common/MedicationNotifier';
 
 function App() {
-  const { brain, refreshData, navigate, selectPatient } = useBrain();
+  const { brain, refreshData, navigate } = useBrain();
   const { activeModule } = brain.ui;
 
   // Atualiza dados periodicamente
@@ -54,7 +54,7 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'patients':
-        return <Patients onSelectPatient={selectPatient} />;
+        return <Patients />;
       case 'pti': 
         return <PTI />;
       case 'health-records':

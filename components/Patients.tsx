@@ -3,8 +3,8 @@ import { Search, Plus, User, Trash2, Edit2, MapPin } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import EmptyState from './common/EmptyState';
 
-const Patients: React.FC<{ onSelectPatient: (id: string) => void }> = ({ onSelectPatient }) => {
-  const { brain, setQuickAction, update } = useBrain();
+const Patients: React.FC = () => {
+  const { brain, setQuickAction, update, remove, addToast, selectPatient } = useBrain();
   const [searchTerm, setSearchTerm] = useState('');
 
   const patients = (brain.patients || []).filter(p => 
@@ -14,14 +14,21 @@ const Patients: React.FC<{ onSelectPatient: (id: string) => void }> = ({ onSelec
 
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
     e.stopPropagation(); // Impede que abra o perfil ao clicar na lixeira
-    if (confirm(`Tem certeza que deseja excluir o paciente ${name}? Todos os dados serão apagados.`)) {
+
+    if (!confirm(`Tem certeza que deseja excluir o paciente ${name}? Todos os dados serão apagados.`)) return;
+
+    try {
       await update('patients', id, { status: 'deleted' });
+    } catch {
+      // Fallback para bancos sem status=deleted
+      await remove('patients', id);
+      addToast('Paciente removido permanentemente.', 'warning');
     }
   };
 
   const handleEdit = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    onSelectPatient(id);
+    selectPatient(id);
   };
 
   return (
@@ -56,7 +63,7 @@ const Patients: React.FC<{ onSelectPatient: (id: string) => void }> = ({ onSelec
           {patients.map(patient => (
             <div 
               key={patient.id} 
-              onClick={() => onSelectPatient(patient.id)}
+              onClick={() => selectPatient(patient.id)}
               className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
             >
               <div className="flex items-start justify-between gap-4">
