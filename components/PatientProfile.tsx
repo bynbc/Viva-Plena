@@ -7,7 +7,7 @@ import {
 import { useBrain } from '../context/BrainContext';
 
 const PatientProfile: React.FC = () => {
-  const { brain, navigate, update, addToast } = useBrain();
+  const { brain, navigate, update, remove, addToast } = useBrain();
   
   // 1. Busca o paciente selecionado
   const patient = brain.patients.find(p => p.id === brain.ui.selectedPatientId);
@@ -78,17 +78,8 @@ const PatientProfile: React.FC = () => {
 
   const handleDelete = async () => {
     if (confirm(`Tem certeza que deseja EXCLUIR ${patient.name}? Essa ação não pode ser desfeita.`)) {
-      try {
-        // Opção 1: Soft Delete (Mais seguro, apenas marca como inativo)
-        await update('patients', patient.id, { status: 'deleted' });
-        
-        // Opção 2: Hard Delete (Se quiser apagar de vez, use remove('patients', patient.id))
-        
-        addToast("Paciente removido.", "info");
-        navigate('patients');
-      } catch (err) {
-        console.error(err);
-      }
+      await remove('patients', patient.id);
+      navigate('patients');
     }
   };
 

@@ -134,6 +134,32 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const remove = async (table: string, id: string) => {
+    // Pacientes: evita DELETE físico para não quebrar integridade referencial (409).
+    if (table === 'patients') {
+      try {
+        const { error: deletedError } = await supabase.from('patients').update({ status: 'deleted' }).eq('id', id);
+        if (!deletedError) {
+          addToast('Paciente removido.', 'success');
+          await initialize();
+          return;
+        }
+
+        const { error: dischargedError } = await supabase.from('patients').update({ status: 'discharged' }).eq('id', id);
+        if (!dischargedError) {
+          addToast('Paciente marcado como inativo (alta).', 'warning');
+          await initialize();
+          return;
+        }
+
+        throw dischargedError;
+      } catch (err: any) {
+        console.error(`❌ Erro GLOBAL ao remover de ${table}:`, err);
+        const errorMsg = formatError(err);
+        addToast(`ERRO AO APAGAR: ${errorMsg}`, 'error');
+        return;
+      }
+    }
+
     try {
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) throw error;
