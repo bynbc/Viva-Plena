@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useBrain } from '../context/BrainContext';
-import { UserPlus, User as UserIcon, Trash2, X, ShieldCheck, XCircle, ChevronRight, Key, Save, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, User as UserIcon, Trash2, X, ShieldCheck, XCircle, ChevronRight, Key, Eye, EyeOff } from 'lucide-react';
 import { hashPassword } from '../utils/security';
 import { Permissions, AppUser } from '../types';
 
@@ -55,21 +55,25 @@ const Users: React.FC = () => {
 
     try {
       if (modalMode === 'create') {
-        await push('users', {
-          id: Date.now().toString(),
+        await push('app_users', {
+          clinic_id: brain.session.clinicId,
           username: formData.username,
           password_hash: hashPassword(formData.password),
           role: formData.role,
+          is_active: true,
           permissions: formData.role === 'ADMIN' ? adminPermissions : defaultPermissions
         });
         addToast('Usuário criado com sucesso!', 'success');
       } else if (modalMode === 'edit' && editingId) {
         // Atualiza Cargo
-        await update('users', editingId, { role: formData.role });
+        await update('app_users', editingId, {
+          role: formData.role,
+          permissions: formData.role === 'ADMIN' ? adminPermissions : defaultPermissions
+        });
         
         // Atualiza Senha (se digitou algo)
         if (formData.password) {
-           await update('users', editingId, { password_hash: hashPassword(formData.password) });
+           await update('app_users', editingId, { password_hash: hashPassword(formData.password) });
            addToast('Senha e dados atualizados!', 'success');
         } else {
            addToast('Dados atualizados (senha mantida).', 'success');
@@ -84,14 +88,20 @@ const Users: React.FC = () => {
 
   const handleDelete = (id: string, username: string) => {
     if (confirm(`ATENÇÃO: Excluir permanentemente "${username}"?`)) {
-      remove('users', id);
+      remove('app_users', id);
     }
   };
 
-  const handleUpdatePermissions = (userId: string, key: keyof Permissions, value: boolean) => {
-    const userIndex = brain.users.findIndex(u => u.id === userId);
-    if (userIndex === -1) return;
-    update(`users.${userIndex}.permissions.${String(key)}`, userId, value);
+  const handleUpdatePermissions = async (userId: string, key: keyof Permissions, value: boolean) => {
+    const user = brain.users.find(u => u.id === userId);
+    if (!user) return;
+
+    const nextPermissions = {
+      ...(user.permissions || defaultPermissions),
+      [key]: value
+    };
+
+    await update('app_users', userId, { permissions: nextPermissions });
   };
 
   return (
@@ -175,7 +185,7 @@ const Users: React.FC = () => {
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Nível de Acesso</label>
                 <select 
                   value={formData.role} 
-                  onChange={(e) => setFormData({...formData, role: e.target.value as any})} 
+                  onChange={(e) => setFormData({...formData, role: e.target.value as 'ADMIN' | 'NORMAL'})} 
                   className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none cursor-pointer focus:border-emerald-500"
                 >
                   <option value="NORMAL">Colaborador (Restrito)</option>
@@ -247,7 +257,7 @@ const Users: React.FC = () => {
             <div className="mt-6 pt-6 border-t border-slate-50 space-y-3">
                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest opacity-60">Permissões Ativas</p>
                <div className="flex flex-wrap gap-2">
-                {Object.entries(user.permissions).map(([key, value]) => (
+                {Object.entries(user.permissions || {}).map(([key, value]) => (
                   <button
                     key={key}
                     onClick={() => handleUpdatePermissions(user.id, key as keyof Permissions, !value)}

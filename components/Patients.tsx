@@ -4,7 +4,7 @@ import { useBrain } from '../context/BrainContext';
 import EmptyState from './common/EmptyState';
 
 const Patients: React.FC<{ onSelectPatient: (id: string) => void }> = ({ onSelectPatient }) => {
-  const { brain, setQuickAction, remove, addToast } = useBrain();
+  const { brain, setQuickAction, update } = useBrain();
   const [searchTerm, setSearchTerm] = useState('');
 
   const patients = (brain.patients || []).filter(p => 
@@ -15,13 +15,13 @@ const Patients: React.FC<{ onSelectPatient: (id: string) => void }> = ({ onSelec
   const handleDelete = async (e: React.MouseEvent, id: string, name: string) => {
     e.stopPropagation(); // Impede que abra o perfil ao clicar na lixeira
     if (confirm(`Tem certeza que deseja excluir o paciente ${name}? Todos os dados serão apagados.`)) {
-      await remove('patients', id);
+      await update('patients', id, { status: 'deleted' });
     }
   };
 
   const handleEdit = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    addToast('Função de edição completa em breve.', 'info');
+    onSelectPatient(id);
   };
 
   return (

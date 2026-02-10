@@ -31,7 +31,7 @@ export const Repository = {
         supabase.from('pti').select('*').eq('clinic_id', clinicId),
         supabase.from('health_records').select('*').eq('clinic_id', clinicId).order('created_at', { ascending: false }),
         supabase.from('medications').select('*').eq('clinic_id', clinicId),
-        supabase.from('app_users').select('*').eq('is_active', true)
+        supabase.from('app_users').select('*').eq('clinic_id', clinicId).eq('is_active', true)
       ]);
 
       // Verifica se houve erro em alguma das requisições críticas

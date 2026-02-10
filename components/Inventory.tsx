@@ -8,7 +8,7 @@ import { InventoryItem } from '../types';
 import MobileModal from './common/MobileModal';
 
 const Inventory: React.FC = () => {
-  const { brain, push, addToast, refreshData } = useBrain();
+  const { brain, push, update, addToast } = useBrain();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   
@@ -59,21 +59,20 @@ const Inventory: React.FC = () => {
         updated_at: new Date().toISOString()
       };
 
+      if (!formData.name.trim()) {
+        addToast('Informe o nome do item.', 'warning');
+        return;
+      }
+
       if (editingItem) {
-        // TODO: Implementar Update no Supabase (Por enquanto cria novo no exemplo, mas ideal é update)
-        // Para simplificar agora, vamos usar o push que é insert, mas num cenário real precisa de update
-        // Como o BrainContext.push é genérico para insert, aqui duplicaria se fosse edição real sem ID
-        // Vamos assumir criação por enquanto.
-        await push('inventory', payload); 
-        addToast("Item atualizado com sucesso!", "success");
+        await update('inventory', editingItem.id, payload);
       } else {
         await push('inventory', payload);
         addToast("Item adicionado ao estoque!", "success");
       }
-      
+
       setIsModalOpen(false);
       resetForm();
-      refreshData();
     } catch (error) {
       addToast("Erro ao salvar item.", "error");
     }

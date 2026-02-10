@@ -38,6 +38,7 @@ const initialState: BrainState = {
 interface BrainContextType {
   brain: BrainState;
   navigate: (module: ModuleType, section?: SettingsSectionType) => void;
+  selectPatient: (id: string) => void;
   setQuickAction: (action: QuickActionType) => void;
   addToast: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
   removeToast: (id: string) => void;
@@ -151,7 +152,23 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const navigate = (module: ModuleType, section?: SettingsSectionType) => {
     setBrain(prev => ({ 
       ...prev, 
-      ui: { ...prev.ui, activeModule: module, activeSettingsSection: section || null } 
+      ui: {
+        ...prev.ui,
+        activeModule: module,
+        activeSettingsSection: section || null,
+        selectedPatientId: null
+      }
+    }));
+  };
+
+  const selectPatient = (id: string) => {
+    setBrain(prev => ({
+      ...prev,
+      ui: {
+        ...prev.ui,
+        activeModule: 'patients',
+        selectedPatientId: id
+      }
     }));
   };
 
@@ -165,6 +182,13 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const cancelEdit = () => {
     setBrain(prev => ({ ...prev, ui: { ...prev.ui, editingItem: null } }));
+  };
+
+  const updateUserPermission = (permission: any) => {
+    setBrain(prev => ({
+      ...prev,
+      session: { ...prev.session, permissions: permission }
+    }));
   };
 
   // --- AUTH ---
@@ -288,8 +312,8 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   return (
     <BrainContext.Provider value={{ 
-      brain, navigate, setQuickAction, addToast, removeToast, refreshData: initialize, 
-      updateUserPermission: () => {}, push, update, remove, logout, login, edit, cancelEdit 
+      brain, navigate, selectPatient, setQuickAction, addToast, removeToast, refreshData: initialize, 
+      updateUserPermission, push, update, remove, logout, login, edit, cancelEdit 
     }}>
       {children}
     </BrainContext.Provider>
