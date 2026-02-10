@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { BrainState, UIState, Toast, QuickActionType, ClinicSession, Transaction, AppUser, EditingItem, ModuleType, SettingsSectionType } from '../types';
+import { BrainState, UIState, QuickActionType, ClinicSession, ModuleType, SettingsSectionType } from '../types';
 import { Repository } from '../data/repo';
 import { supabase } from '../lib/supabaseClient';
-import { hashPassword } from '../utils/security'; // Importante para verificar a senha
+import { hashPassword } from '../utils/security';
 
 // Estado Inicial Padrão
 const initialUI: UIState = {
@@ -54,10 +54,30 @@ interface BrainContextType {
 
 const BrainContext = createContext<BrainContextType | undefined>(undefined);
 
+// --- FUNÇÃO AUXILIAR: O DETETIVE DE ERROS ---
+// Ela pega o erro técnico e transforma em algo legível na tela
+const formatError = (error: any): string => {
+  if (!error) return "Erro desconhecido";
+  
+  let msg = error.message || "Erro no servidor";
+  
+  // Traduz erros comuns do Supabase/Postgres
+  if (msg.includes("violates row-level security")) return "ERRO DE PERMISSÃO: Seu usuário não pode salvar nesta tabela.";
+  if (msg.includes("null value in column")) return `DADOS FALTANDO: O campo obrigatório '${error.column || '?'}' está vazio.`;
+  if (msg.includes("violates foreign key")) return "ERRO DE VÍNCULO: Você tentou usar um ID que não existe.";
+  if (msg.includes("duplicate key")) return "DUPLICIDADE: Já existe um registro com esses dados.";
+  if (msg.includes("column") && msg.includes("does not exist")) return "ERRO DE CÓDIGO: O sistema tentou salvar um campo que não existe no banco.";
+
+  // Se tiver detalhes técnicos, adiciona
+  if (error.details) msg += ` | Detalhe: ${error.details}`;
+  if (error.hint) msg += ` | Dica: ${error.hint}`;
+  
+  return msg;
+};
+
 export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [brain, setBrain] = useState<BrainState>(initialState);
 
-  // --- NOTIFICAÇÕES ---
   const removeToast = (id: string) => {
     setBrain(prev => ({
       ...prev,
@@ -71,19 +91,28 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...prev,
       ui: { ...prev.ui, toasts: [...prev.ui.toasts, { id, message, type }] }
     }));
-    setTimeout(() => removeToast(id), 4000);
+    setTimeout(() => removeToast(id), 5000); // 5 segundos para ler o erro
   };
 
-  // --- ACTIONS (CRUD) ---
+  // --- ACTIONS (CRUD) COM PROTEÇÃO GLOBAL ---
+  
   const push = async (table: string, data: any) => {
     try {
+       // Tenta salvar no Supabase
        const { data: savedData, error } = await supabase.from(table).insert(data).select().single();
-       if (error) throw error;
+       
+       if (error) throw error; // Se o Supabase reclamar, joga pro catch lá embaixo
+       
        await initialize(); 
        return savedData;
     } catch (err: any) {
-       console.error("Erro no push:", err);
-       throw err;
+       console.error(`❌ Erro GLOBAL ao salvar em ${table}:`, err);
+       
+       // AQUI A MÁGICA: Mostra o erro na tela para qualquer função
+       const errorMsg = formatError(err);
+       addToast(`ERRO AO SALVAR: ${errorMsg}`, 'error');
+       
+       throw err; // Repassa o erro pra quem chamou poder parar o "loading"
     }
   };
 
@@ -91,12 +120,14 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const { error } = await supabase.from(table).update(data).eq('id', id);
       if (error) throw error;
+      
       addToast('Item atualizado com sucesso!', 'success');
       await initialize();
       cancelEdit();
     } catch (err: any) {
-      console.error("Erro no update:", err);
-      addToast('Erro ao atualizar item.', 'error');
+      console.error(`❌ Erro GLOBAL ao atualizar ${table}:`, err);
+      const errorMsg = formatError(err);
+      addToast(`ERRO AO EDITAR: ${errorMsg}`, 'error');
       throw err;
     }
   };
@@ -105,11 +136,13 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) throw error;
+      
       addToast('Item removido.', 'success');
       await initialize();
     } catch (err: any) {
-      console.error("Erro no remove:", err);
-      addToast('Erro ao remover item.', 'error');
+      console.error(`❌ Erro GLOBAL ao remover de ${table}:`, err);
+      const errorMsg = formatError(err);
+      addToast(`ERRO AO APAGAR: ${errorMsg}`, 'error');
       throw err;
     }
   };
@@ -134,37 +167,31 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setBrain(prev => ({ ...prev, ui: { ...prev.ui, editingItem: null } }));
   };
 
-  // --- AUTH (LOGIN REAL) ---
+  // --- AUTH ---
   const login = async (username: string, passwordRaw: string) => {
     try {
-      // 1. Busca usuário na tabela 'app_users' pelo username
       const { data: user, error } = await supabase
         .from('app_users')
         .select('*')
         .eq('username', username)
-        .maybeSingle(); // Usa maybeSingle para não dar erro 406 se não achar
+        .maybeSingle();
 
       if (error) {
-        console.error("Erro Supabase:", error);
-        return { success: false, errorCode: 'SUPABASE_CONN_ERROR' };
+        addToast("Erro de conexão com o banco.", "error");
+        return { success: false, errorCode: 'CONN_ERROR' };
       }
 
       if (!user) {
         return { success: false, errorCode: 'USER_NOT_FOUND' };
       }
 
-      // 2. Verifica a senha (Hash)
       const inputHash = hashPassword(passwordRaw);
       if (user.password_hash !== inputHash) {
         return { success: false, errorCode: 'PASSWORD_MISMATCH' };
       }
 
-      // 3. Login Sucesso: Salva sessão local (para F5 não deslogar)
       localStorage.setItem('vp_user_id', user.id);
-
-      // 4. Carrega dados do sistema
       await loadSystemData(user);
-      
       return { success: true };
 
     } catch (err) {
@@ -179,7 +206,6 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setBrain(initialState);
   };
 
-  // --- CARREGAMENTO DE DADOS ---
   const loadSystemData = async (userData: any) => {
       try {
         const data = await Repository.fetchInitialData(userData.clinic_id);
@@ -206,15 +232,16 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             healthRecords: data.healthRecords || [],
             loading: false
         }));
-      } catch (error) {
-          console.error("Erro ao carregar dados do sistema:", error);
+      } catch (error: any) {
+          console.error("Erro ao carregar dados:", error);
+          const msg = formatError(error);
+          addToast(`Erro ao carregar sistema: ${msg}`, 'error');
           setBrain(prev => ({ ...prev, loading: false }));
       }
   };
 
   const initialize = async () => {
     try {
-      // 1. Tenta recuperar sessão salva no localStorage (Modo Híbrido)
       const storedUserId = localStorage.getItem('vp_user_id');
       
       if (storedUserId) {
@@ -230,7 +257,6 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
          }
       }
 
-      // 2. Fallback: Tenta Supabase Auth tradicional
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -238,7 +264,6 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return;
       }
 
-      // Se tiver sessão Supabase (ex: entrou por email no futuro)
       const { data: userData } = await supabase
         .from('app_users')
         .select('*')
