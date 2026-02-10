@@ -19,8 +19,7 @@ import Reports from './components/Reports';
 import Settings from './components/Settings';
 import Users from './components/Users';
 
-// NOVOS COMPONENTES (Vamos criar estes arquivos nas próximas etapas)
-// Se der erro agora, é normal. Eles serão criados a seguir.
+// NOVOS COMPONENTES
 import Inventory from './components/Inventory';
 import PTI from './components/PTI'; 
 import HealthRecords from './components/HealthRecords';
@@ -32,10 +31,10 @@ import GlobalEditModal from './components/GlobalEditModal';
 import MedicationNotifier from './components/common/MedicationNotifier';
 
 function App() {
-  const { brain, refreshData } = useBrain();
+  const { brain, refreshData, navigate } = useBrain(); // Adicionei navigate
   const { activeModule } = brain.ui;
 
-  // Atualiza dados periodicamente (a cada 5 minutos)
+  // Atualiza dados periodicamente
   useEffect(() => {
     const interval = setInterval(() => {
       if (brain.session.isAuthenticated) {
@@ -45,12 +44,64 @@ function App() {
     return () => clearInterval(interval);
   }, [brain.session.isAuthenticated]);
 
+  // Função de Renderização (Movida para dentro para ter acesso ao 'brain' e 'navigate')
+  const renderModule = (module: string) => {
+    switch (module) {
+      // Módulos Principais
+      case 'dashboard':
+        return <Dashboard />;
+      case 'patients':
+        return <Patients onSelectPatient={(id) => {
+             // Quando selecionar um paciente, navega para o perfil
+             // Nota: O ID deve ser setado no estado global em uma implementação ideal
+             navigate('patient-profile'); 
+        }} />;
+      case 'patient-profile':
+        return <PatientProfile />;
+      
+      // Módulos Clínicos (NOVOS)
+      case 'pti':
+        return <PTI />;
+      case 'health-records':
+        return <HealthRecords />;
+      case 'medication':
+        return <Medication />;
+
+      // Módulos Operacionais
+      case 'agenda':
+        return <Calendar />;
+      case 'daily-records': 
+        return <DailyRecords />;
+      case 'occurrences':
+        return <Occurrences />;
+      case 'inventory': // NOVO
+        return <Inventory />;
+      case 'documents':
+        return <Documents />;
+
+      // Módulos Administrativos
+      case 'finance':
+        return <Finance />;
+      case 'reports':
+        return <Reports />;
+      case 'users':
+        return <Users />;
+      case 'human-resources': // NOVO
+        return <HumanResources />;
+      case 'settings':
+        return <Settings />;
+        
+      default:
+        return <Dashboard />;
+    }
+  };
+
   // 1. TELA DE CARREGAMENTO
   if (brain.loading) {
     return <Loading />;
   }
 
-  // 2. TELA DE LOGIN (Se não estiver autenticado)
+  // 2. TELA DE LOGIN
   if (!brain.session.isAuthenticated) {
     return (
       <>
@@ -60,73 +111,23 @@ function App() {
     );
   }
 
-  // 3. APLICAÇÃO PRINCIPAL (Com Layout e Menu)
+  // 3. APLICAÇÃO PRINCIPAL
   return (
     <>
       <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
       
-      {/* Notificador de Medicamentos (Roda em background) */}
       <MedicationNotifier />
 
       <Layout>
         <div className="animate-in fade-in duration-500">
-          {renderModule(activeModule, brain.ui.selectedPatientId)}
+          {renderModule(activeModule)}
         </div>
       </Layout>
 
-      {/* Modais Globais de Ação Rápida */}
       <GlobalNewModal />
       <GlobalEditModal />
     </>
   );
-}
-
-// Função auxiliar para renderizar o módulo correto
-function renderModule(module: string, patientId: string | null) {
-  switch (module) {
-    // Módulos Principais
-    case 'dashboard':
-      return <Dashboard />;
-    case 'patients':
-      return <Patients />;
-    case 'patient-profile':
-      return <PatientProfile />;
-    
-    // Módulos Clínicos (NOVOS)
-    case 'pti':
-      return <PTI />;
-    case 'health-records':
-      return <HealthRecords />;
-    case 'medication':
-      return <Medication />;
-
-    // Módulos Operacionais
-    case 'agenda':
-      return <Calendar />;
-    case 'daily-records': // Mantido para legado ou anotações rápidas
-      return <DailyRecords />;
-    case 'occurrences':
-      return <Occurrences />;
-    case 'inventory': // NOVO
-      return <Inventory />;
-    case 'documents':
-      return <Documents />;
-
-    // Módulos Administrativos
-    case 'finance':
-      return <Finance />;
-    case 'reports':
-      return <Reports />;
-    case 'users':
-      return <Users />;
-    case 'human-resources': // NOVO
-      return <HumanResources />;
-    case 'settings':
-      return <Settings />;
-      
-    default:
-      return <Dashboard />;
-  }
 }
 
 export default App;
