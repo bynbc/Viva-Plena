@@ -1,20 +1,4 @@
-export type ModuleType = 
-  | 'dashboard' 
-  | 'patients' 
-  | 'patient-profile' 
-  | 'daily-records' 
-  | 'occurrences' 
-  | 'agenda' 
-  | 'medication' 
-  | 'finance' 
-  | 'documents' 
-  | 'reports' 
-  | 'settings' 
-  | 'users' 
-  | 'inventory' 
-  | 'pti' 
-  | 'health-records' 
-  | 'human-resources';
+export type ModuleType = 'dashboard' | 'patients' | 'patient-profile' | 'daily-records' | 'occurrences' | 'agenda' | 'medication' | 'finance' | 'documents' | 'reports' | 'settings' | 'users' | 'inventory' | 'pti' | 'health-records' | 'human-resources';
 
 export type SettingsSectionType = 'organization' | 'operational' | 'notifications' | 'plan' | 'users' | null;
 export type QuickActionType = 'new_patient' | 'new_record' | 'new_occurrence' | 'new_agenda' | 'new_document' | 'new_medication' | 'new_income' | 'new_expense' | 'new_stock' | null;
