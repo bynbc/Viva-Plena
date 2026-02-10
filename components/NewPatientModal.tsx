@@ -41,32 +41,37 @@ const NewPatientModal: React.FC = () => {
 
     setLoading(true);
     try {
-      // CORREÇÃO: Enviamos APENAS as colunas que realmente existem no banco
+      // CORREÇÃO CRÍTICA: Convertendo as chaves para minúsculo para bater com o banco de dados
       const payload = {
         clinic_id: brain.session.clinicId,
         name: formData.name,
         cpf: formData.cpf,
         rg: formData.rg,
         sus_number: formData.sus_number,
-        birthDate: formData.birthDate || null,
+        
+        // CORRIGIDO: birthDate -> birthdate (O banco salvou minúsculo)
+        birthdate: formData.birthDate || null, 
+        
         phone: formData.phone,
         status: 'active',
         
-        // Campos Corrigidos (Sem duplicidade ou nomes antigos)
         address_street: formData.address_street,
         address_city: formData.address_city,
-        familyResponsible: formData.familyResponsible,
-        familyContact: formData.familyContact,
+        
+        // CORRIGIDO: familyResponsible -> familyresponsible
+        familyresponsible: formData.familyResponsible,
+        familycontact: formData.familyContact,
         
         dependence_history: formData.dependence_history,
         diagnosis: formData.diagnosis,
         
-        // Datas com nomes corretos
         entry_date: formData.entry_date || null,
         exit_forecast_date: formData.exit_forecast_date || null,
         
-        paymentType: formData.paymentType,
-        insuranceName: formData.insuranceName,
+        // CORRIGIDO: paymentType -> paymenttype
+        paymenttype: formData.paymentType,
+        insurancename: formData.insuranceName,
+        
         monthly_fee: Number(formData.monthly_fee) || 0,
         
         created_by: brain.session.user?.username || 'Sistema',
