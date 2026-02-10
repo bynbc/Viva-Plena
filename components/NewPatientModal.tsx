@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
-  UserPlus, X, Save, User, FileText, MapPin, 
-  CreditCard, Calendar, Activity, AlertCircle 
+  UserPlus, Save, User, MapPin, 
+  CreditCard
 } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import MobileModal from './common/MobileModal';
@@ -41,18 +41,18 @@ const NewPatientModal: React.FC = () => {
 
     setLoading(true);
     try {
-      // CORREÇÃO: Enviando APENAS as colunas que existem no banco
+      // CORREÇÃO: Enviamos APENAS as colunas que realmente existem no banco
       const payload = {
         clinic_id: brain.session.clinicId,
         name: formData.name,
         cpf: formData.cpf,
         rg: formData.rg,
         sus_number: formData.sus_number,
-        birthDate: formData.birthDate || null, // Garante nulo se vazio
+        birthDate: formData.birthDate || null,
         phone: formData.phone,
         status: 'active',
         
-        // Campos Corrigidos (Sem duplicidade)
+        // Campos Corrigidos (Sem duplicidade ou nomes antigos)
         address_street: formData.address_street,
         address_city: formData.address_city,
         familyResponsible: formData.familyResponsible,
@@ -60,6 +60,8 @@ const NewPatientModal: React.FC = () => {
         
         dependence_history: formData.dependence_history,
         diagnosis: formData.diagnosis,
+        
+        // Datas com nomes corretos
         entry_date: formData.entry_date || null,
         exit_forecast_date: formData.exit_forecast_date || null,
         
