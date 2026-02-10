@@ -1,133 +1,132 @@
-import React from 'react';
-// Imports dos Módulos (Telas)
+import React, { useEffect } from 'react';
+import { useBrain } from './context/BrainContext';
 import Layout from './components/Layout';
+import LoginScreen from './components/LoginScreen';
+import Loading from './components/common/Loading';
+import { Toaster } from 'react-hot-toast';
+
+// Componentes Existentes
 import Dashboard from './components/Dashboard';
 import Patients from './components/Patients';
 import PatientProfile from './components/PatientProfile';
-import Settings from './components/Settings';
-import Occurrences from './components/Occurrences';
-import Reports from './components/Reports';
 import DailyRecords from './components/DailyRecords';
-import Users from './components/Users';
+import Occurrences from './components/Occurrences';
+import Calendar from './components/Calendar'; // Agenda
 import Medication from './components/Medication';
 import Finance from './components/Finance';
-import Calendar from './components/Calendar';
 import Documents from './components/Documents';
+import Reports from './components/Reports';
+import Settings from './components/Settings';
+import Users from './components/Users';
 
-// Imports dos Modais Globais
+// NOVOS COMPONENTES (Vamos criar estes arquivos nas próximas etapas)
+// Se der erro agora, é normal. Eles serão criados a seguir.
+import Inventory from './components/Inventory';
+import PTI from './components/PTI'; 
+import HealthRecords from './components/HealthRecords';
+import HumanResources from './components/HumanResources';
+
+// Modais Globais
 import GlobalNewModal from './components/GlobalNewModal';
 import GlobalEditModal from './components/GlobalEditModal';
-import LoginScreen from './components/LoginScreen';
-
-// NOVO: Importa o Robô de Notificação
 import MedicationNotifier from './components/common/MedicationNotifier';
 
-// Contextos e Utilitários
-import { BrainProvider, useBrain } from './context/BrainContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import PermissionGuard from './components/common/PermissionGuard';
-import { ShieldCheck } from 'lucide-react';
+function App() {
+  const { brain, refreshData } = useBrain();
+  const { activeModule } = brain.ui;
 
-const AppContent: React.FC = () => {
-  const { brain, navigate, setUI } = useBrain();
-  const { isAuthenticated } = useAuth();
-  const { activeModule, selectedPatientId } = brain.ui;
+  // Atualiza dados periodicamente (a cada 5 minutos)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (brain.session.isAuthenticated) {
+        refreshData();
+      }
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [brain.session.isAuthenticated]);
 
-  if (!isAuthenticated) {
-    return <LoginScreen />;
+  // 1. TELA DE CARREGAMENTO
+  if (brain.loading) {
+    return <Loading />;
   }
 
-  // Lógica de Roteamento (Qual tela mostrar)
-  const renderModule = () => {
-    switch (activeModule) {
-      case 'dashboard':
-        return <PermissionGuard module="dashboard" fallback={<NoAccess />}><Dashboard /></PermissionGuard>;
-      case 'patients':
-        return (
-          <PermissionGuard module="patients" fallback={<NoAccess />}>
-            <Patients 
-              onSelectPatient={(id) => {
-                setUI({ selectedPatientId: id });
-                navigate('patient-profile');
-              }} 
-            />
-          </PermissionGuard>
-        );
-      case 'patient-profile':
-        if (!selectedPatientId) {
-          navigate('patients');
-          return null;
-        }
-        return (
-          <PatientProfile 
-            patientId={selectedPatientId}
-            onBack={() => navigate('patients')} 
-          />
-        );
-      case 'medication':
-        return <PermissionGuard module="medication" fallback={<NoAccess />}><Medication /></PermissionGuard>;
-      case 'finance':
-        return <PermissionGuard module="finance" fallback={<NoAccess />}><Finance /></PermissionGuard>;
-      case 'daily-records':
-        return <PermissionGuard module="records" fallback={<NoAccess />}><DailyRecords /></PermissionGuard>;
-      case 'occurrences':
-        return <PermissionGuard module="occurrences" fallback={<NoAccess />}><Occurrences /></PermissionGuard>;
-      
-      case 'calendar':
-        return <PermissionGuard module="agenda" fallback={<NoAccess />}><Calendar /></PermissionGuard>;
-      case 'documents':
-        return <PermissionGuard module="documents" fallback={<NoAccess />}><Documents /></PermissionGuard>;
+  // 2. TELA DE LOGIN (Se não estiver autenticado)
+  if (!brain.session.isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-center" />
+        <LoginScreen />
+      </>
+    );
+  }
 
-      case 'reports':
-        return <PermissionGuard module="reports" fallback={<NoAccess />}><Reports /></PermissionGuard>;
-      case 'users':
-        return <PermissionGuard module="users" fallback={<NoAccess />}><Users /></PermissionGuard>;
-      case 'settings':
-        return <PermissionGuard module="settings" fallback={<NoAccess />}><Settings /></PermissionGuard>;
-      default:
-        return <Dashboard />;
-    }
-  };
-
+  // 3. APLICAÇÃO PRINCIPAL (Com Layout e Menu)
   return (
-    <div className="antialiased text-slate-900 min-h-screen relative">
-      <Layout>
-        {renderModule()}
-      </Layout>
-
-      {/* AQUI ESTÁ O ROBÔ DE NOTIFICAÇÃO */}
+    <>
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
+      
+      {/* Notificador de Medicamentos (Roda em background) */}
       <MedicationNotifier />
 
-      {/* MODAL DE CRIAÇÃO (Botão +) */}
-      <GlobalNewModal 
-        isOpen={brain.ui.isNewModalOpen} 
-        onClose={() => setUI({ isNewModalOpen: false })} 
-      />
-      
-      {/* MODAL DE EDIÇÃO (Lápis) */}
-      <GlobalEditModal /> 
-    </div>
+      <Layout>
+        <div className="animate-in fade-in duration-500">
+          {renderModule(activeModule, brain.ui.selectedPatientId)}
+        </div>
+      </Layout>
+
+      {/* Modais Globais de Ação Rápida */}
+      <GlobalNewModal />
+      <GlobalEditModal />
+    </>
   );
-};
+}
 
-// Componente de Acesso Negado
-const NoAccess: React.FC = () => (
-  <div className="flex flex-col items-center justify-center py-40 text-center animate-in fade-in">
-    <div className="w-24 h-24 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mb-6">
-      <ShieldCheck size={48} />
-    </div>
-    <h2 className="text-2xl font-black text-slate-900">Acesso Restrito</h2>
-    <p className="text-slate-500 mt-2 max-w-xs font-medium">Você não possui permissões operacionais para visualizar este módulo.</p>
-  </div>
-);
+// Função auxiliar para renderizar o módulo correto
+function renderModule(module: string, patientId: string | null) {
+  switch (module) {
+    // Módulos Principais
+    case 'dashboard':
+      return <Dashboard />;
+    case 'patients':
+      return <Patients />;
+    case 'patient-profile':
+      return <PatientProfile />;
+    
+    // Módulos Clínicos (NOVOS)
+    case 'pti':
+      return <PTI />;
+    case 'health-records':
+      return <HealthRecords />;
+    case 'medication':
+      return <Medication />;
 
-// Componente Principal que envolve tudo com os Provedores (Contextos)
-const App: React.FC = () => (
-  <BrainProvider>
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  </BrainProvider>
-);
+    // Módulos Operacionais
+    case 'agenda':
+      return <Calendar />;
+    case 'daily-records': // Mantido para legado ou anotações rápidas
+      return <DailyRecords />;
+    case 'occurrences':
+      return <Occurrences />;
+    case 'inventory': // NOVO
+      return <Inventory />;
+    case 'documents':
+      return <Documents />;
+
+    // Módulos Administrativos
+    case 'finance':
+      return <Finance />;
+    case 'reports':
+      return <Reports />;
+    case 'users':
+      return <Users />;
+    case 'human-resources': // NOVO
+      return <HumanResources />;
+    case 'settings':
+      return <Settings />;
+      
+    default:
+      return <Dashboard />;
+  }
+}
 
 export default App;
