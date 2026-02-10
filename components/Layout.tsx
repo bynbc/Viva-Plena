@@ -127,7 +127,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               className="w-14 h-14 bg-emerald-600/90 rounded-[22px] flex items-center justify-center text-white font-black text-2xl shadow-xl transform hover:rotate-6 transition-transform cursor-pointer backdrop-blur-3xl border border-white/40 shrink-0" 
               onClick={() => handleNavigate('dashboard')}
             >
-              ZG
+              VP
             </div>
             {(isSidebarOpen || isMobileMenuOpen) && (
               <div className="animate-in fade-in slide-in-from-left-2">
