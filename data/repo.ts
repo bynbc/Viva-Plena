@@ -22,7 +22,12 @@ export const Repository = {
         medicationsRes,
         usersRes
       ] = await Promise.all([
-        supabase.from('patients').select('*').eq('clinic_id', clinicId).neq('status', 'deleted'),
+        supabase
+          .from('patients')
+          .select('*')
+          .eq('clinic_id', clinicId)
+          // Inclui registros legados com status NULL e remove apenas soft-delete explícito.
+          .or('status.is.null,status.neq.deleted'),
         supabase.from('transactions').select('*').eq('clinic_id', clinicId).order('date', { ascending: false }),
         supabase.from('agenda').select('*').eq('clinic_id', clinicId),
         supabase.from('occurrences').select('*').eq('clinic_id', clinicId).order('created_at', { ascending: false }),

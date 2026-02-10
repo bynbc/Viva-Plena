@@ -29,8 +29,8 @@ const PatientProfile: React.FC = () => {
     if (patient) {
       setEditedName(patient.name);
       setEditedPhone(patient.phone || '');
-      setEditedAddress(patient.address_street || '');
-      setEditedResponsible(patient.familyresponsible || '');
+      setEditedAddress(patient.address_street || patient.address || '');
+      setEditedResponsible(patient.familyresponsible || patient.familyResponsible || '');
       setEditedDiagnosis(patient.diagnosis || '');
       setPhotoUrl(patient.photo_url || null);
     }
@@ -204,7 +204,7 @@ const PatientProfile: React.FC = () => {
                 {isEditing ? (
                   <input value={editedAddress} onChange={e => setEditedAddress(e.target.value)} className="w-full font-bold text-slate-800 bg-slate-50 border-b border-slate-300 outline-none" />
                 ) : (
-                  <p className="font-bold text-slate-800">{patient.address_street || '—'}</p>
+                  <p className="font-bold text-slate-800">{patient.address_street || patient.address || '—'}</p>
                 )}
               </div>
             </div>
@@ -219,7 +219,7 @@ const PatientProfile: React.FC = () => {
                 {isEditing ? (
                   <input value={editedResponsible} onChange={e => setEditedResponsible(e.target.value)} className="w-full font-bold text-slate-800 bg-slate-50 border-b border-slate-300 outline-none" />
                 ) : (
-                  <p className="font-bold text-slate-800">{patient.familyresponsible || '—'}</p>
+                  <p className="font-bold text-slate-800">{patient.familyresponsible || patient.familyResponsible || '—'}</p>
                 )}
               </div>
             </div>
@@ -232,7 +232,9 @@ const PatientProfile: React.FC = () => {
               <div className="flex-1">
                 <p className="text-xs font-bold text-slate-400 uppercase">Entrada</p>
                 <p className="font-bold text-slate-800">
-                  {patient.entry_date ? new Date(patient.entry_date).toLocaleDateString('pt-BR') : '—'}
+                  {(patient.entry_date || patient.admissionDate)
+                    ? new Date(patient.entry_date || patient.admissionDate || '').toLocaleDateString('pt-BR')
+                    : '—'}
                 </p>
               </div>
             </div>
