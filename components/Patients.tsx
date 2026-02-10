@@ -4,7 +4,7 @@ import { useBrain } from '../context/BrainContext';
 import EmptyState from './common/EmptyState';
 
 const Patients: React.FC = () => {
-  const { brain, setQuickAction, update, remove, addToast, selectPatient } = useBrain();
+  const { brain, setQuickAction, update, addToast, selectPatient } = useBrain();
   const [searchTerm, setSearchTerm] = useState('');
 
   const patients = (brain.patients || []).filter(p => 
@@ -19,10 +19,17 @@ const Patients: React.FC = () => {
 
     try {
       await update('patients', id, { status: 'deleted' });
+      return;
     } catch {
-      // Fallback para bancos sem status=deleted
-      await remove('patients', id);
-      addToast('Paciente removido permanentemente.', 'warning');
+      // Alguns bancos não aceitam status "deleted" por regra de enum/check.
+      // Evitamos lançar erro não tratado no front.
+    }
+
+    try {
+      await update('patients', id, { status: 'discharged' });
+      addToast('Paciente marcado como inativo (alta).', 'warning');
+    } catch {
+      addToast('Não foi possível excluir este acolhido. Ele possui vínculos no sistema.', 'error');
     }
   };
 
