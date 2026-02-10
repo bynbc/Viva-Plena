@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// Importa os provedores (o cérebro e a segurança)
+// Importa os provedores (Cérebro e Login)
 import { BrainProvider } from './context/BrainContext';
 import { AuthProvider } from './context/AuthContext';
 
-// AQUI ESTAVA O ERRO: O render precisa ter o conteúdo dentro!
+// AQUI ESTAVA O ERRO: Agora preenchemos o render com o App e os Provedores
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrainProvider>
