@@ -1,4 +1,21 @@
-export type ModuleType = 'dashboard' | 'patients' | 'patient-profile' | 'daily-records' | 'occurrences' | 'calendar' | 'medication' | 'finance' | 'documents' | | 'agenda' | 'reports' | 'settings' | 'users' | 'inventory' | 'pti' | 'health-records' | 'human-resources';
+export type ModuleType = 
+  | 'dashboard' 
+  | 'patients' 
+  | 'patient-profile' 
+  | 'daily-records' 
+  | 'occurrences' 
+  | 'agenda' 
+  | 'medication' 
+  | 'finance' 
+  | 'documents' 
+  | 'reports' 
+  | 'settings' 
+  | 'users' 
+  | 'inventory' 
+  | 'pti' 
+  | 'health-records' 
+  | 'human-resources';
+
 export type SettingsSectionType = 'organization' | 'operational' | 'notifications' | 'plan' | 'users' | null;
 export type QuickActionType = 'new_patient' | 'new_record' | 'new_occurrence' | 'new_agenda' | 'new_document' | 'new_medication' | 'new_income' | 'new_expense' | 'new_stock' | null;
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
@@ -26,9 +43,9 @@ export interface UserPermissions {
   reports: boolean;
   settings: boolean;
   users: boolean;
-  inventory?: boolean; // Novo
-  pti?: boolean; // Novo
-  health_records?: boolean; // Novo
+  inventory?: boolean;
+  pti?: boolean;
+  health_records?: boolean;
 }
 
 export type Permissions = UserPermissions;
@@ -39,9 +56,8 @@ export interface AppUser {
   role: 'ADMIN' | 'NORMAL';
   is_active: boolean;
   password_hash?: string;
-  // Campos de RH
-  job_title?: string; // Psicólogo, Monitor, etc.
-  shift?: string; // Matutino, Noturno
+  job_title?: string;
+  shift?: string;
   document_cpf?: string;
 }
 
@@ -66,56 +82,51 @@ export interface Patient {
   clinic_id: string;
   name: string;
   cpf?: string;
-  rg?: string; // Novo
-  sus_number?: string; // Novo
+  rg?: string;
+  sus_number?: string;
   birthDate?: string;
-  status: 'active' | 'discharged' | 'evaded' | 'deceased' | 'waiting'; // Atualizado
+  status: 'active' | 'discharged' | 'evaded' | 'deceased' | 'waiting';
   
-  // Contato e Endereço
   phone?: string;
   email?: string;
   address?: string;
-  address_street?: string; // Novo
-  address_city?: string; // Novo
+  address_street?: string;
+  address_city?: string;
   zip_code?: string;
   city?: string;
   state?: string;
 
-  // Responsável / Emergência
   emergencyContact?: string;
   emergencyPhone?: string;
-  familyResponsible?: string; // Financeiro/Legal
+  familyResponsible?: string;
   familyContact?: string;
   
-  // Clínico e Tratamento
-  admissionDate?: string; // Data de entrada
-  entry_date?: string; // Compatibilidade com SQL novo
+  admissionDate?: string;
+  entry_date?: string;
   
-  exitForecast?: string; // Previsão
-  exit_forecast_date?: string; // Compatibilidade SQL
+  exitForecast?: string;
+  exit_forecast_date?: string;
   
-  exitDate?: string; // Data real da saída
-  exit_date?: string; // Compatibilidade SQL
+  exitDate?: string;
+  exit_date?: string;
   
-  exitReason?: string; // Motivo
-  exit_reason?: string; // Compatibilidade SQL
+  exitReason?: string;
+  exit_reason?: string;
   
   treatmentType?: 'Internação' | 'Hospital Dia' | 'Ambulatorial';
   cid_main?: string; 
-  diagnosis?: string; // Diagnóstico descritivo
-  reason?: string; // Motivo da internação (legacy)
-  dependence_history?: string; // Histórico de uso
+  diagnosis?: string;
+  reason?: string;
+  dependence_history?: string;
   
   prescriptions?: string[];
   
-  // Financeiro
   paymentType?: 'particular' | 'convenio' | 'social';
   insuranceName?: string;
   insuranceNumber?: string;
-  insurance_details?: any; // JSON do convênio
+  insurance_details?: any;
   monthly_fee?: number;
   
-  // Auditoria
   created_by: string;
   created_at: string;
   
@@ -130,7 +141,7 @@ export interface InventoryItem {
   name: string;
   category: 'Alimentos' | 'Limpeza' | 'Equipamentos' | 'Medicamentos' | 'Outros';
   quantity: number;
-  unit: string; // kg, un, l
+  unit: string;
   min_stock: number;
   updated_at: string;
 }
@@ -139,9 +150,9 @@ export interface PTIGoal {
   id: string;
   clinic_id: string;
   patient_id: string;
-  patient_name?: string; // Join
-  goals: string; // Metas
-  therapies: string; // Terapias
+  patient_name?: string;
+  goals: string;
+  therapies: string;
   frequency: string;
   evolution_notes: string;
   created_at: string;
@@ -185,7 +196,7 @@ export interface DailyRecord {
   tags: string[];
   created_by: string;
   created_at: string;
-  type?: string; // Mantido para compatibilidade
+  type?: string;
 }
 
 export interface Occurrence {
@@ -193,9 +204,9 @@ export interface Occurrence {
   clinic_id: string;
   patient_id: string;
   patient_name?: string;
-  title: string; // Geralmente o Tipo
+  title: string;
   description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'Leve' | 'Média' | 'Grave' | 'Crítica'; // Unificado
+  severity: string;
   status: 'open' | 'resolved' | 'archived';
   created_by: string;
   occurred_at: string;
@@ -213,8 +224,8 @@ export interface AgendaEvent {
   description?: string;
   start_at: string;
   end_at?: string;
-  visitor_name?: string; // Novo
-  visit_status?: string; // Novo
+  visitor_name?: string;
+  visit_status?: string;
   created_by: string;
   created_at: string;
 }
@@ -267,10 +278,9 @@ export interface BrainState {
   finances: { 
     transactions: Transaction[] 
   };
-  // Novos Estados
-  inventory: InventoryItem[]; // Estoque
-  pti: PTIGoal[]; // Planos Terapêuticos
-  healthRecords: HealthRecord[]; // Prontuário Detalhado
+  inventory: InventoryItem[];
+  pti: PTIGoal[];
+  healthRecords: HealthRecord[];
   
   settings: Record<string, any>;
   users: (AppUser & { permissions: UserPermissions })[];
