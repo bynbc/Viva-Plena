@@ -119,14 +119,6 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const login = async (username: string, passwordRaw: string) => {
-    if (USE_MOCK) {
-      console.log("⚠️ MOCK MODE: Login Bypass");
-      const mockUser = { id: 'mock_admin', username, role: 'ADMIN', clinic_id: 'mock_clinic', permissions: { dashboard: true, patients: true, finance: true } };
-      localStorage.setItem('vp_user_id', mockUser.id);
-      await loadSystemData(mockUser);
-      return { success: true };
-    }
-
     try {
       const { data: user, error } = await supabase.from('app_users').select('*').eq('username', username).maybeSingle();
       if (error || !user) return { success: false, errorCode: 'USER_NOT_FOUND' };
@@ -141,8 +133,8 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const loadSystemData = async (userData: any) => {
     try {
-      // SELEÇÃO DO REPOSITÓRIO (MOCK OU REAL)
-      const repo = USE_MOCK ? MockRepository : Repository;
+      // SELEÇÃO DO REPOSITÓRIO (PRODUÇÃO)
+      const repo = Repository;
 
       const data = await repo.fetchInitialData(userData.clinic_id);
       setBrain(prev => ({
@@ -158,11 +150,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const initialize = async () => {
     const id = localStorage.getItem('vp_user_id');
-    if (USE_MOCK && id === 'mock_admin') {
-      const mockUser = { id: 'mock_admin', username: 'admin', role: 'ADMIN', clinic_id: 'mock_clinic', permissions: { dashboard: true, patients: true, finance: true } };
-      await loadSystemData(mockUser);
-      return;
-    }
+
 
     if (id) {
       const { data } = await supabase.from('app_users').select('*').eq('id', id).single();
