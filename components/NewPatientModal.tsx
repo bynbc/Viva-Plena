@@ -45,6 +45,7 @@ const NewPatientModal: React.FC = () => {
   const [formData, setFormData] = useState({
     // DADOS PESSOAIS
     name: '',
+    photo_url: '',
     date_of_birth: '',
     cpf: '',
     rg: '',
@@ -141,6 +142,11 @@ const NewPatientModal: React.FC = () => {
     try {
       const fee = Number(formData.monthly_fee) || 0;
       const cId = brain.session.clinicId;
+      if (!cId) {
+        addToast("Sessão inválida. Faça login novamente.", "error");
+        setLoading(false);
+        return;
+      }
 
       // 1. SALVA O PACIENTE
       await push('patients', {
@@ -219,6 +225,39 @@ const NewPatientModal: React.FC = () => {
       <form className="space-y-6 pb-4">
         {activeTab === 'personal' && (
           <div className="space-y-4 animate-in slide-in-from-right-4">
+            {/* FOTO DO ACOLHIDO */}
+            <div className="flex justify-center mb-6">
+              <div className="relative group">
+                <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${formData.photo_url ? 'border-indigo-500' : 'border-slate-100'} bg-slate-100 flex items-center justify-center relative`}>
+                  {formData.photo_url ? (
+                    <img src={formData.photo_url} alt="Foto" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={48} className="text-slate-300" />
+                  )}
+
+                  <label htmlFor="photo-upload" className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <span className="text-xs font-bold">Alterar Foto</span>
+                  </label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          handleChange('photo_url', reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
             <Input
               label="Nome Completo"
               field="name"
