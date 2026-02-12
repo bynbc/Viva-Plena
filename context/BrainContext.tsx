@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BrainState, UIState, QuickActionType, ClinicSession, ModuleType, SettingsSectionType } from '../types';
 import { Repository } from '../data/repo';
-import { MockRepository } from '../data/mockRepo'; // Adicionado para corrigir erro de build
+import { MockRepository } from '../data/mockRepo';
 import { supabase } from '../lib/supabaseClient';
 import { hashPassword } from '../utils/security';
 
-// Define o modo de teste como verdadeiro para usar os dados mockados
-const USE_MOCK = true;
+// === CHANGE HERE: Set to false to use Real Data (Supabase) ===
+const USE_MOCK = false; 
 
 const initialUI: UIState = {
   activeModule: 'dashboard', activeSettingsSection: null, selectedPatientId: null,
@@ -102,7 +102,6 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (err: any) { addToast('Erro ao excluir', 'error'); throw err; }
   };
 
-  // === CORREÇÃO DA NAVEGAÇÃO ===
   const navigate = (module: ModuleType, section?: SettingsSectionType) => {
     setBrain(prev => ({
       ...prev,
@@ -110,7 +109,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ...prev.ui,
         activeModule: module,
         activeSettingsSection: section || null,
-        selectedPatientId: null // Isso limpa o perfil e destrava a tela
+        selectedPatientId: null 
       }
     }));
   };
@@ -123,13 +122,13 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const login = async (username: string, passwordRaw: string) => {
+    // MOCK LOGIN LOGIC (Only runs if USE_MOCK is true)
     if (USE_MOCK) {
       console.log("⚠️ MOCK MODE: Login Bypass");
       const mockUser = {
         id: 'mock_admin',
         username,
         role: 'ADMIN',
-        // FIX: Usando UUID estável em vez de 'mock_clinic' para evitar o reset constante
         clinic_id: '12345678-1234-1234-1234-123456789abc',
         permissions: { dashboard: true, patients: true, finance: true }
       };
@@ -138,10 +137,15 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return { success: true };
     }
 
+    // REAL SUPABASE LOGIN LOGIC
     try {
       const { data: user, error } = await supabase.from('app_users').select('*').eq('username', username).maybeSingle();
+      
       if (error || !user) return { success: false, errorCode: 'USER_NOT_FOUND' };
+      
+      // Simple hash check (In production, use bcrypt/argon2 on backend or Supabase Auth)
       if (user.password_hash !== hashPassword(passwordRaw)) return { success: false, errorCode: 'PASSWORD_MISMATCH' };
+      
       localStorage.setItem('vp_user_id', user.id);
       await loadSystemData(user);
       return { success: true };
@@ -152,29 +156,43 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const loadSystemData = async (userData: any) => {
     try {
-      // SELEÇÃO DO REPOSITÓRIO (MOCK OU REAL)
       const repo = USE_MOCK ? MockRepository : Repository;
-
       const data = await repo.fetchInitialData(userData.clinic_id);
+      
       setBrain(prev => ({
         ...prev,
-        session: { isAuthenticated: true, user: userData, clinicId: userData.clinic_id, permissions: userData.permissions || { dashboard: true, patients: true, finance: true } }, // Permissões default pro mock
-        patients: data.patients, transactions: data.transactions, finances: { transactions: data.transactions },
-        agenda: data.agenda, occurrences: data.occurrences, assessments: data.assessments || [], documents: data.documents,
-        medications: data.medications, users: data.users, inventory: data.inventory || [],
-        pti: data.pti || [], healthRecords: data.healthRecords || [], loading: false
+        session: { 
+          isAuthenticated: true, 
+          user: userData, 
+          clinicId: userData.clinic_id, 
+          permissions: userData.permissions || { dashboard: true, patients: true, finance: true } 
+        },
+        patients: data.patients, 
+        transactions: data.transactions, 
+        finances: { transactions: data.transactions },
+        agenda: data.agenda, 
+        occurrences: data.occurrences, 
+        assessments: data.assessments || [], 
+        documents: data.documents,
+        medications: data.medications, 
+        users: data.users, 
+        inventory: data.inventory || [],
+        pti: data.pti || [], 
+        healthRecords: data.healthRecords || [], 
+        loading: false
       }));
     } catch (error) { setBrain(prev => ({ ...prev, loading: false })); }
   };
 
   const initialize = async () => {
     const id = localStorage.getItem('vp_user_id');
+    
+    // MOCK INITIALIZATION
     if (USE_MOCK && id === 'mock_admin') {
       const mockUser = {
         id: 'mock_admin',
         username: 'admin',
         role: 'ADMIN',
-        // FIX: Usando UUID estável
         clinic_id: '12345678-1234-1234-1234-123456789abc',
         permissions: { dashboard: true, patients: true, finance: true }
       };
@@ -182,6 +200,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
 
+    // REAL INITIALIZATION
     if (id) {
       const { data } = await supabase.from('app_users').select('*').eq('id', id).single();
       if (data) await loadSystemData(data);
