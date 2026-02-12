@@ -1,8 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BrainState, UIState, QuickActionType, ClinicSession, ModuleType, SettingsSectionType } from '../types';
 import { Repository } from '../data/repo';
+import { MockRepository } from '../data/mockRepo'; // Adicionado para corrigir erro de build
 import { supabase } from '../lib/supabaseClient';
 import { hashPassword } from '../utils/security';
+
+// Define o modo de teste como verdadeiro para usar os dados mockados
+const USE_MOCK = true;
 
 const initialUI: UIState = {
   activeModule: 'dashboard', activeSettingsSection: null, selectedPatientId: null,
@@ -119,6 +123,21 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const login = async (username: string, passwordRaw: string) => {
+    if (USE_MOCK) {
+      console.log("⚠️ MOCK MODE: Login Bypass");
+      const mockUser = {
+        id: 'mock_admin',
+        username,
+        role: 'ADMIN',
+        // FIX: Usando UUID estável em vez de 'mock_clinic' para evitar o reset constante
+        clinic_id: '12345678-1234-1234-1234-123456789abc',
+        permissions: { dashboard: true, patients: true, finance: true }
+      };
+      localStorage.setItem('vp_user_id', mockUser.id);
+      await loadSystemData(mockUser);
+      return { success: true };
+    }
+
     try {
       const { data: user, error } = await supabase.from('app_users').select('*').eq('username', username).maybeSingle();
       if (error || !user) return { success: false, errorCode: 'USER_NOT_FOUND' };
@@ -133,28 +152,10 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const loadSystemData = async (userData: any) => {
     try {
-      // SELEÇÃO DO REPOSITÓRIO (PRODUÇÃO)
-      const repo = Repository;
+      // SELEÇÃO DO REPOSITÓRIO (MOCK OU REAL)
+      const repo = USE_MOCK ? MockRepository : Repository;
 
-      // VALIDAÇÃO E CORREÇÃO AUTOMÁTICA DO CLINIC_ID
-      let cid = userData.clinic_id;
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-      if (cid === 'demo' || !cid || !uuidRegex.test(cid)) {
-        console.warn("LEGACY DATA DETECTED: 'demo' clinic_id. Auto-fixing to temporary UUID for session.");
-
-        if (cid === 'demo') {
-          // UUID fixo para 'demo' para manter consistência
-          cid = '12345678-1234-1234-1234-123456789abc';
-        } else {
-          cid = crypto.randomUUID();
-        }
-
-        addToast("Modo Compatibilidade: ID 'demo' convertido para UUID temporário.", 'warning');
-        userData.clinic_id = cid;
-      }
-
-      const data = await repo.fetchInitialData(cid);
+      const data = await repo.fetchInitialData(userData.clinic_id);
       setBrain(prev => ({
         ...prev,
         session: { isAuthenticated: true, user: userData, clinicId: userData.clinic_id, permissions: userData.permissions || { dashboard: true, patients: true, finance: true } }, // Permissões default pro mock
@@ -168,7 +169,18 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const initialize = async () => {
     const id = localStorage.getItem('vp_user_id');
-
+    if (USE_MOCK && id === 'mock_admin') {
+      const mockUser = {
+        id: 'mock_admin',
+        username: 'admin',
+        role: 'ADMIN',
+        // FIX: Usando UUID estável
+        clinic_id: '12345678-1234-1234-1234-123456789abc',
+        permissions: { dashboard: true, patients: true, finance: true }
+      };
+      await loadSystemData(mockUser);
+      return;
+    }
 
     if (id) {
       const { data } = await supabase.from('app_users').select('*').eq('id', id).single();
