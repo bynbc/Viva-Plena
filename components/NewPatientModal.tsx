@@ -142,8 +142,19 @@ const NewPatientModal: React.FC = () => {
     try {
       const fee = Number(formData.monthly_fee) || 0;
       const cId = brain.session.clinicId;
+      console.log('Tentando salvar paciente. ClinicID:', cId);
+
       if (!cId) {
-        addToast("Sessão inválida. Faça login novamente.", "error");
+        addToast("Erro de Sessão: ID da clínica não encontrado. Faça login novamente.", "error");
+        setLoading(false);
+        return;
+      }
+
+      // Validação de UUID
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(cId)) {
+        console.error('INVALID CLINIC ID:', cId);
+        addToast(`Erro Crítico: ID da clínica inválido (${cId}). Contate o suporte.`, "error");
         setLoading(false);
         return;
       }
@@ -246,9 +257,47 @@ const NewPatientModal: React.FC = () => {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
+                        // Limite de tamanho (ex: 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                          addToast("A imagem deve ter no máximo 5MB", "warning");
+                          return;
+                        }
+
                         const reader = new FileReader();
-                        reader.onloadend = () => {
-                          handleChange('photo_url', reader.result as string);
+                        reader.onload = (event) => {
+                          const img = new Image();
+                          img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+
+                            // Redimensionar se for muito grande
+                            const MAX_WIDTH = 500;
+                            const MAX_HEIGHT = 500;
+
+                            if (width > height) {
+                              if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                              }
+                            } else {
+                              if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                              }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx?.drawImage(img, 0, 0, width, height);
+
+                            // Converter para Base64 otimizado (JPEG 70%)
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            handleChange('photo_url', dataUrl);
+                            addToast("Foto processada com sucesso!", "success");
+                          };
+                          img.src = event.target?.result as string;
                         };
                         reader.readAsDataURL(file);
                       }
