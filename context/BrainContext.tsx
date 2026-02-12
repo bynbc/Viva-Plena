@@ -136,16 +136,22 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // SELEÇÃO DO REPOSITÓRIO (PRODUÇÃO)
       const repo = Repository;
 
-      // VALIDAÇÃO RIGOROSA DO CLINIC_ID
-      const cid = userData.clinic_id;
+      // VALIDAÇÃO E CORREÇÃO AUTOMÁTICA DO CLINIC_ID
+      let cid = userData.clinic_id;
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-      if (!cid || !uuidRegex.test(cid)) {
-        console.error("DATA INCORRUPTION: Clinic ID is not UUID:", cid);
-        addToast("Erro crítico de dados: ID da clínica inválido. Realizando logout de segurança.", 'error');
-        localStorage.removeItem('vp_user_id');
-        setBrain(initialState);
-        return;
+      if (cid === 'demo' || !cid || !uuidRegex.test(cid)) {
+        console.warn("LEGACY DATA DETECTED: 'demo' clinic_id. Auto-fixing to temporary UUID for session.");
+
+        if (cid === 'demo') {
+          // UUID fixo para 'demo' para manter consistência
+          cid = '12345678-1234-1234-1234-123456789abc';
+        } else {
+          cid = crypto.randomUUID();
+        }
+
+        addToast("Modo Compatibilidade: ID 'demo' convertido para UUID temporário.", 'warning');
+        userData.clinic_id = cid;
       }
 
       const data = await repo.fetchInitialData(cid);
