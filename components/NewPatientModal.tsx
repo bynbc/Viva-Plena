@@ -78,11 +78,11 @@ const NewPatientModal: React.FC = () => {
     dependence_history: '',
 
     // RESPONSÁVEL
-    familyresponsible: '',
+    family_responsible: '',
     family_responsible_rg: '',
     family_responsible_cpf: '',
     family_bond: '',
-    familycontact: '',
+    family_contact: '',
 
     // REFERENCIA
     origin_city: '',
@@ -94,9 +94,9 @@ const NewPatientModal: React.FC = () => {
 
     // INTERNO / FINANCEIRO
     entry_date: new Date().toISOString().split('T')[0],
-    paymenttype: 'particular',
+    payment_type: 'particular',
     monthly_fee: '',
-    insurancename: ''
+    insurance_name: ''
   });
 
   const handleChange = (field: string, value: any) => {
@@ -170,7 +170,7 @@ const NewPatientModal: React.FC = () => {
       });
 
       // 2. GERAÇÃO AUTOMÁTICA DE RECEITA FINANCEIRA
-      if (formData.paymenttype === 'particular' && fee > 0) {
+      if (formData.payment_type === 'particular' && fee > 0) {
         await push('transactions', {
           clinic_id: cId,
           description: `Mensalidade (1ª): ${formData.name}`,
@@ -451,10 +451,10 @@ const NewPatientModal: React.FC = () => {
           <div className="space-y-4 animate-in slide-in-from-right-4">
             <Input
               label="Nome do Responsável"
-              field="familyresponsible"
+              field="family_responsible"
               placeholder="Quem assina o contrato?"
-              value={formData.familyresponsible}
-              onChange={(e: any) => handleChange('familyresponsible', e.target.value)}
+              value={formData.family_responsible}
+              onChange={(e: any) => handleChange('family_responsible', e.target.value)}
             />
             <div className="grid grid-cols-2 gap-4">
               <Input
@@ -479,10 +479,10 @@ const NewPatientModal: React.FC = () => {
             />
             <Input
               label="Contato (Tel/WhatsApp)"
-              field="familycontact"
+              field="family_contact"
               placeholder="(00) 00000-0000"
-              value={formData.familycontact}
-              onChange={(e: any) => handleChange('familycontact', e.target.value)}
+              value={formData.family_contact}
+              onChange={(e: any) => handleChange('family_contact', e.target.value)}
             />
           </div>
         )}
@@ -556,17 +556,17 @@ const NewPatientModal: React.FC = () => {
             />
             <Select
               label="Tipo de Pagamento"
-              field="paymenttype"
+              field="payment_type"
               options={[
                 { value: 'particular', label: 'Particular (Mensalidade)' },
                 { value: 'social', label: 'Vaga Social (Gratuita)' },
                 { value: 'convenio', label: 'Convênio' }
               ]}
-              value={formData.paymenttype}
-              onChange={(e: any) => handleChange('paymenttype', e.target.value)}
+              value={formData.payment_type}
+              onChange={(e: any) => handleChange('payment_type', e.target.value)}
             />
 
-            {formData.paymenttype === 'particular' && (
+            {formData.payment_type === 'particular' && (
               <Input
                 label="Valor da Mensalidade (R$)"
                 field="monthly_fee"
@@ -577,12 +577,12 @@ const NewPatientModal: React.FC = () => {
               />
             )}
 
-            {formData.paymenttype === 'convenio' && (
+            {formData.payment_type === 'convenio' && (
               <Input
                 label="Nome do Convênio"
-                field="insurancename"
-                value={formData.insurancename}
-                onChange={(e: any) => handleChange('insurancename', e.target.value)}
+                field="insurance_name"
+                value={formData.insurance_name}
+                onChange={(e: any) => handleChange('insurance_name', e.target.value)}
               />
             )}
 

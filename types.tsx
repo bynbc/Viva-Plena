@@ -115,11 +115,11 @@ export interface Patient {
   health_professional_phone?: string; // Telefone Profissional Saúde
 
   // DADOS DO RESPONSÁVEL (Baseado no PDF)
-  familyresponsible?: string; // Nome Completo
+  family_responsible?: string; // Nome Completo
   family_responsible_rg?: string; // C.I.
   family_responsible_issuer?: string; // Órgão Expedidor
   family_responsible_cpf?: string;
-  familycontact?: string; // Telefone
+  family_contact?: string; // Telefone
 
   // REFERÊNCIA / TRIAGEM (Baseado no PDF)
   therapeutic_accompaniment?: string; // Acompanhamento Terapêutico (CAPS, Hospital...)
@@ -139,8 +139,8 @@ export interface Patient {
   dependence_history?: string;
 
   // FINANCEIRO
-  paymenttype?: 'particular' | 'convenio' | 'social';
-  insurancename?: string;
+  payment_type?: 'particular' | 'convenio' | 'social';
+  insurance_name?: string;
   monthly_fee?: number;
 
   // CONTATO DIRETO

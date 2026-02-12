@@ -220,8 +220,8 @@ const PatientProfile: React.FC = () => {
             <div className="border-t border-slate-100 pt-6 space-y-4">
               <h3 className="text-xs font-black text-slate-400 uppercase flex items-center gap-2"><Users size={14} /> Responsável Legal</h3>
               <div className="grid md:grid-cols-2 gap-4">
-                <Field label="Nome do Responsável" field="familyresponsible" />
-                <Field label="Telefone / Contato" field="familycontact" />
+                <Field label="Nome do Responsável" field="family_responsible" />
+                <Field label="Telefone / Contato" field="family_contact" />
                 <Field label="CPF do Responsável" field="family_responsible_cpf" />
                 <Field label="RG do Responsável" field="family_responsible_rg" />
                 <Field label="Vínculo/Parentesco" field="family_bond" />
@@ -316,16 +316,16 @@ const PatientProfile: React.FC = () => {
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Tipo de Pagamento</label>
                 {isEditing ? (
-                  <select value={formData.paymenttype || 'particular'} onChange={e => handleChange('paymenttype', e.target.value)} className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500">
+                  <select value={formData.payment_type || 'particular'} onChange={e => handleChange('payment_type', e.target.value)} className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500">
                     <option value="particular">Particular</option>
                     <option value="convenio">Convênio</option>
                     <option value="social">Social</option>
                   </select>
-                ) : <div className="p-3 bg-slate-50 rounded-xl font-bold text-slate-700 uppercase">{formData.paymenttype}</div>}
+                ) : <div className="p-3 bg-slate-50 rounded-xl font-bold text-slate-700 uppercase">{formData.payment_type}</div>}
               </div>
 
-              {formData.paymenttype === 'convenio' && <Field label="Nome do Convênio" field="insurancename" />}
-              {formData.paymenttype === 'particular' && <Field label="Mensalidade (R$)" field="monthly_fee" />}
+              {formData.payment_type === 'convenio' && <Field label="Nome do Convênio" field="insurance_name" />}
+              {formData.payment_type === 'particular' && <Field label="Mensalidade (R$)" field="monthly_fee" />}
             </div>
           </div>
         )}

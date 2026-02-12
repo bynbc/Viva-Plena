@@ -19,7 +19,7 @@ export const MockRepository = {
                 diagnosis: 'F19.2 - Transtornos mentais e comportamentais devidos ao uso de múltiplas drogas',
                 entry_date: '2025-11-20',
                 mother_name: 'Maria Mendes',
-                paymenttype: 'particular',
+                payment_type: 'particular',
                 monthly_fee: 2500,
                 address_city: 'São Paulo - SP',
                 created_at: new Date().toISOString(),
@@ -36,8 +36,8 @@ export const MockRepository = {
                 diagnosis: 'F31 - Transtorno afetivo bipolar',
                 entry_date: '2026-01-05',
                 mother_name: 'Joana Souza',
-                paymenttype: 'convenio',
-                insurancename: 'Unimed',
+                payment_type: 'convenio',
+                insurance_name: 'Unimed',
                 address_city: 'Campinas - SP',
                 created_at: new Date().toISOString(),
                 created_by: 'mock_admin'
@@ -53,7 +53,7 @@ export const MockRepository = {
                 diagnosis: 'F10.2 - Síndrome de dependência do álcool',
                 entry_date: '2026-02-01',
                 mother_name: 'Clara Silva',
-                paymenttype: 'social',
+                payment_type: 'social',
                 address_city: 'Santos - SP',
                 created_at: new Date().toISOString(),
                 created_by: 'mock_admin'
