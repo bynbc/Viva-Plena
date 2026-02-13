@@ -135,7 +135,7 @@ const Users: React.FC = () => {
                 <input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full p-4 bg-slate-50 rounded-2xl font-bold border border-slate-200 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                  className="w-full p-4 bg-slate-50 text-slate-900 rounded-2xl font-bold border border-slate-200 outline-none focus:border-indigo-500 focus:bg-white transition-all"
                 />
               </div>
 
@@ -144,7 +144,7 @@ const Users: React.FC = () => {
                 <input
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full p-4 bg-slate-50 rounded-2xl font-bold border border-slate-200 outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                  className="w-full p-4 bg-slate-50 text-slate-900 rounded-2xl font-bold border border-slate-200 outline-none focus:border-indigo-500 focus:bg-white transition-all"
                   placeholder="exemplo@vivaplena.com"
                 />
               </div>

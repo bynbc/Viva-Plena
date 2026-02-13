@@ -44,24 +44,24 @@ const NewOccurrenceModal: React.FC<NewOccurrenceModalProps> = ({ onClose }) => {
       footer={<button onClick={handleSave} className="w-full py-3 bg-rose-600 text-white rounded-xl font-bold uppercase">{loading ? 'Salvando...' : 'Registrar'}</button>}
     >
       <div className="space-y-4">
-        <input 
-           placeholder="Título (Ex: Briga, Fuga)" 
-           className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none"
-           value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
+        <input
+          placeholder="Título (Ex: Briga, Fuga)"
+          className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 outline-none"
+          value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}
         />
-        <select 
-           className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none"
-           value={formData.severity} onChange={e => setFormData({...formData, severity: e.target.value})}
+        <select
+          className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 outline-none"
+          value={formData.severity} onChange={e => setFormData({ ...formData, severity: e.target.value })}
         >
-           <option value="LOW">Leve</option>
-           <option value="MEDIUM">Média</option>
-           <option value="HIGH">Grave</option>
-           <option value="CRITICAL">Crítica</option>
+          <option value="LOW">Leve</option>
+          <option value="MEDIUM">Média</option>
+          <option value="HIGH">Grave</option>
+          <option value="CRITICAL">Crítica</option>
         </select>
-        <textarea 
-           placeholder="Descrição detalhada..." 
-           className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 h-32 outline-none"
-           value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
+        <textarea
+          placeholder="Descrição detalhada..."
+          className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 h-32 outline-none"
+          value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}
         />
       </div>
     </MobileModal>

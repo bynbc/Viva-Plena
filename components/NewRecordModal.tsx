@@ -42,8 +42,8 @@ const NewRecordModal: React.FC<NewRecordModalProps> = ({ onClose }) => {
       onClose={onClose}
       footer={<button onClick={handleSave} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold uppercase">{loading ? 'Salvando...' : 'Registrar'}</button>}
     >
-      <textarea 
-        className="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 h-40 outline-none focus:border-indigo-500"
+      <textarea
+        className="w-full p-4 bg-slate-50 text-slate-900 rounded-2xl border border-slate-200 h-40 outline-none focus:border-indigo-500"
         placeholder="Descreva a ocorrência..."
         value={content}
         onChange={e => setContent(e.target.value)}

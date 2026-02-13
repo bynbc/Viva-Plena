@@ -39,7 +39,7 @@ const Occurrences: React.FC = () => {
           placeholder="Buscar ocorrência..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl font-medium focus:border-indigo-500 outline-none"
+          className="w-full pl-12 pr-4 py-3 bg-white text-slate-900 border border-slate-200 rounded-2xl font-medium focus:border-indigo-500 outline-none"
         />
       </div>
 

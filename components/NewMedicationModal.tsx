@@ -101,7 +101,7 @@ const NewMedicationModal: React.FC = () => {
       <form id="new-med-form" onSubmit={handleSave} className="space-y-6">
         <div className="space-y-2">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Paciente</label>
-          <select required value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border rounded-2xl font-bold text-sm outline-none focus:border-indigo-500 transition-colors">
+          <select required value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-5 py-4 bg-slate-50 text-slate-900 border rounded-2xl font-bold text-sm outline-none focus:border-indigo-500 transition-colors">
             <option value="">Selecione...</option>
             {activePatients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -123,7 +123,7 @@ const NewMedicationModal: React.FC = () => {
                 <select
                   value={item.inventory_id}
                   onChange={e => updateItem(item.id, 'inventory_id', e.target.value)}
-                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
+                  className="w-full p-2 bg-white text-slate-900 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
                 >
                   <option value="">-- Apenas Digitar Nome --</option>
                   {stockMeds.map(sm => (
@@ -134,11 +134,11 @@ const NewMedicationModal: React.FC = () => {
 
               <div className="flex items-center gap-2">
                 <span className="bg-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-slate-400 border border-slate-100">{index + 1}</span>
-                <input placeholder="Nome do Medicamento" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} className="flex-1 bg-transparent border-b border-slate-200 focus:border-indigo-500 outline-none text-sm font-bold py-1" />
+                <input placeholder="Nome do Medicamento" value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} className="flex-1 bg-transparent text-slate-900 border-b border-slate-200 focus:border-indigo-500 outline-none text-sm font-bold py-1" />
               </div>
               <div className="grid grid-cols-2 gap-4 pl-8">
-                <input placeholder="Dose (Ex: 50mg)" value={item.dosage} onChange={e => updateItem(item.id, 'dosage', e.target.value)} className="bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-indigo-500" />
-                <input type="time" value={item.time} onChange={e => updateItem(item.id, 'time', e.target.value)} className="w-full bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-indigo-500 text-center" />
+                <input placeholder="Dose (Ex: 50mg)" value={item.dosage} onChange={e => updateItem(item.id, 'dosage', e.target.value)} className="bg-white text-slate-900 px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-indigo-500" />
+                <input type="time" value={item.time} onChange={e => updateItem(item.id, 'time', e.target.value)} className="w-full bg-white text-slate-900 px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-indigo-500 text-center" />
               </div>
 
               <div className="pl-8 pt-2">
@@ -146,7 +146,7 @@ const NewMedicationModal: React.FC = () => {
                 <input
                   type="date"
                   onChange={e => updateItem(item.id, 'prescription_expiry', e.target.value)}
-                  className="w-full bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-indigo-500 text-center"
+                  className="w-full bg-white text-slate-900 px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-indigo-500 text-center"
                 />
               </div>
             </div>

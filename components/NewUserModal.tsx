@@ -61,7 +61,7 @@ const NewUserModal: React.FC = () => {
           <input
             value={username}
             onChange={e => setUsername(e.target.value)}
-            className="w-full p-4 bg-slate-50 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500"
+            className="w-full p-4 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500"
             placeholder="Ex: joao.silva"
             autoFocus
           />
@@ -73,7 +73,7 @@ const NewUserModal: React.FC = () => {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full p-4 bg-slate-50 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500"
+            className="w-full p-4 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500"
             placeholder="joao@vivaplena.com"
           />
         </div>

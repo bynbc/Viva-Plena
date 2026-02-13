@@ -13,7 +13,7 @@ const Input = ({ label, field, type = 'text', placeholder, required = false, val
       type={type}
       value={value}
       onChange={onChange}
-      className={`w-full p-3 bg-slate-50 rounded-xl font-bold border outline-none transition-colors ${error ? 'border-rose-400 focus:border-rose-500 bg-rose-50' : 'border-slate-100 focus:border-indigo-500'
+      className={`w-full p-3 bg-slate-50 text-slate-900 rounded-xl font-bold border outline-none transition-colors ${error ? 'border-rose-400 focus:border-rose-500 bg-rose-50' : 'border-slate-100 focus:border-indigo-500'
         }`}
       placeholder={placeholder}
     />
@@ -27,7 +27,7 @@ const Select = ({ label, field, options, value, onChange }: any) => (
     <select
       value={value}
       onChange={onChange}
-      className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500 transition-colors"
+      className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500 transition-colors"
     >
       {options.map((opt: any) => (
         <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -517,7 +517,7 @@ const NewPatientModal: React.FC = () => {
               <textarea
                 value={formData.dependence_history}
                 onChange={e => handleChange('dependence_history', e.target.value)}
-                className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500"
+                className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-100 outline-none focus:border-indigo-500"
                 placeholder="Quais substâncias, tempo de uso..."
                 rows={3}
               />

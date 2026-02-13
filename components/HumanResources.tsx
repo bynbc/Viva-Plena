@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Briefcase, Users, UserPlus, Shield, Clock, 
-  CheckCircle2, AlertCircle, Search, Trash2 
+import {
+  Briefcase, Users, UserPlus, Shield, Clock,
+  CheckCircle2, AlertCircle, Search, Trash2
 } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import { AppUser } from '../types';
@@ -9,7 +9,7 @@ import MobileModal from './common/MobileModal';
 
 const HumanResources: React.FC = () => {
   const { brain, push, addToast, refreshData } = useBrain();
-  
+
   // Estado
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +26,7 @@ const HumanResources: React.FC = () => {
   });
 
   // 1. FILTRO DE USUÁRIOS
-  const filteredUsers = brain.users.filter(user => 
+  const filteredUsers = brain.users.filter(user =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.job_title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -44,7 +44,7 @@ const HumanResources: React.FC = () => {
       // NOTA: Em um sistema real Supabase, aqui criaríamos o usuário no Auth.
       // Como estamos no frontend, vamos criar o registro na tabela `app_users`.
       // A senha aqui é salva apenas como referência visual/hash simples (NÃO SEGURO para produção real bancária).
-      
+
       const payload = {
         clinic_id: brain.session.clinicId,
         username: formData.username,
@@ -56,12 +56,12 @@ const HumanResources: React.FC = () => {
       };
 
       await push('app_users', payload);
-      
+
       addToast("Colaborador cadastrado!", "success");
       setIsModalOpen(false);
-      setFormData({ 
-        username: '', email: '', password: '', 
-        job_title: 'Monitor', shift: 'Diurno', role: 'NORMAL' 
+      setFormData({
+        username: '', email: '', password: '',
+        job_title: 'Monitor', shift: 'Diurno', role: 'NORMAL'
       });
       refreshData();
     } catch (error) {
@@ -74,7 +74,7 @@ const HumanResources: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      
+
       {/* CABEÇALHO */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -84,7 +84,7 @@ const HumanResources: React.FC = () => {
           </h1>
           <p className="text-lg text-slate-500 font-medium">Gestão de equipe, turnos e acessos.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-200 transition-all"
         >
@@ -96,12 +96,12 @@ const HumanResources: React.FC = () => {
       {/* BUSCA */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-        <input 
-          type="text" 
-          placeholder="Buscar colaborador por nome ou cargo..." 
+        <input
+          type="text"
+          placeholder="Buscar colaborador por nome ou cargo..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl font-medium focus:border-indigo-500 outline-none"
+          className="w-full pl-12 pr-4 py-3 bg-white text-slate-900 border border-slate-200 rounded-2xl font-medium focus:border-indigo-500 outline-none"
         />
       </div>
 
@@ -109,7 +109,7 @@ const HumanResources: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredUsers.map(user => (
           <div key={user.id} className="bg-white p-5 rounded-[24px] border border-slate-100 hover:border-indigo-200 transition-all shadow-sm group relative">
-            
+
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg text-white shadow-md
@@ -128,7 +128,7 @@ const HumanResources: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Status Indicator */}
               <div className={`w-3 h-3 rounded-full ${user.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`} title={user.is_active ? "Ativo" : "Inativo"} />
             </div>
@@ -158,33 +158,33 @@ const HumanResources: React.FC = () => {
           onClose={() => setIsModalOpen(false)}
           footer={
             <div className="flex gap-3 w-full">
-               <button onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
-               <button onClick={handleSave} disabled={loading} className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase hover:bg-indigo-700 shadow-lg">
-                 {loading ? 'Cadastrando...' : 'Criar Acesso'}
-               </button>
+              <button onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
+              <button onClick={handleSave} disabled={loading} className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase hover:bg-indigo-700 shadow-lg">
+                {loading ? 'Cadastrando...' : 'Criar Acesso'}
+              </button>
             </div>
           }
         >
           <div className="space-y-4">
-            
+
             {/* Nome e Senha */}
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase">Nome de Usuário</label>
-              <input 
+              <input
                 value={formData.username}
-                onChange={e => setFormData({...formData, username: e.target.value})}
-                className="w-full mt-1 p-3 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-800 focus:border-indigo-500 outline-none"
+                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                className="w-full mt-1 p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 font-bold outline-none focus:border-indigo-500"
                 placeholder="Ex: Dr. Silva, Monitor João..."
               />
             </div>
-            
+
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase">Senha Temporária</label>
-              <input 
+              <input
                 type="password"
                 value={formData.password}
-                onChange={e => setFormData({...formData, password: e.target.value})}
-                className="w-full mt-1 p-3 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-800 focus:border-indigo-500 outline-none"
+                onChange={e => setFormData({ ...formData, password: e.target.value })}
+                className="w-full mt-1 p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 font-bold outline-none focus:border-indigo-500"
                 placeholder="******"
               />
             </div>
@@ -193,10 +193,10 @@ const HumanResources: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Cargo / Função</label>
-                <select 
+                <select
                   value={formData.job_title}
-                  onChange={e => setFormData({...formData, job_title: e.target.value})}
-                  className="w-full mt-1 p-3 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-800 outline-none"
+                  onChange={e => setFormData({ ...formData, job_title: e.target.value })}
+                  className="w-full mt-1 p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 font-bold outline-none"
                 >
                   <option>Monitor</option>
                   <option>Psicólogo(a)</option>
@@ -208,11 +208,11 @@ const HumanResources: React.FC = () => {
                 </select>
               </div>
               <div>
-                 <label className="text-xs font-bold text-slate-500 uppercase">Turno</label>
-                 <select 
+                <label className="text-xs font-bold text-slate-500 uppercase">Turno</label>
+                <select
                   value={formData.shift}
-                  onChange={e => setFormData({...formData, shift: e.target.value})}
-                  className="w-full mt-1 p-3 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-800 outline-none"
+                  onChange={e => setFormData({ ...formData, shift: e.target.value })}
+                  className="w-full mt-1 p-3 bg-slate-50 text-slate-900 rounded-xl border border-slate-200 font-bold outline-none"
                 >
                   <option>Diurno</option>
                   <option>Noturno</option>
@@ -229,21 +229,21 @@ const HumanResources: React.FC = () => {
               </label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="radio" 
-                    name="role" 
-                    checked={formData.role === 'NORMAL'} 
-                    onChange={() => setFormData({...formData, role: 'NORMAL'})}
+                  <input
+                    type="radio"
+                    name="role"
+                    checked={formData.role === 'NORMAL'}
+                    onChange={() => setFormData({ ...formData, role: 'NORMAL' })}
                     className="accent-amber-600 w-4 h-4"
                   />
                   <span className="text-sm font-bold text-slate-700">Padrão</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="radio" 
-                    name="role" 
-                    checked={formData.role === 'ADMIN'} 
-                    onChange={() => setFormData({...formData, role: 'ADMIN'})}
+                  <input
+                    type="radio"
+                    name="role"
+                    checked={formData.role === 'ADMIN'}
+                    onChange={() => setFormData({ ...formData, role: 'ADMIN' })}
                     className="accent-amber-600 w-4 h-4"
                   />
                   <span className="text-sm font-bold text-slate-700">Administrador (Total)</span>

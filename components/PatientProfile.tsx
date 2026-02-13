@@ -72,7 +72,7 @@ const PatientProfile: React.FC = () => {
           <textarea
             value={formData[field] || ''}
             onChange={e => handleChange(field, e.target.value)}
-            className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500 min-h-[100px]"
+            className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500 min-h-[100px]"
             placeholder={placeholder}
           />
         ) : (
@@ -80,7 +80,7 @@ const PatientProfile: React.FC = () => {
             type={type}
             value={formData[field] || ''}
             onChange={e => handleChange(field, e.target.value)}
-            className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500"
+            className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500"
             placeholder={placeholder}
           />
         )
@@ -126,7 +126,7 @@ const PatientProfile: React.FC = () => {
 
           <div className="mt-4 text-center w-full max-w-md px-4">
             {isEditing ? (
-              <input value={formData.name || ''} onChange={e => handleChange('name', e.target.value)} className="text-xl md:text-2xl font-black text-center bg-slate-50 border border-slate-200 w-full p-2 rounded-lg outline-none focus:border-indigo-500" placeholder="Nome Completo" />
+              <input value={formData.name || ''} onChange={e => handleChange('name', e.target.value)} className="text-xl md:text-2xl font-black text-center bg-slate-50 text-slate-900 border border-slate-200 w-full p-2 rounded-lg outline-none focus:border-indigo-500" placeholder="Nome Completo" />
             ) : (
               <>
                 <h1 className="text-2xl md:text-3xl font-black text-slate-900 text-center leading-tight">{patient.name}</h1>
@@ -245,7 +245,7 @@ const PatientProfile: React.FC = () => {
               <div className="text-center">
                 <label className="text-[10px] font-black text-slate-400 uppercase">Tratamento CAPS</label>
                 {isEditing ? (
-                  <select value={formData.caps_treatment ? 'sim' : 'nao'} onChange={e => handleChange('caps_treatment', e.target.value === 'sim')} className="w-full mt-1 p-2 bg-white rounded-lg font-bold border border-slate-200 text-sm">
+                  <select value={formData.caps_treatment ? 'sim' : 'nao'} onChange={e => handleChange('caps_treatment', e.target.value === 'sim')} className="w-full mt-1 p-2 bg-white text-slate-900 rounded-lg font-bold border border-slate-200 text-sm">
                     <option value="nao">Não</option>
                     <option value="sim">Sim</option>
                   </select>
@@ -254,7 +254,7 @@ const PatientProfile: React.FC = () => {
               <div className="text-center">
                 <label className="text-[10px] font-black text-slate-400 uppercase">Internações Anteriores</label>
                 {isEditing ? (
-                  <select value={formData.has_previous_admissions ? 'sim' : 'nao'} onChange={e => handleChange('has_previous_admissions', e.target.value === 'sim')} className="w-full mt-1 p-2 bg-white rounded-lg font-bold border border-slate-200 text-sm">
+                  <select value={formData.has_previous_admissions ? 'sim' : 'nao'} onChange={e => handleChange('has_previous_admissions', e.target.value === 'sim')} className="w-full mt-1 p-2 bg-white text-slate-900 rounded-lg font-bold border border-slate-200 text-sm">
                     <option value="nao">Não</option>
                     <option value="sim">Sim</option>
                   </select>
@@ -316,7 +316,7 @@ const PatientProfile: React.FC = () => {
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Tipo de Pagamento</label>
                 {isEditing ? (
-                  <select value={formData.payment_type || 'particular'} onChange={e => handleChange('payment_type', e.target.value)} className="w-full p-3 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500">
+                  <select value={formData.payment_type || 'particular'} onChange={e => handleChange('payment_type', e.target.value)} className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-200 outline-none focus:border-indigo-500">
                     <option value="particular">Particular</option>
                     <option value="convenio">Convênio</option>
                     <option value="social">Social</option>
