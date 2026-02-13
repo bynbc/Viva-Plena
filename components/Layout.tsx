@@ -74,9 +74,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
             {(isSidebarOpen || isMobileMenuOpen) && (
               <div className="animate-in fade-in slide-in-from-left-2 duration-500">
-                <span className="font-black text-2xl text-white tracking-tight leading-none block">ViP</span>
-                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.3em] block mt-1 flex items-center gap-1">
-                  <Zap size={8} className="fill-indigo-400" /> OS 5.0
+                <span className="font-black text-2xl text-white tracking-tight leading-none block">Vida Plena</span>
+                <span className="text-[9px] font-black text-indigo-300 uppercase tracking-[0.3em] block mt-1 flex items-center gap-1">
+                  Gestão
                 </span>
               </div>
             )}
