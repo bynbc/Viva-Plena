@@ -1,16 +1,27 @@
 import React, { useMemo } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Trash2, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Trash2, ArrowUpRight, ArrowDownRight, Wallet, CheckCircle2 } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 
 const Finance: React.FC = () => {
-  const { brain, setQuickAction, remove, addToast } = useBrain();
+  const { brain, setQuickAction, remove, update, addToast } = useBrain();
   const transactions = brain.transactions || [];
 
   const summary = useMemo(() => {
-    const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0);
+    const income = transactions.filter(t => t.type === 'income' && t.status === 'paid').reduce((acc, t) => acc + Number(t.amount), 0);
+    const pending = transactions.filter(t => t.type === 'income' && t.status === 'pending').reduce((acc, t) => acc + Number(t.amount), 0);
     const expense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
-    return { income, expense, balance: income - expense };
+    return { income, pending, expense, balance: income - expense };
   }, [transactions]);
+
+  const handleConfirm = async (id: string) => {
+    try {
+      await update('transactions', id, { status: 'paid' });
+      addToast("Transação confirmada!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Erro ao confirmar.", "error");
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (confirm("Excluir esta transação financeira?")) {
@@ -67,8 +78,8 @@ const Finance: React.FC = () => {
               <div key={t.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/5 transition-colors group">
                 <div className="flex items-center gap-5 min-w-0">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${t.type === 'income'
-                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-500/20'
-                      : 'bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-rose-500/20'
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-500/20'
+                    : 'bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-rose-500/20'
                     }`}>
                     {t.type === 'income' ? <ArrowUpRight size={20} strokeWidth={3} /> : <ArrowDownRight size={20} strokeWidth={3} />}
                   </div>
@@ -91,10 +102,23 @@ const Finance: React.FC = () => {
                     {Number(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </span>
 
-                  {/* Botão de Excluir */}
-                  <button onClick={() => handleDelete(t.id)} className="p-2.5 text-slate-500 hover:text-white hover:bg-rose-500 rounded-xl transition-all opacity-0 group-hover:opacity-100" title="Excluir">
-                    <Trash2 size={18} />
-                  </button>
+                  {/* Ações */}
+                  <div className="flex items-center gap-2">
+                    {t.status === 'pending' && (
+                      <button
+                        onClick={() => handleConfirm(t.id)}
+                        className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white rounded-xl transition-all font-bold text-[10px] uppercase border border-emerald-500/20"
+                        title="Confirmar Recebimento"
+                      >
+                        <CheckCircle2 size={16} />
+                        <span className="hidden md:inline">Confirmar</span>
+                      </button>
+                    )}
+
+                    <button onClick={() => handleDelete(t.id)} className="p-2.5 text-slate-500 hover:text-white hover:bg-rose-500 rounded-xl transition-all opacity-0 group-hover:opacity-100" title="Excluir">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
