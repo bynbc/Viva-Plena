@@ -141,54 +141,101 @@ const NewPatientModal: React.FC = () => {
 
     setLoading(true);
     try {
-      const fee = Number(formData.monthly_fee) || 0;
-      let cId = brain.session.clinicId || '';
-      console.log('Tentando salvar paciente. Raw ClinicID:', cId);
+      // 1. PREPARAÇÃO DO PAYLOAD (Strict Schema Compliance)
 
-      // Sanitização de UUID (Remove aspas duplas/simples extras se houver)
+      // Sanitização de UUID
+      let cId = brain.session.clinicId || '';
+      // Remove quotes and whitespace
       cId = cId.replace(/['"]+/g, '').trim();
-      console.log('Sanitized ClinicID:', cId);
 
       if (!cId) {
-        addToast("Erro de Sessão: ID da clínica não encontrado. Faça login novamente.", "error");
-        setLoading(false);
-        return;
+        throw new Error("ID da clínica não encontrado na sessão (clinic_id missing).");
       }
 
-      // Validação de UUID
+      // Validação básica de UUID
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (!uuidRegex.test(cId)) {
-        console.error('INVALID CLINIC ID (Regex Failed):', cId);
-        addToast(`Erro Crítico: ID da clínica inválido/formato incorreto (${cId}).`, "error");
-        setLoading(false);
-        return;
+        throw new Error(`ID da clínica inválido: ${cId}`);
       }
 
-      // 1. SALVA O PACIENTE
-      // Sanitize payload
+      // Conversão de Tipos Estrita
+      const fee = formData.monthly_fee ? Number(formData.monthly_fee) : 0;
+
+      // Formatação de Datas (YYYY-MM-DD ou null)
+      const date_of_birth = formData.date_of_birth ? new Date(formData.date_of_birth).toISOString().split('T')[0] : null;
+      const entry_date = formData.entry_date ? new Date(formData.entry_date).toISOString().split('T')[0] : null;
+
+      // Booleanos explícitos
+      const has_previous_admissions = Boolean(formData.has_previous_admissions);
+      const caps_treatment = Boolean(formData.caps_treatment);
+      const hospital_detox = Boolean(formData.hospital_detox);
+
       const payload = {
-        clinic_id: cId,
-        ...formData,
-        monthly_fee: fee,
+        clinic_id: cId,           // UUID (NOT NULL)
+        name: formData.name,      // Text (NOT NULL)
+        monthly_fee: fee,         // Numeric
+        date_of_birth,            // Date (YYYY-MM-DD)
+        entry_date,               // Date (YYYY-MM-DD)
+        has_previous_admissions,  // Boolean
+        caps_treatment,           // Boolean
+        hospital_detox,           // Boolean
+
+        // Outros campos do formulário (mapeados direto)
+        cpf: formData.cpf,
+        rg: formData.rg,
+        sex: formData.sex,
+        gender: formData.gender,
+        profession: formData.profession,
+        education_level: formData.education_level,
+        marital_status: formData.marital_status,
+        has_children: Boolean(formData.has_children),
+        mother_name: formData.mother_name,
+        father_name: formData.father_name,
+        place_of_birth: formData.place_of_birth,
+        religion: formData.religion,
+
+        // Endereço
+        address_street: formData.address_street,
+        address_neighborhood: formData.address_neighborhood,
+        address_city: formData.address_city,
+        address_zip: formData.address_zip,
+
+        // Saúde
+        sus_number: formData.sus_number,
+        detox_time: formData.detox_time,
+        hospital_discharge_forecast: formData.hospital_discharge_forecast,
+        health_professional_phone: formData.health_professional_phone,
+        diagnosis: formData.diagnosis,
+        dependence_history: formData.dependence_history,
+
+        // Responsável
+        family_responsible: formData.family_responsible,
+        family_responsible_rg: formData.family_responsible_rg,
+        family_responsible_cpf: formData.family_responsible_cpf,
+        family_bond: formData.family_bond,
+        family_contact: formData.family_contact,
+
+        // Referência
+        origin_city: formData.origin_city,
+        reference_service: formData.reference_service,
+        therapeutic_accompaniment: formData.therapeutic_accompaniment,
+        medication_responsible_name: formData.medication_responsible_name,
+        medication_responsible_contact: formData.medication_responsible_contact,
+        mental_health_recommendations: formData.mental_health_recommendations,
+
+        // Interno
+        photo_url: formData.photo_url,
+        payment_type: formData.payment_type || 'particular',
+        insurance_name: formData.insurance_name,
+
         status: 'active',
         created_at: new Date().toISOString(),
-        created_by: brain.session.user?.username || 'system',
-        // Ensure empty dates are null to avoid 400 type errors
-        date_of_birth: formData.date_of_birth || null,
-        entry_date: formData.entry_date || null,
-        // Ensure empty strings for optional numbers/enums don't cause issues if schema is strict
-        payment_type: formData.payment_type || null,
+        created_by: brain.session.user?.username || 'system'
       };
 
-      // Clean up object (remove keys with undefined/null if you want, but explicit null is usually better for DB)
+      console.log('🚀 Payload sendo enviado:', payload);
 
-      console.log('Payload:', payload); // Debug
-
-      if (cId === '12345678-1234-1234-1234-123456789abc') {
-        console.warn('⚠️ ATENÇÃO: Você está usando o ID de clínica de EXEMPLO. Isso geralmente causa erro 400 se o ID não existir na tabela `clinics`.');
-        addToast("Aviso: ID de clínica de exemplo detectado. Verifique seu cadastro.", "warning");
-      }
-
+      // 1. SALVA O PACIENTE
       await push('patients', payload);
 
       // 2. GERAÇÃO AUTOMÁTICA DE RECEITA FINANCEIRA
@@ -207,9 +254,13 @@ const NewPatientModal: React.FC = () => {
 
       addToast("Acolhido cadastrado com sucesso!", "success");
       setQuickAction(null);
-    } catch (err) {
-      console.error(err);
-      addToast("Erro ao salvar.", "error");
+    } catch (err: any) {
+      console.error("❌ ERRO AO SALVAR PACIENTE:", err);
+      console.error("Mensagem:", err.message);
+      console.error("Detalhes:", err.details);
+      console.error("Dica (Hint):", err.hint);
+
+      addToast(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`, "error");
     } finally {
       setLoading(false);
     }
