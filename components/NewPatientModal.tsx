@@ -204,7 +204,7 @@ const NewPatientModal: React.FC = () => {
         sus_number: formData.sus_number,
         detox_time: formData.detox_time,
         hospital_discharge_forecast: formData.hospital_discharge_forecast,
-        health_professional_phone: formData.health_professional_phone,
+        // health_professional_phone: formData.health_professional_phone, // REMOVIDO: Coluna não existe no banco
         diagnosis: formData.diagnosis,
         dependence_history: formData.dependence_history,
 
