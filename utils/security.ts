@@ -1,6 +1,8 @@
-// Simples função de Hash para não salvar senhas em texto puro
-export const hashPassword = (password: string): string => {
-  // Em um app real usaríamos bcrypt, mas para este template usamos um hash simples base64
-  // para garantir que o login funcione sem bibliotecas pesadas.
-  return btoa(password + "_viva_plena_secret_salt"); 
+// Função de Hash atualizada para SHA-256 (compatível com o banco seeded)
+export const hashPassword = async (password: string): Promise<string> => {
+  const msgBuffer = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
 };

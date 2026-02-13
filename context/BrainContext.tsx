@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabaseClient';
 import { hashPassword } from '../utils/security';
 
 // === CHANGE HERE: Set to false to use Real Data (Supabase) ===
-const USE_MOCK = false; 
+const USE_MOCK = false;
 
 const initialUI: UIState = {
   activeModule: 'dashboard', activeSettingsSection: null, selectedPatientId: null,
@@ -109,7 +109,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ...prev.ui,
         activeModule: module,
         activeSettingsSection: section || null,
-        selectedPatientId: null 
+        selectedPatientId: null
       }
     }));
   };
@@ -140,12 +140,13 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // REAL SUPABASE LOGIN LOGIC
     try {
       const { data: user, error } = await supabase.from('app_users').select('*').eq('username', username).maybeSingle();
-      
+
       if (error || !user) return { success: false, errorCode: 'USER_NOT_FOUND' };
-      
+
       // Simple hash check (In production, use bcrypt/argon2 on backend or Supabase Auth)
-      if (user.password_hash !== hashPassword(passwordRaw)) return { success: false, errorCode: 'PASSWORD_MISMATCH' };
-      
+      const hashedPassword = await hashPassword(passwordRaw);
+      if (user.password_hash !== hashedPassword) return { success: false, errorCode: 'PASSWORD_MISMATCH' };
+
       localStorage.setItem('vp_user_id', user.id);
       await loadSystemData(user);
       return { success: true };
@@ -158,27 +159,27 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const repo = USE_MOCK ? MockRepository : Repository;
       const data = await repo.fetchInitialData(userData.clinic_id);
-      
+
       setBrain(prev => ({
         ...prev,
-        session: { 
-          isAuthenticated: true, 
-          user: userData, 
-          clinicId: userData.clinic_id, 
-          permissions: userData.permissions || { dashboard: true, patients: true, finance: true } 
+        session: {
+          isAuthenticated: true,
+          user: userData,
+          clinicId: userData.clinic_id,
+          permissions: userData.permissions || { dashboard: true, patients: true, finance: true }
         },
-        patients: data.patients, 
-        transactions: data.transactions, 
+        patients: data.patients,
+        transactions: data.transactions,
         finances: { transactions: data.transactions },
-        agenda: data.agenda, 
-        occurrences: data.occurrences, 
-        assessments: data.assessments || [], 
+        agenda: data.agenda,
+        occurrences: data.occurrences,
+        assessments: data.assessments || [],
         documents: data.documents,
-        medications: data.medications, 
-        users: data.users, 
+        medications: data.medications,
+        users: data.users,
         inventory: data.inventory || [],
-        pti: data.pti || [], 
-        healthRecords: data.healthRecords || [], 
+        pti: data.pti || [],
+        healthRecords: data.healthRecords || [],
         loading: false
       }));
     } catch (error) { setBrain(prev => ({ ...prev, loading: false })); }
@@ -186,7 +187,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const initialize = async () => {
     const id = localStorage.getItem('vp_user_id');
-    
+
     // MOCK INITIALIZATION
     if (USE_MOCK && id === 'mock_admin') {
       const mockUser = {

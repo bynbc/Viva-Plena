@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Search, Plus, Calendar, MapPin, MoreHorizontal } from 'lucide-react';
+import { User, Search, Plus, Calendar, MoreHorizontal, UserSquare2 } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import EmptyState from './common/EmptyState';
 
@@ -21,30 +21,30 @@ const Patients: React.FC<PatientsProps> = ({ onSelectPatient }) => {
   };
 
   return (
-    <div className="space-y-6 pb-20 animate-in fade-in">
+    <div className="space-y-8 pb-20 animate-in fade-in duration-500">
       {/* Cabeçalho */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">Acolhidos</h2>
-          <p className="text-sm font-bold text-slate-400">
-            {activePatients.length} ativos na casa
+          <h2 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Acolhidos</h2>
+          <p className="text-sm font-bold text-indigo-200 mt-1">
+            Gestão dos {activePatients.length} pacientes ativos na unidade.
           </p>
         </div>
         <button
           onClick={() => setQuickAction('new_patient')}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center gap-3 border border-indigo-400/20"
         >
-          <Plus size={20} />
-          Novo Acolhido
+          <Plus size={18} />
+          Novo Registro
         </button>
       </div>
 
       {/* Busca */}
-      <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center">
-        <Search className="text-slate-400 ml-3" size={20} />
+      <div className="bg-white/5 p-2 rounded-2xl shadow-lg border border-white/10 flex items-center backdrop-blur-md group focus-within:bg-white/10 transition-colors">
+        <Search className="text-indigo-300 ml-4" size={20} />
         <input
-          placeholder="Buscar acolhido..."
-          className="w-full p-3 font-bold text-slate-700 outline-none bg-transparent placeholder:text-slate-300"
+          placeholder="Buscar pelo nome..."
+          className="w-full p-4 font-bold text-white outline-none bg-transparent placeholder:text-slate-500"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -52,47 +52,46 @@ const Patients: React.FC<PatientsProps> = ({ onSelectPatient }) => {
 
       {/* Lista */}
       {filteredPatients.length === 0 ? (
-        <EmptyState title="Nenhum Acolhido" description="Use o botão acima para cadastrar." />
+        <div className="bg-white/5 border border-white/10 rounded-[32px] p-12 text-center">
+          <EmptyState title="Nenhum Acolhido Encontrado" description="Tente outro termo ou cadastre um novo." />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredPatients.map(patient => (
             <div
               key={patient.id}
               onClick={() => handlePatientClick(patient.id)}
-              className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+              className="glass p-5 rounded-[28px] border border-white/10 hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer group relative overflow-hidden bg-white/5 shadow-xl"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-5">
                 {/* Avatar / Foto */}
-                <div className="w-16 h-16 rounded-2xl bg-slate-100 border-2 border-white shadow-sm overflow-hidden flex-shrink-0">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 shadow-inner overflow-hidden flex-shrink-0 flex items-center justify-center">
                   {patient.photo_url ? (
                     <img src={patient.photo_url} alt={patient.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                      <User size={24} />
-                    </div>
+                    <User className="text-indigo-300" size={24} />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-black text-slate-800 text-lg truncate">{patient.name}</h3>
-                  <p className="text-xs font-bold text-slate-400 uppercase mt-0.5 truncate">
+                  <h3 className="font-black text-white text-lg truncate leading-tight group-hover:text-indigo-300 transition-colors">{patient.name}</h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase mt-1 truncate tracking-wide">
                     {patient.diagnosis || 'Sem Diagnóstico'}
                   </p>
                 </div>
 
-                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                  <MoreHorizontal size={18} />
+                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                  <MoreHorizontal size={16} />
                 </div>
               </div>
 
               <div className="mt-6 flex items-center gap-3">
-                <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
-                  <Calendar size={14} className="text-slate-400" />
-                  <span className="text-xs font-bold text-slate-600">
-                    {patient.entry_date ? new Date(patient.entry_date).toLocaleDateString('pt-BR') : '-'}
+                <div className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center gap-2">
+                  <Calendar size={12} className="text-indigo-400" />
+                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                    Entrada: {patient.entry_date ? new Date(patient.entry_date).toLocaleDateString('pt-BR') : '-'}
                   </span>
                 </div>
-                {/* Removemos o Quarto (Room) pois não existe mais no banco */}
               </div>
             </div>
           ))}

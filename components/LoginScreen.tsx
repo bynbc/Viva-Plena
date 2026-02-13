@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useBrain } from '../context/BrainContext';
 import PasswordInput from './common/PasswordInput';
-import { LogIn, AlertTriangle, Database, ShieldCheck, User as UserIcon, Lock } from 'lucide-react';
+import { LogIn, AlertTriangle, User as UserIcon, Hexagon, Zap } from 'lucide-react';
 
 const LoginScreen: React.FC = () => {
   const { login } = useAuth();
@@ -10,172 +10,115 @@ const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [diagnosticCode, setDiagnosticCode] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setDiagnosticCode('');
-    
-    const cleanUsername = username.trim();
-    const cleanPassword = password.trim();
 
-    if (!cleanUsername || !cleanPassword) {
-      setError('Por favor, preencha todos os campos.');
+    if (!username.trim() || !password.trim()) {
+      setError('Preencha todos os campos.');
       return;
     }
 
     setLoading(true);
-    const result = await login(cleanUsername, cleanPassword);
-    
+    // O login agora usa hashPassword async internamente no BrainContext
+    const result = await login(username.trim(), password.trim());
+
     if (!result.success) {
-      if (result.errorCode === 'ENV_INVALID') {
-        setError('Configuração do servidor (ENV) ausente ou inválida.');
-      } else if (result.errorCode === 'SUPABASE_CONN_ERROR') {
-        setError('Erro de conexão com o banco. Verifique o console.');
-      } else {
-        setError('Credenciais inválidas ou acesso desativado.');
-      }
-      
-      if (result.errorCode) {
-        setDiagnosticCode(result.errorCode);
-      }
+      setError('Acesso negado. Verifique suas credenciais.');
     }
     setLoading(false);
   };
 
-  const renderDiagnosticMap = () => {
-    if (!diagnosticCode) return null;
-
-    const messages: Record<string, { title: string; hint: string; icon: any }> = {
-      'ENV_INVALID': {
-        title: 'Variáveis de Ambiente',
-        hint: 'O app não encontrou VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY no Vercel.',
-        icon: AlertTriangle
-      },
-      'USER_NOT_FOUND': { 
-        title: 'Usuário Inexistente', 
-        hint: 'O nome de usuário não foi encontrado na tabela app_users.',
-        icon: UserIcon
-      },
-      'PASSWORD_MISMATCH': { 
-        title: 'Senha Incorreta', 
-        hint: 'A senha não coincide com o valor armazenado no banco.',
-        icon: Database
-      },
-      'NO_CLINIC_MEMBERSHIP': { 
-        title: 'Sem Vínculo', 
-        hint: 'Usuário ok, mas falta registro na tabela clinic_users.',
-        icon: ShieldCheck
-      },
-      'SUPABASE_CONN_ERROR': {
-        title: 'Falha de Hostname',
-        hint: 'A URL do Supabase não pôde ser resolvida por erro de DNS ou caracteres ocultos.',
-        icon: AlertTriangle
-      }
-    };
-
-    const info = messages[diagnosticCode] || { title: 'Erro Operacional', hint: 'Verifique os logs do console para detalhes técnicos.', icon: AlertTriangle };
-    const Icon = info.icon;
-
-    return (
-      <div className="mt-8 p-6 bg-amber-500/10 border border-amber-500/20 rounded-[28px] animate-in slide-in-from-top-4 duration-500 backdrop-blur-md">
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
-            <Icon size={20} />
-          </div>
-          <div>
-            <h4 className="text-[11px] font-black text-amber-500 uppercase tracking-widest mb-1">Mapeamento: {diagnosticCode}</h4>
-            <p className="text-white text-xs font-bold leading-tight mb-2">{info.title}</p>
-            <p className="text-white/60 text-[10px] leading-relaxed italic">{info.hint}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="fixed inset-0 z-[200] bg-[#020817] flex items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#1e293b]/20 rotate-45 transform translate-x-[-20%]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1e293b]/20 rotate-45 transform translate-x-[20%]"></div>
+    <div className="fixed inset-0 z-[200] bg-[#000000] flex items-center justify-center p-4 overflow-hidden font-inter selection:bg-indigo-500/30">
+
+      {/* --- BACKGROUND ANIMADO (LIQUID) --- */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        {/* Gradientes Fluídos */}
+        <div className="absolute top-[-10%] left-[-20%] w-[70vw] h-[70vw] bg-violet-600/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-20%] w-[70vw] h-[70vw] bg-indigo-600/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[70vw] h-[70vw] bg-fuchsia-600/30 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
+
+        {/* Noise Texture (Opcional para textura de vidro) */}
+        <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
       </div>
 
-      <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-700">
-        <div className="glass bg-white/[0.03] rounded-[40px] p-8 lg:p-12 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-          
-          <div className="text-center mb-10 relative z-10">
-            {/* ÍCONE Z */}
-            <div className="w-20 h-20 bg-emerald-600 rounded-[30px] flex items-center justify-center text-white font-black text-4xl shadow-lg mx-auto mb-6 border border-white/10">
-              V
-            </div>
-            
-            {/* NOME NOVO */}
-            <h1 className="text-4xl font-extrabold text-white tracking-tight mb-1">Vida Plena</h1>
-            <p className="text-emerald-500 font-bold uppercase tracking-[0.25em] text-[10px] opacity-90">
-              SISTEMA OPERACIONAL
-            </p>
-          </div>
+      {/* --- GLASS CARD --- */}
+      <div className="relative w-full max-w-[400px] z-10 perspective-1000">
+        <div className="relative group">
+          {/* Glow Effect atrás do card */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 rounded-[35px] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-            <div className="space-y-2">
-              <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest pl-5">
-                USUÁRIO
-              </label>
-              <div className="relative">
-                <UserIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Seu identificador"
-                  className="w-full pl-14 pr-8 py-4 bg-white/[0.04] border border-white/10 rounded-full text-white text-sm focus:outline-none focus:bg-white/[0.08] focus:border-emerald-500/50 transition-all font-medium placeholder:text-white/20 shadow-inner"
-                />
+          <div className="relative glass bg-black/40 rounded-[32px] p-8 md:p-10 border border-white/10 backdrop-blur-2xl shadow-2xl overflow-hidden">
+
+            {/* Header */}
+            <div className="text-center mb-10 flex flex-col items-center">
+              <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 rotate-3 transition-transform group-hover:rotate-6">
+                <Hexagon className="text-white fill-white/20" size={32} strokeWidth={2.5} />
               </div>
+              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 tracking-tight">Viva Plena</h1>
+              <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-[0.3em] mt-2 flex items-center gap-1 opacity-80">
+                <Zap size={10} className="fill-indigo-300" /> Sistema Operacional
+              </p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest pl-5">
-                SENHA
-              </label>
-              <PasswordInput 
-                value={password} 
-                onChange={setPassword} 
-                placeholder="••••••••" 
-                className="bg-white/[0.04] border-white/10 text-white rounded-full py-4 px-8 text-sm focus:bg-white/[0.08] placeholder:text-white/20 focus:border-emerald-500/50"
-              />
-            </div>
-
-            {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl text-rose-400 text-[10px] font-bold uppercase tracking-widest text-center animate-in slide-in-from-top-2 backdrop-blur-md flex items-center justify-center gap-2">
-                <AlertTriangle size={14} />
-                {error}
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Usuário</label>
+                <div className="relative group/input">
+                  <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-indigo-400 transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-medium text-white placeholder-slate-500 outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all shadow-inner"
+                    placeholder="Seu ID de acesso"
+                  />
+                </div>
               </div>
-            )}
 
-            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Senha</label>
+                <div className="relative group/input">
+                  <PasswordInput
+                    value={password}
+                    onChange={setPassword}
+                    className="pl-11 bg-white/5 border-white/10 text-white rounded-2xl py-3.5 focus:border-indigo-500/50 focus:bg-white/10 placeholder-slate-500"
+                    placeholder="••••••••"
+                  />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <div className="w-4 h-4 border-2 border-slate-500 rounded-[4px] group-focus-within/input:border-indigo-400 transition-colors"></div>
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl text-rose-300 text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
+                  <AlertTriangle size={14} /> {error}
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-full font-black text-sm uppercase tracking-widest interactive shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-3 mt-4 transition-all duration-300 active:scale-[0.98]"
+                className="w-full mt-4 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 relative overflow-hidden group/btn"
               >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  <>
-                    <span>ACESSAR SISTEMA</span>
-                    <LogIn size={18} />
-                  </>
-                )}
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                <span className="relative flex items-center justify-center gap-2">
+                  {loading ? 'Acessando...' : <>Entrar <LogIn size={16} /></>}
+                </span>
               </button>
+            </form>
 
-              {brain.ui.debugMode && renderDiagnosticMap()}
+            {/* Footer */}
+            <div className="mt-8 text-center">
+              <p className="text-[10px] text-slate-500 font-medium">
+                Problemas de acesso? <span className="text-indigo-400 cursor-pointer hover:underline">Contate o suporte</span>
+              </p>
             </div>
-          </form>
-          
-          <div className="mt-8 text-center opacity-30 hover:opacity-50 transition-opacity">
-             <p className="text-[9px] font-bold text-white uppercase tracking-widest">© 2025 Vida Plena S.O.</p>
           </div>
         </div>
       </div>
