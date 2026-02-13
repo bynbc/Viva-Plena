@@ -253,15 +253,17 @@ const NewPatientModal: React.FC = () => {
         addToast("Cobrança financeira gerada!", "info");
       }
 
+      // 3. ATUALIZAÇÃO E FEEDBACK
       addToast("Acolhido cadastrado com sucesso!", "success");
-      setQuickAction(null);
-    } catch (err: any) {
-      console.error("❌ ERRO AO SALVAR PACIENTE:", err);
-      console.error("Mensagem:", err.message);
-      console.error("Detalhes:", err.details);
-      console.error("Dica (Hint):", err.hint);
 
-      addToast(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`, "error");
+      // Força atualização dos dados globais
+      // (BrainContext já faz isso no push, mas garantindo para UI)
+      await refreshData(); // GARANTE ATUALIZAÇÃO DO DASHBOARD
+      setQuickAction(null); // FECHA O MODAL
+
+    } catch (err: any) {
+      console.error(err);
+      addToast(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -283,12 +285,23 @@ const NewPatientModal: React.FC = () => {
       iconColor="bg-indigo-600"
       onClose={() => setQuickAction(null)}
       footer={
-        <div className="flex gap-2 w-full">
-          <button type="button" onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase">Cancelar</button>
-          <button type="button" onClick={handleSave} disabled={loading} className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase flex items-center justify-center gap-2">
-            {loading ? 'Salvando...' : <><CheckCircle2 size={20} /> Concluir Cadastro</>}
-          </button>
-        </div>
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-xl font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+        >
+          {loading ? (
+            <>
+              <Activity className="animate-spin" size={20} />
+              Salvando...
+            </>
+          ) : (
+            <>
+              <CheckCircle2 size={20} />
+              Salvar Cadastro
+            </>
+          )}
+        </button>
       }
     >
       {/* TABS DE NAVEGAÇÃO */}

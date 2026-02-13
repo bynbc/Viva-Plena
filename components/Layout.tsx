@@ -103,7 +103,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className={`w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden
                     ${isActive
                       ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 translate-x-1'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }
                   `}
                 >
