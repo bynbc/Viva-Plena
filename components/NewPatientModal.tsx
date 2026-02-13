@@ -238,19 +238,24 @@ const NewPatientModal: React.FC = () => {
       // 1. SALVA O PACIENTE
       const savedPatient = await push('patients', payload);
 
-      // 2. GERAÇÃO AUTOMÁTICA DE RECEITA FINANCEIRA
+      // 2. GERAÇÃO AUTOMÁTICA DE RECEITA FINANCEIRA (Com proteção contra erro)
       if (formData.payment_type === 'particular' && fee > 0) {
-        await push('transactions', {
-          clinic_id: cId,
-          patient_id: savedPatient.id, // VÍNCULO IMPORTANTE
-          description: `Mensalidade (1ª): ${formData.name}`,
-          amount: fee,
-          type: 'income',
-          category: 'Mensalidade',
-          status: 'pending',
-          date: new Date().toISOString()
-        });
-        addToast("Cobrança financeira gerada!", "info");
+        try {
+          await push('transactions', {
+            clinic_id: cId,
+            patient_id: savedPatient.id,
+            description: `Mensalidade (1ª): ${formData.name}`,
+            amount: fee,
+            type: 'income',
+            category: 'Mensalidade',
+            status: 'pending',
+            date: new Date().toISOString()
+          });
+          addToast("Cobrança financeira gerada!", "info");
+        } catch (finTxError) {
+          console.error("⚠️ Erro ao gerar financeiro (mas acolhido foi salvo):", finTxError);
+          addToast("Acolhido salvo, mas houve um erro ao gerar a cobrança automática.", "warning");
+        }
       }
 
       // 3. CONFIRMAÇÃO VISUAL IMEDIATA
