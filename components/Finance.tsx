@@ -4,6 +4,7 @@ import { useBrain } from '../context/BrainContext';
 
 const Finance: React.FC = () => {
   const { brain, setQuickAction, remove, update, addToast } = useBrain();
+  const transactions = brain.transactions || [];
   const [currentDate, setCurrentDate] = React.useState(new Date());
 
   const filteredTransactions = useMemo(() => {
@@ -15,7 +16,6 @@ const Finance: React.FC = () => {
   }, [transactions, currentDate]);
 
   const summary = useMemo(() => {
-    // Usa as transações FILTRADAS para o cálculo
     const income = filteredTransactions.filter(t => t.type === 'income' && t.status === 'paid').reduce((acc, t) => acc + Number(t.amount), 0);
     const pending = filteredTransactions.filter(t => t.type === 'income' && t.status === 'pending').reduce((acc, t) => acc + Number(t.amount), 0);
     const expense = filteredTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
@@ -30,7 +30,26 @@ const Finance: React.FC = () => {
 
   const currentMonthName = currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
 
-  // ... (handleConfirm and handleDelete remain the same) ...
+  const handleConfirm = async (id: string) => {
+    try {
+      await update('transactions', id, { status: 'paid' });
+      addToast("Transação confirmada!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Erro ao confirmar.", "error");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Excluir esta transação financeira?")) {
+      try {
+        await remove('transactions', id);
+      } catch (err) {
+        console.error(err);
+        addToast("Erro ao excluir.", "error");
+      }
+    }
+  };
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in duration-500">
