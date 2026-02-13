@@ -1,4 +1,4 @@
-// TIPAGEM GLOBAL DO PROJETO VIVA PLENA
+// TIPAGEM GLOBAL DO PROJETO VIVA PLENA (SCHEMA V2 - SNAKE_CASE)
 
 export interface InventoryItem {
   id: string;
