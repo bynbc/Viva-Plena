@@ -253,19 +253,24 @@ const NewPatientModal: React.FC = () => {
         addToast("Cobrança financeira gerada!", "info");
       }
 
-      // 3. ATUALIZAÇÃO E FEEDBACK
+      // 3. CONFIRMAÇÃO VISUAL IMEDIATA
       addToast("Acolhido cadastrado com sucesso!", "success");
+      setQuickAction(null); // FECHA O MODAL IMEDIATAMENTE
 
-      // Força atualização dos dados globais
-      // (BrainContext já faz isso no push, mas garantindo para UI)
-      await refreshData(); // GARANTE ATUALIZAÇÃO DO DASHBOARD
-      setQuickAction(null); // FECHA O MODAL
+      // 4. ATUALIZAÇÃO EM BACKGROUND (Não trava a UI)
+      try {
+        console.log("🔄 Iniciando atualização de dados em background...");
+        refreshData().then(() => console.log("✅ Dados atualizados com sucesso!"));
+      } catch (refreshErr) {
+        console.warn("⚠️ Erro menor ao atualizar dashboard (dados salvos corretamente):", refreshErr);
+      }
 
     } catch (err: any) {
       console.error(err);
       addToast(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`, 'error');
+      // Se deu erro REAL no salvamento, não fecha o modal para permitir correção
     } finally {
-      setLoading(false);
+      if (typeof setLoading === 'function') setLoading(false);
     }
   };
 
