@@ -45,6 +45,19 @@ function App() {
     }
   }, [brain.session.isAuthenticated]);
 
+  // Backdoor para Debug
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#debug') {
+        navigate('debug');
+      }
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, []);
+
   // Roteador Simples
   const renderModule = () => {
     if (brain.ui.selectedPatientId) {
