@@ -25,6 +25,7 @@ import PTI from './components/PTI';
 import HealthRecords from './components/HealthRecords';
 import HumanResources from './components/HumanResources';
 import GovernmentReport from './components/GovernmentReport';
+import DebugConn from './components/DebugConn';
 
 // IMPORTANTE: O Gerenciador de Modais que faltava
 import QuickActionModals from './components/QuickActionModals';
@@ -88,6 +89,10 @@ function App() {
         return <HumanResources />;
       case 'settings':
         return <Settings />;
+
+      // Diagnóstico
+      case 'debug':
+        return <DebugConn />;
 
       default:
         return <Dashboard />;

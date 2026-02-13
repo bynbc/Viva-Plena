@@ -11,7 +11,7 @@ export interface InventoryItem {
   created_at?: string;
 }
 
-export type ModuleType = 'dashboard' | 'patients' | 'patient-profile' | 'daily-records' | 'occurrences' | 'agenda' | 'medication' | 'finance' | 'documents' | 'reports' | 'government-report' | 'settings' | 'users' | 'inventory' | 'pti' | 'health-records' | 'human-resources';
+export type ModuleType = 'dashboard' | 'patients' | 'patient-profile' | 'daily-records' | 'occurrences' | 'agenda' | 'medication' | 'finance' | 'documents' | 'reports' | 'government-report' | 'settings' | 'users' | 'inventory' | 'pti' | 'health-records' | 'human-resources' | 'debug';
 
 export type SettingsSectionType = 'organization' | 'operational' | 'notifications' | 'plan' | 'users' | null;
 
