@@ -142,8 +142,12 @@ const NewPatientModal: React.FC = () => {
     setLoading(true);
     try {
       const fee = Number(formData.monthly_fee) || 0;
-      const cId = brain.session.clinicId;
-      console.log('Tentando salvar paciente. ClinicID:', cId);
+      let cId = brain.session.clinicId || '';
+      console.log('Tentando salvar paciente. Raw ClinicID:', cId);
+
+      // Sanitização de UUID (Remove aspas duplas/simples extras se houver)
+      cId = cId.replace(/['"]+/g, '').trim();
+      console.log('Sanitized ClinicID:', cId);
 
       if (!cId) {
         addToast("Erro de Sessão: ID da clínica não encontrado. Faça login novamente.", "error");
@@ -154,21 +158,38 @@ const NewPatientModal: React.FC = () => {
       // Validação de UUID
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (!uuidRegex.test(cId)) {
-        console.error('INVALID CLINIC ID:', cId);
-        addToast(`Erro Crítico: ID da clínica inválido (${cId}). Contate o suporte.`, "error");
+        console.error('INVALID CLINIC ID (Regex Failed):', cId);
+        addToast(`Erro Crítico: ID da clínica inválido/formato incorreto (${cId}).`, "error");
         setLoading(false);
         return;
       }
 
       // 1. SALVA O PACIENTE
-      await push('patients', {
+      // Sanitize payload
+      const payload = {
         clinic_id: cId,
         ...formData,
         monthly_fee: fee,
         status: 'active',
         created_at: new Date().toISOString(),
-        created_by: brain.session.user?.username || 'system'
-      });
+        created_by: brain.session.user?.username || 'system',
+        // Ensure empty dates are null to avoid 400 type errors
+        date_of_birth: formData.date_of_birth || null,
+        entry_date: formData.entry_date || null,
+        // Ensure empty strings for optional numbers/enums don't cause issues if schema is strict
+        payment_type: formData.payment_type || null,
+      };
+
+      // Clean up object (remove keys with undefined/null if you want, but explicit null is usually better for DB)
+
+      console.log('Payload:', payload); // Debug
+
+      if (cId === '12345678-1234-1234-1234-123456789abc') {
+        console.warn('⚠️ ATENÇÃO: Você está usando o ID de clínica de EXEMPLO. Isso geralmente causa erro 400 se o ID não existir na tabela `clinics`.');
+        addToast("Aviso: ID de clínica de exemplo detectado. Verifique seu cadastro.", "warning");
+      }
+
+      await push('patients', payload);
 
       // 2. GERAÇÃO AUTOMÁTICA DE RECEITA FINANCEIRA
       if (formData.payment_type === 'particular' && fee > 0) {
