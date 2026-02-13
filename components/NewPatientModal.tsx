@@ -236,12 +236,13 @@ const NewPatientModal: React.FC = () => {
       console.log('🚀 Payload sendo enviado:', payload);
 
       // 1. SALVA O PACIENTE
-      await push('patients', payload);
+      const savedPatient = await push('patients', payload);
 
       // 2. GERAÇÃO AUTOMÁTICA DE RECEITA FINANCEIRA
       if (formData.payment_type === 'particular' && fee > 0) {
         await push('transactions', {
           clinic_id: cId,
+          patient_id: savedPatient.id, // VÍNCULO IMPORTANTE
           description: `Mensalidade (1ª): ${formData.name}`,
           amount: fee,
           type: 'income',

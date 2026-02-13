@@ -95,6 +95,12 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const remove = async (table: string, id: string) => {
     try {
+      // CASCADE DELETE (Manual)
+      if (table === 'patients') {
+        const { error: transError } = await supabase.from('transactions').delete().eq('patient_id', id);
+        if (transError) console.warn('Erro ao excluir transações vinculadas:', transError);
+      }
+
       const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) throw error;
       addToast('Removido.', 'success');

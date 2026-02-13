@@ -175,6 +175,7 @@ export interface HealthRecord {
 export interface Transaction {
   id: string;
   clinic_id: string;
+  patient_id?: string; // Vinculo com o paciente
   description: string;
   amount: number;
   type: 'income' | 'expense';

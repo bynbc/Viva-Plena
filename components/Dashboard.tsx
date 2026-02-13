@@ -17,6 +17,10 @@ const Dashboard: React.FC = () => {
       .filter(t => t.type === 'income' && t.status === 'paid')
       .reduce((acc, t) => acc + Number(t.amount), 0);
 
+    const pendingRevenue = brain.transactions
+      .filter(t => t.type === 'income' && t.status === 'pending')
+      .reduce((acc, t) => acc + Number(t.amount), 0);
+
     // --- ACOLHIMENTO & VAGAS ---
     const totalCapacity = brain.plan?.limits?.patients || 20;
     const activePatients = brain.patients.filter(p => p.status === 'active').length;
@@ -58,7 +62,7 @@ const Dashboard: React.FC = () => {
     );
 
     return {
-      revenue, activePatients, vacancies, totalCapacity,
+      revenue, pendingRevenue, activePatients, vacancies, totalCapacity,
       evasions, discharges, combinedAgenda,
       alerts: [...delayedMeds, ...criticalOccurrences]
     };
@@ -150,9 +154,19 @@ const Dashboard: React.FC = () => {
           <h2 className="text-3xl font-black text-white truncate">
             {stats.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </h2>
-          <div className="mt-2 flex items-center gap-2 text-emerald-400">
-            <ArrowUpRight size={14} />
-            <span className="text-[10px] font-bold uppercase">Entradas confirmadas</span>
+          <div className="mt-2 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-emerald-400">
+              <ArrowUpRight size={14} />
+              <span className="text-[10px] font-bold uppercase">Entradas confirmadas</span>
+            </div>
+            {stats.pendingRevenue > 0 && (
+              <div className="flex items-center gap-2 text-amber-400 animate-pulse">
+                <Clock size={14} />
+                <span className="text-[10px] font-bold uppercase">
+                  + {stats.pendingRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} Pendente
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
