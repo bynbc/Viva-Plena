@@ -38,7 +38,7 @@ const Select = ({ label, field, options, value, onChange }: any) => (
 
 const NewPatientModal: React.FC = () => {
   // SCHEMA V2 COMPLIANCE: snake_case fields enforced
-  const { setQuickAction, push, addToast, brain } = useBrain();
+  const { setQuickAction, push, addToast, brain, refreshData } = useBrain();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [errors, setErrors] = useState<Record<string, string>>({});

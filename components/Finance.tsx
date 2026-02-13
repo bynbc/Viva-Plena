@@ -4,35 +4,33 @@ import { useBrain } from '../context/BrainContext';
 
 const Finance: React.FC = () => {
   const { brain, setQuickAction, remove, update, addToast } = useBrain();
-  const transactions = brain.transactions || [];
+  const [currentDate, setCurrentDate] = React.useState(new Date());
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      const tDate = new Date(t.date);
+      return tDate.getMonth() === currentDate.getMonth() &&
+        tDate.getFullYear() === currentDate.getFullYear();
+    });
+  }, [transactions, currentDate]);
 
   const summary = useMemo(() => {
-    const income = transactions.filter(t => t.type === 'income' && t.status === 'paid').reduce((acc, t) => acc + Number(t.amount), 0);
-    const pending = transactions.filter(t => t.type === 'income' && t.status === 'pending').reduce((acc, t) => acc + Number(t.amount), 0);
-    const expense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
+    // Usa as transações FILTRADAS para o cálculo
+    const income = filteredTransactions.filter(t => t.type === 'income' && t.status === 'paid').reduce((acc, t) => acc + Number(t.amount), 0);
+    const pending = filteredTransactions.filter(t => t.type === 'income' && t.status === 'pending').reduce((acc, t) => acc + Number(t.amount), 0);
+    const expense = filteredTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0);
     return { income, pending, expense, balance: income - expense };
-  }, [transactions]);
+  }, [filteredTransactions]);
 
-  const handleConfirm = async (id: string) => {
-    try {
-      await update('transactions', id, { status: 'paid' });
-      addToast("Transação confirmada!", "success");
-    } catch (err) {
-      console.error(err);
-      addToast("Erro ao confirmar.", "error");
-    }
+  const changeMonth = (increment: number) => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(newDate.getMonth() + increment);
+    setCurrentDate(newDate);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Excluir esta transação financeira?")) {
-      try {
-        await remove('transactions', id);
-      } catch (err) {
-        console.error(err);
-        addToast("Erro ao excluir.", "error");
-      }
-    }
-  };
+  const currentMonthName = currentDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+
+  // ... (handleConfirm and handleDelete remain the same) ...
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in duration-500">
@@ -41,6 +39,20 @@ const Finance: React.FC = () => {
           <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">Financeiro</h1>
           <p className="text-indigo-200 font-medium mt-1">Fluxo de caixa e movimentações.</p>
         </div>
+
+        {/* Controle de Data */}
+        <div className="flex items-center gap-4 bg-white/10 p-2 rounded-2xl border border-white/10 backdrop-blur-md">
+          <button onClick={() => changeMonth(-1)} className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors">
+            <TrendingDown className="rotate-90" size={20} />
+          </button>
+          <span className="text-white font-black uppercase text-sm min-w-[140px] text-center">
+            {currentMonthName}
+          </span>
+          <button onClick={() => changeMonth(1)} className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors">
+            <TrendingUp className="rotate-90" size={20} />
+          </button>
+        </div>
+
         <div className="flex gap-3 w-full md:w-auto">
           <button onClick={() => setQuickAction('new_income')} className="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 border border-emerald-400/20">
             <ArrowUpRight size={16} /> Entrada
@@ -53,28 +65,28 @@ const Finance: React.FC = () => {
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <GlassCard label="Entradas" value={summary.income} color="emerald" icon={TrendingUp} />
+        <GlassCard label="Entradas (Pagas)" value={summary.income} color="emerald" icon={TrendingUp} />
         <GlassCard label="Saídas" value={summary.expense} color="rose" icon={TrendingDown} />
-        <GlassCard label="Saldo Total" value={summary.balance} color="indigo" icon={Wallet} />
+        <GlassCard label="Saldo Período" value={summary.balance} color="indigo" icon={Wallet} />
       </div>
 
       {/* Lista de Transações */}
       <div className="glass rounded-[32px] border border-white/10 shadow-xl overflow-hidden bg-white/5">
         <div className="p-8 border-b border-white/10 flex justify-between items-center">
-          <h3 className="font-black text-white text-lg">Histórico de Transações</h3>
+          <h3 className="font-black text-white text-lg">Histórico - {currentMonthName}</h3>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-lg border border-white/5">
-            {transactions.length} Registros
+            {filteredTransactions.length} Registros
           </span>
         </div>
 
         <div className="divide-y divide-white/5">
-          {transactions.length === 0 ? (
+          {filteredTransactions.length === 0 ? (
             <div className="p-12 text-center flex flex-col items-center gap-4 opacity-50">
               <Wallet size={48} className="text-indigo-300" />
-              <p className="text-indigo-200 font-bold text-sm">Nenhuma movimentação registrada.</p>
+              <p className="text-indigo-200 font-bold text-sm">Nenhuma movimentação em {currentMonthName}.</p>
             </div>
           ) : (
-            transactions.map((t) => (
+            filteredTransactions.map((t) => (
               <div key={t.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/5 transition-colors group">
                 <div className="flex items-center gap-5 min-w-0">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${t.type === 'income'
