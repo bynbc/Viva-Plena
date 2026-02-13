@@ -188,7 +188,7 @@ const NewPatientModal: React.FC = () => {
         profession: formData.profession,
         education_level: formData.education_level,
         marital_status: formData.marital_status,
-        has_children: Boolean(formData.has_children),
+        // has_children: Boolean(formData.has_children), // REMOVIDO: Coluna não existe no banco
         mother_name: formData.mother_name,
         father_name: formData.father_name,
         place_of_birth: formData.place_of_birth,
