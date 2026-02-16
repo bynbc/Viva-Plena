@@ -1,49 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useBrain } from '../../context/BrainContext';
 
 const MedicationNotifier: React.FC = () => {
   const { brain, addToast } = useBrain();
+  const notifiedIdsRef = useRef<Set<string>>(new Set());
+
+  const getNotificationId = (medId: string, tag: 'due' | 'delayed') => {
+    const day = new Date().toISOString().slice(0, 10);
+    return `${tag}:${day}:${medId}`;
+  };
+
+  const shouldNotify = (notificationId: string) => {
+    if (notifiedIdsRef.current.has(notificationId)) return false;
+    notifiedIdsRef.current.add(notificationId);
+    return true;
+  };
 
   useEffect(() => {
-    // Função que verifica os remédios
     const checkMedications = () => {
       if (!brain.medications) return;
 
       const now = new Date();
-      const currentHours = now.getHours();
-      
-      // Filtra remédios pendentes
       const pendingMeds = brain.medications.filter(m => m.status !== 'administered');
+      const dueNow = pendingMeds.filter((med) => {
+        const [medHours, medMinutes] = med.scheduled_time.split(':').map(Number);
+        return now.getHours() === medHours && now.getMinutes() === medMinutes;
+      });
+
+      if (dueNow.length > 0) {
+        const unseenDueNow = dueNow.filter((med) => shouldNotify(getNotificationId(med.id, 'due')));
+        if (unseenDueNow.length > 0) {
+          const suffix = unseenDueNow.length > 1 ? 's' : '';
+          addToast(`⏰ ${unseenDueNow.length} medicamento${suffix} no horário agora.`, 'info');
+        }
+      }
 
       pendingMeds.forEach(med => {
         const [medHours, medMinutes] = med.scheduled_time.split(':').map(Number);
-        
-        // Cria data do remédio para hoje
+
         const medTime = new Date();
         medTime.setHours(medHours, medMinutes, 0, 0);
 
-        // Tempo de atraso em minutos
         const diffMs = now.getTime() - medTime.getTime();
         const diffMins = Math.floor(diffMs / 60000);
 
-        // Regra de Notificação:
-        // Se estiver atrasado entre 15 e 16 minutos (pra não ficar apitando pra sempre, só avisa uma vez nesse intervalo)
-        if (diffMins === 15) {
+        if (diffMins >= 15 && diffMins < 16 && shouldNotify(getNotificationId(med.id, 'delayed'))) {
           addToast(`⚠️ Atraso: ${med.name} (${med.scheduled_time}) para ${med.patient_name} ainda não registrado!`, 'warning');
-          
-          // Tenta tocar um som se o navegador deixar
+
           try {
             const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-alert-2573.mp3');
-            audio.play().catch(() => {}); // Ignora erro se não tiver permissão de autoplay
-          } catch (e) {}
+            audio.play().catch(() => {});
+          } catch (e) { }
         }
       });
     };
 
-    // Roda a verificação a cada 60 segundos
     const interval = setInterval(checkMedications, 60000);
-
-    // Roda uma vez assim que carrega
     checkMedications();
 
     return () => clearInterval(interval);

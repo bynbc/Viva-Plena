@@ -4,6 +4,7 @@ import { Repository } from '../data/repo';
 import { MockRepository } from '../data/mockRepo';
 import { supabase } from '../lib/supabaseClient';
 import { hashPassword } from '../utils/security';
+import toast from 'react-hot-toast';
 
 // === CHANGE HERE: Set to false to use Real Data (Supabase) ===
 const USE_MOCK = false;
@@ -68,8 +69,27 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const addToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
     const id = Math.random().toString(36).substring(7);
+
+    const show = {
+      success: toast.success,
+      error: toast.error,
+      info: toast,
+      warning: toast,
+    };
+
+    show[type](message, {
+      id,
+      duration: type === 'warning' ? 6000 : 4000,
+      icon: type === 'warning' ? '⚠️' : undefined,
+    });
+
     setBrain(prev => ({ ...prev, ui: { ...prev.ui, toasts: [...prev.ui.toasts, { id, message, type }] } }));
     setTimeout(() => setBrain(prev => ({ ...prev, ui: { ...prev.ui, toasts: prev.ui.toasts.filter(t => t.id !== id) } })), 5000);
+  };
+
+  const removeToast = (id: string) => {
+    toast.dismiss(id);
+    setBrain(prev => ({ ...prev, ui: { ...prev.ui, toasts: prev.ui.toasts.filter(t => t.id !== id) } }));
   };
 
   const push = async (table: string, data: any) => {
@@ -229,7 +249,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => { initialize(); }, []);
 
   return (
-    <BrainContext.Provider value={{ brain, navigate, setQuickAction: (a) => setBrain(p => ({ ...p, ui: { ...p.ui, quickAction: a } })), addToast, removeToast: (id) => { }, refreshData: initialize, push, update, remove, logout, login, edit: (t, d) => setBrain(p => ({ ...p, ui: { ...p.ui, editingItem: { type: t, data: d } } })), cancelEdit: () => setBrain(p => ({ ...p, ui: { ...p.ui, editingItem: null } })), selectPatient }}>
+    <BrainContext.Provider value={{ brain, navigate, setQuickAction: (a) => setBrain(p => ({ ...p, ui: { ...p.ui, quickAction: a } })), addToast, removeToast, refreshData: initialize, push, update, remove, logout, login, edit: (t, d) => setBrain(p => ({ ...p, ui: { ...p.ui, editingItem: { type: t, data: d } } })), cancelEdit: () => setBrain(p => ({ ...p, ui: { ...p.ui, editingItem: null } })), selectPatient }}>
       {children}
     </BrainContext.Provider>
   );

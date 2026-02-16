@@ -94,7 +94,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <React.Fragment key={item.id}>
                 {showGroupTitle && (
                   <div className="mt-6 mb-2 px-4">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{item.group}</span>
+                    <span className="text-[9px] font-black text-indigo-200/70 uppercase tracking-widest">{item.group}</span>
                   </div>
                 )}
 
@@ -103,7 +103,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className={`w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden
                     ${isActive
                       ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 translate-x-1'
-                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      : 'text-slate-100/90 hover:bg-white/10 hover:text-white'
                     }
                   `}
                 >
@@ -148,7 +148,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="hidden lg:flex w-full mt-2 items-center justify-center p-2 text-slate-500 hover:text-indigo-400 transition-colors"
+            className="hidden lg:flex w-full mt-2 items-center justify-center p-2 text-slate-500 hover:text-indigo-400 transition-colors group"
           >
             <div className={`w-8 h-1 bg-white/10 rounded-full group-hover:bg-indigo-500/50 transition-colors ${!isSidebarOpen ? 'w-2 h-2' : ''}`} />
           </button>

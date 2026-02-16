@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, UploadCloud, X } from 'lucide-react';
+import { FileText, UploadCloud } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import MobileModal from './common/MobileModal';
 
@@ -8,12 +8,14 @@ const NewDocumentModal: React.FC = () => {
   const [name, setName] = useState('');
   const [type, setType] = useState('Exame');
   const [fileContent, setFileContent] = useState<string | null>(null);
+  const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) return addToast('Arquivo muito grande (Max 5MB)', 'warning');
+      setFileName(file.name);
       const reader = new FileReader();
       reader.onloadend = () => setFileContent(reader.result as string);
       reader.readAsDataURL(file);
@@ -30,7 +32,7 @@ const NewDocumentModal: React.FC = () => {
         clinic_id: brain.session.clinicId,
         title: name,
         type,
-        url: fileContent, // Salva o base64 do arquivo
+        file_url: fileContent, // Salva o base64 do arquivo
         created_at: new Date().toISOString()
       });
       addToast('Documento salvo!', 'success');
@@ -75,7 +77,7 @@ const NewDocumentModal: React.FC = () => {
           <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
           <UploadCloud size={32} className={`mb-2 ${fileContent ? 'text-blue-600' : 'text-slate-300'}`} />
           {fileContent ? (
-            <p className="text-xs font-bold text-blue-600">Arquivo Selecionado!</p>
+            <p className="text-xs font-bold text-blue-600">{fileName || 'Arquivo selecionado'}</p>
           ) : (
             <>
               <p className="text-xs font-bold text-slate-500">Toque para selecionar arquivo</p>

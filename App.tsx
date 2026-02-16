@@ -69,7 +69,7 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'patients':
-        return <Patients onSelectPatient={(id) => navigate('patients', undefined)} />;
+        return <Patients />;
       case 'pti':
         return <PTI />;
       case 'health-records':

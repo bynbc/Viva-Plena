@@ -33,7 +33,7 @@ const GovernmentReport: React.FC = () => {
                     <select
                         value={selectedPatientId}
                         onChange={e => setSelectedPatientId(e.target.value)}
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500"
+                        className="w-full p-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500"
                     >
                         <option value="">-- Selecione --</option>
                         {brain.patients.filter(p => p.status === 'active').map(p => (
@@ -48,7 +48,7 @@ const GovernmentReport: React.FC = () => {
                         type="date"
                         value={reportDate}
                         onChange={e => setReportDate(e.target.value)}
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500"
+                        className="w-full p-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500"
                     />
                 </div>
 

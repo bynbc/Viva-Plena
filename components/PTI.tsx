@@ -21,7 +21,9 @@ const PTI: React.FC = () => {
   useEffect(() => {
     if (selectedPatientId) {
       // Procura o PTI mais recente desse paciente
-      const existingPTI = brain.pti?.find(p => p.patient_id === selectedPatientId);
+      const existingPTI = [...(brain.pti || [])]
+        .filter(p => p.patient_id === selectedPatientId)
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())[0];
       if (existingPTI && existingPTI.goals) {
         setGoals(existingPTI.goals.short_term || '');
         setApproach(existingPTI.goals.psychological_approach || '');
@@ -33,7 +35,7 @@ const PTI: React.FC = () => {
         setDeadline('');
       }
     }
-  }, [selectedPatientId]); // REMOVIDO brain.pti das dependências para evitar loop/overwrite enquanto digita
+  }, [selectedPatientId, brain.pti]);
 
   const handleSavePTI = async () => {
     if (!selectedPatientId) return;
@@ -49,6 +51,7 @@ const PTI: React.FC = () => {
       await push('pti_goals', {
         clinic_id: brain.session.clinicId,
         patient_id: selectedPatientId,
+        patient_name: selectedPatient?.name || null,
         goals: {
           short_term: goals,
           psychological_approach: approach,
@@ -60,8 +63,8 @@ const PTI: React.FC = () => {
       });
 
       addToast("Plano Terapêutico atualizado com sucesso!", "success");
-    } catch (err) {
-      addToast("Erro ao salvar o plano.", "error");
+    } catch (err: any) {
+      addToast(`Erro ao salvar o plano: ${err.message || 'Falha desconhecida'}`, "error");
     } finally {
       setLoading(false);
     }

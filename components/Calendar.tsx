@@ -11,9 +11,11 @@ const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   // Filtra eventos do dia selecionado
-  const dailyEvents = agenda.filter(event => 
-    event.start_at.startsWith(selectedDate)
-  ).sort((a, b) => a.start_at.localeCompare(b.start_at));
+  const dailyEvents = agenda.filter((event) => {
+    const eventDate = new Date(event.start_at);
+    const localDate = new Date(eventDate.getTime() - eventDate.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    return localDate === selectedDate;
+  }).sort((a, b) => a.start_at.localeCompare(b.start_at));
 
   // Função para deletar
   const handleDelete = async (id: string) => {
