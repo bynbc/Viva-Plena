@@ -59,8 +59,8 @@ const Users: React.FC = () => {
     <div className="space-y-6 pb-20 animate-in fade-in">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Equipe & Acessos</h1>
-          <p className="text-slate-500 font-medium">Gerencie quem pode acessar o sistema.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Equipe & Acessos</h1>
+          <p className="text-indigo-200 font-medium">Gerencie quem pode acessar o sistema.</p>
         </div>
         <button
           onClick={() => setQuickAction('new_user')}

@@ -25,8 +25,8 @@ const Inventory: React.FC = () => {
       {/* Cabeçalho */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">Controle de Estoque</h2>
-          <p className="text-sm font-bold text-slate-400">Gerenciamento de insumos e patrimônio</p>
+          <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-md">Controle de Estoque</h2>
+          <p className="text-sm font-bold text-indigo-200">Gerenciamento de insumos e patrimônio</p>
         </div>
         <button
           onClick={() => setQuickAction('new_stock')}

@@ -92,8 +92,8 @@ const Medication: React.FC<MedicationProps> = ({ patientId }) => {
       {!patientId && (
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter">Medicação</h1>
-            <p className="text-slate-500 font-medium mt-1">Painel de enfermagem e controle de dispensação.</p>
+            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter drop-shadow-md">Medicação</h1>
+            <p className="text-indigo-200 font-medium mt-1">Painel de enfermagem e controle de dispensação.</p>
           </div>
           <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
             {delayedCount > 0 && (
@@ -123,15 +123,15 @@ const Medication: React.FC<MedicationProps> = ({ patientId }) => {
 
             return (
               <div key={med.id} className={`p-5 rounded-[24px] border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${med.status === 'administered'
-                  ? 'bg-emerald-50/50 border-emerald-100 opacity-75'
-                  : delayed
-                    ? 'bg-rose-50 border-rose-200 shadow-md ring-1 ring-rose-200'
-                    : 'bg-white border-slate-100 shadow-sm'
+                ? 'bg-emerald-50/50 border-emerald-100 opacity-75'
+                : delayed
+                  ? 'bg-rose-50 border-rose-200 shadow-md ring-1 ring-rose-200'
+                  : 'bg-white border-slate-100 shadow-sm'
                 }`}>
                 {/* Informações */}
                 <div className="flex items-center gap-4 min-w-0">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${med.status === 'administered' ? 'bg-emerald-100 text-emerald-600' :
-                      delayed ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-indigo-50 text-indigo-600'
+                    delayed ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-indigo-50 text-indigo-600'
                     }`}>
                     {delayed ? <AlertTriangle size={20} /> : <Pill size={20} />}
                   </div>

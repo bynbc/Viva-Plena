@@ -18,8 +18,8 @@ const Occurrences: React.FC = () => {
     <div className="space-y-6 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Ocorrências</h1>
-          <p className="text-lg text-slate-500 font-medium">Gestão de eventos adversos e disciplinares.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-md">Ocorrências</h1>
+          <p className="text-lg text-indigo-200 font-medium">Gestão de eventos adversos e disciplinares.</p>
         </div>
         <button
           onClick={() => setQuickAction('new_occurrence')}
