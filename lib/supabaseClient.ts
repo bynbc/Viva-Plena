@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js';
 
 // Tenta pegar do ambiente, se não tiver, usa string vazia (vai dar erro de conexão, mas não de build)

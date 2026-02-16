@@ -69,10 +69,10 @@ const GovernmentReport: React.FC = () => {
                     <div className="bg-white p-8 md:p-12 min-w-[210mm] md:max-w-[210mm] mx-auto min-h-[297mm] shadow-lg print:shadow-none print:w-full print:max-w-none print:p-0 print:m-0" id="print-area">
 
                         {/* CABEÇALHO */}
-                        <div className="border-b-2 border-slate-800 pb-6 mb-8 text-center">
-                            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-widest">Relatório Técnico de Acompanhamento</h1>
-                            <p className="text-lg font-bold text-slate-600 mt-2">Instituição Viva Plena - Comunidade Terapêutica</p>
-                            <p className="text-sm text-slate-500">Gerado em: {new Date(reportDate).toLocaleDateString()}</p>
+                        <div className="border-b-2 border-slate-800 pb-6 mb-8 text-center print:border-black">
+                            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-widest print:text-black">Relatório Técnico de Acompanhamento</h1>
+                            <p className="text-lg font-bold text-slate-600 mt-2 print:text-black">Instituição Viva Plena - Comunidade Terapêutica</p>
+                            <p className="text-sm text-slate-500 print:text-black">Gerado em: {new Date(reportDate).toLocaleDateString()}</p>
                         </div>
 
                         {/* 1. IDENTIFICAÇÃO */}

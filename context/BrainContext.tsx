@@ -74,6 +74,17 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const push = async (table: string, data: any) => {
     try {
+      // Safety Check
+      if (data.clinic_id === undefined && brain.session.clinicId) {
+        data.clinic_id = brain.session.clinicId;
+      }
+
+      if (!data.clinic_id) {
+        console.error('🚨 ERRO: TENTATIVA DE SALVAR SEM CLINIC_ID', data);
+        addToast('Erro: Sessão inválida (Clinic ID faltando). Faça login novamente.', 'error');
+        throw new Error('Clinic ID Missing');
+      }
+
       const { data: saved, error } = await supabase.from(table).insert(data).select().single();
       if (error) throw error;
       await initialize();
