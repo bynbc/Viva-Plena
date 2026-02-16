@@ -12,6 +12,11 @@ const HealthRecords: React.FC = () => {
     const [newRecordType, setNewRecordType] = useState('Evolução de Enfermagem');
     const [newRecordContent, setNewRecordContent] = useState('');
 
+    // Limpa o conteúdo quando troca o tipo
+    React.useEffect(() => {
+        setNewRecordContent('');
+    }, [newRecordType]);
+
     // Filtros
     const activePatients = brain.patients.filter(p => p.status === 'active');
     const filteredPatients = activePatients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -153,14 +158,14 @@ const HealthRecords: React.FC = () => {
                                     {patientRecords.map(record => (
                                         <div key={record.id} className="relative pl-8 pb-2">
                                             <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white shadow-sm ${record.type === 'Atendimento Médico' ? 'bg-indigo-500' :
-                                                    record.type === 'Psicologia' ? 'bg-purple-500' :
-                                                        'bg-pink-500'
+                                                record.type === 'Psicologia' ? 'bg-purple-500' :
+                                                    'bg-pink-500'
                                                 }`}></div>
 
                                             <div className="flex items-center gap-2 mb-2">
                                                 <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md text-white ${record.type === 'Atendimento Médico' ? 'bg-indigo-500' :
-                                                        record.type === 'Psicologia' ? 'bg-purple-500' :
-                                                            'bg-pink-500'
+                                                    record.type === 'Psicologia' ? 'bg-purple-500' :
+                                                        'bg-pink-500'
                                                     }`}>
                                                     {record.type || 'Evolução'}
                                                 </span>

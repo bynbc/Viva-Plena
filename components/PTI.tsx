@@ -17,7 +17,7 @@ const PTI: React.FC = () => {
   const filteredPatients = activePatients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const selectedPatient = brain.patients.find(p => p.id === selectedPatientId);
 
-  // Carrega o PTI existente quando seleciona um paciente
+  // Carrega o PTI existente somente quando o paciente MUDAR
   useEffect(() => {
     if (selectedPatientId) {
       // Procura o PTI mais recente desse paciente
@@ -33,7 +33,7 @@ const PTI: React.FC = () => {
         setDeadline('');
       }
     }
-  }, [selectedPatientId, brain.pti]);
+  }, [selectedPatientId]); // REMOVIDO brain.pti das dependências para evitar loop/overwrite enquanto digita
 
   const handleSavePTI = async () => {
     if (!selectedPatientId) return;

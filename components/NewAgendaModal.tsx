@@ -16,8 +16,8 @@ const NewAgendaModal: React.FC = () => {
   // Filtra apenas pacientes ativos para o select
   const activePatients = brain.patients?.filter(p => p.status === 'active') || [];
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!title || !startAt) return addToast("Preencha título e horário.", "warning");
 
     setLoading(true);
@@ -54,7 +54,7 @@ const NewAgendaModal: React.FC = () => {
   const footer = (
     <div className="flex gap-3 w-full">
       <button type="button" onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-slate-100 rounded-2xl font-bold text-xs uppercase text-slate-500 hover:bg-slate-200 transition-colors">Cancelar</button>
-      <button form="new-agenda-form" type="submit" disabled={loading} className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold text-xs uppercase shadow-lg hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
+      <button type="button" onClick={() => handleSave()} disabled={loading} className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold text-xs uppercase shadow-lg hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
         {loading ? <Loader2 className="animate-spin" size={18} /> : <><Save size={18} /> Confirmar</>}
       </button>
     </div>

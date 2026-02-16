@@ -70,15 +70,15 @@ const GovernmentReport: React.FC = () => {
 
                         {/* CABEÇALHO */}
                         <div className="border-b-2 border-slate-800 pb-6 mb-8 text-center">
-                            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-widest">Relatório Técnico de Acompanhamento</h1>
-                            <p className="text-sm font-bold text-slate-500 mt-2">Instituição Viva Plena - Comunidade Terapêutica</p>
-                            <p className="text-xs text-slate-400">Gerado em: {new Date(reportDate).toLocaleDateString()}</p>
+                            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-widest">Relatório Técnico de Acompanhamento</h1>
+                            <p className="text-lg font-bold text-slate-600 mt-2">Instituição Viva Plena - Comunidade Terapêutica</p>
+                            <p className="text-sm text-slate-500">Gerado em: {new Date(reportDate).toLocaleDateString()}</p>
                         </div>
 
                         {/* 1. IDENTIFICAÇÃO */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-black text-white bg-slate-900 px-3 py-1 uppercase inline-block mb-4">1. Identificação do Acolhido</h2>
-                            <div className="grid grid-cols-2 gap-y-2 text-sm text-slate-700 border border-slate-200 p-4">
+                            <h2 className="text-base font-black text-white bg-slate-900 px-4 py-1.5 uppercase inline-block mb-4">1. Identificação do Acolhido</h2>
+                            <div className="grid grid-cols-2 gap-y-3 text-base text-slate-800 border border-slate-300 p-5">
                                 <p><strong className="uppercase">Nome:</strong> {patient.name}</p>
                                 <p><strong className="uppercase">Data Nasc.:</strong> {patient.date_of_birth ? new Date(patient.date_of_birth).toLocaleDateString() : '-'}</p>
                                 <p><strong className="uppercase">CPF:</strong> {patient.cpf || '-'}</p>
@@ -90,59 +90,59 @@ const GovernmentReport: React.FC = () => {
 
                         {/* 2. DADOS CLÍNICOS E TRIAGEM */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-black text-white bg-slate-900 px-3 py-1 uppercase inline-block mb-4">2. Dados Clínicos e Triagem</h2>
-                            <div className="border border-slate-200 p-4 text-sm text-slate-700 space-y-2">
+                            <h2 className="text-base font-black text-white bg-slate-900 px-4 py-1.5 uppercase inline-block mb-4">2. Dados Clínicos e Triagem</h2>
+                            <div className="border border-slate-300 p-5 text-base text-slate-800 space-y-3">
                                 <p><strong className="uppercase">Diagnóstico (CID):</strong> {patient.diagnosis || 'Não informado'}</p>
                                 <p><strong className="uppercase">Origem:</strong> {patient.origin_city || '-'} ({patient.reference_service || '-'})</p>
-                                <div className="mt-2 pt-2 border-t border-slate-100">
+                                <div className="mt-2 pt-2 border-t border-slate-200">
                                     <strong className="uppercase block mb-1">Histórico de Dependência:</strong>
-                                    <p className="italic text-slate-600">{patient.dependence_history || 'Sem histórico registrado.'}</p>
+                                    <p className="italic text-slate-700">{patient.dependence_history || 'Sem histórico registrado.'}</p>
                                 </div>
                             </div>
                         </section>
 
                         {/* 3. AVALIAÇÕES TÉCNICAS */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-black text-white bg-slate-900 px-3 py-1 uppercase inline-block mb-4">3. Avaliações Técnicas (Resumo)</h2>
+                            <h2 className="text-base font-black text-white bg-slate-900 px-4 py-1.5 uppercase inline-block mb-4">3. Avaliações Técnicas (Resumo)</h2>
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="border border-slate-200 p-3 text-center">
-                                    <strong className="block text-xs uppercase text-slate-400 mb-1">ASSIST (Score)</strong>
-                                    <span className="text-xl font-black text-slate-800">{lastAssist ? lastAssist.total_score : '-'}</span>
-                                    <p className="text-[10px] text-slate-400 mt-1">{lastAssist ? new Date(lastAssist.created_at).toLocaleDateString() : 'Não avaliado'}</p>
+                                <div className="border border-slate-300 p-4 text-center">
+                                    <strong className="block text-sm uppercase text-slate-500 mb-1">ASSIST (Score)</strong>
+                                    <span className="text-2xl font-black text-slate-900">{lastAssist ? lastAssist.total_score : '-'}</span>
+                                    <p className="text-xs text-slate-500 mt-1">{lastAssist ? new Date(lastAssist.created_at).toLocaleDateString() : 'Não avaliado'}</p>
                                 </div>
-                                <div className="border border-slate-200 p-3 text-center">
-                                    <strong className="block text-xs uppercase text-slate-400 mb-1">AUDIT (Score)</strong>
-                                    <span className="text-xl font-black text-slate-800">{lastAudit ? lastAudit.total_score : '-'}</span>
-                                    <p className="text-[10px] text-slate-400 mt-1">{lastAudit ? new Date(lastAudit.created_at).toLocaleDateString() : 'Não avaliado'}</p>
+                                <div className="border border-slate-300 p-4 text-center">
+                                    <strong className="block text-sm uppercase text-slate-500 mb-1">AUDIT (Score)</strong>
+                                    <span className="text-2xl font-black text-slate-900">{lastAudit ? lastAudit.total_score : '-'}</span>
+                                    <p className="text-xs text-slate-500 mt-1">{lastAudit ? new Date(lastAudit.created_at).toLocaleDateString() : 'Não avaliado'}</p>
                                 </div>
-                                <div className="border border-slate-200 p-3 text-center">
-                                    <strong className="block text-xs uppercase text-slate-400 mb-1">Enfermagem (PA)</strong>
-                                    <span className="text-xl font-black text-slate-800">{nursing && nursing.data ? nursing.data.blood_pressure : '-'}</span>
-                                    <p className="text-[10px] text-slate-400 mt-1">{nursing ? new Date(nursing.created_at).toLocaleDateString() : 'Não aferido'}</p>
+                                <div className="border border-slate-300 p-4 text-center">
+                                    <strong className="block text-sm uppercase text-slate-500 mb-1">Enfermagem (PA)</strong>
+                                    <span className="text-2xl font-black text-slate-900">{nursing && nursing.data ? nursing.data.blood_pressure : '-'}</span>
+                                    <p className="text-xs text-slate-500 mt-1">{nursing ? new Date(nursing.created_at).toLocaleDateString() : 'Não aferido'}</p>
                                 </div>
                             </div>
                         </section>
 
                         {/* 4. MEDICAÇÃO EM USO */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-black text-white bg-slate-900 px-3 py-1 uppercase inline-block mb-4">4. Medicação em Uso</h2>
-                            <table className="w-full text-sm border-collapse border border-slate-200">
+                            <h2 className="text-base font-black text-white bg-slate-900 px-4 py-1.5 uppercase inline-block mb-4">4. Medicação em Uso</h2>
+                            <table className="w-full text-base border-collapse border border-slate-300">
                                 <thead>
                                     <tr className="bg-slate-100">
-                                        <th className="border border-slate-200 p-2 text-left">Medicamento</th>
-                                        <th className="border border-slate-200 p-2 text-left">Dosagem</th>
-                                        <th className="border border-slate-200 p-2 text-center">Horário</th>
+                                        <th className="border border-slate-300 p-3 text-left">Medicamento</th>
+                                        <th className="border border-slate-300 p-3 text-left">Dosagem</th>
+                                        <th className="border border-slate-300 p-3 text-center">Horário</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {medications.length > 0 ? medications.map(m => (
                                         <tr key={m.id}>
-                                            <td className="border border-slate-200 p-2 font-bold">{m.name}</td>
-                                            <td className="border border-slate-200 p-2">{m.dosage}</td>
-                                            <td className="border border-slate-200 p-2 text-center">{m.scheduled_time}</td>
+                                            <td className="border border-slate-300 p-3 font-bold text-slate-800">{m.name}</td>
+                                            <td className="border border-slate-300 p-3 text-slate-800">{m.dosage}</td>
+                                            <td className="border border-slate-300 p-3 text-center text-slate-800">{m.scheduled_time}</td>
                                         </tr>
                                     )) : (
-                                        <tr><td colSpan={3} className="p-4 text-center italic text-slate-400">Nenhuma medicação prescrita.</td></tr>
+                                        <tr><td colSpan={3} className="p-4 text-center italic text-slate-500">Nenhuma medicação prescrita.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -150,22 +150,22 @@ const GovernmentReport: React.FC = () => {
 
                         {/* 5. OCORRÊNCIAS RELEVANTES */}
                         <section className="mb-8">
-                            <h2 className="text-sm font-black text-white bg-slate-900 px-3 py-1 uppercase inline-block mb-4">5. Ocorrências Relevantes</h2>
-                            <ul className="list-disc pl-5 text-sm space-y-1 text-slate-700">
+                            <h2 className="text-base font-black text-white bg-slate-900 px-4 py-1.5 uppercase inline-block mb-4">5. Ocorrências Relevantes</h2>
+                            <ul className="list-disc pl-5 text-base space-y-2 text-slate-800">
                                 {occurrences.slice(0, 5).map(occ => (
                                     <li key={occ.id}>
-                                        <strong className="uppercase text-xs">{new Date(occ.created_at).toLocaleDateString()}:</strong> {occ.title} - {occ.description}
+                                        <strong className="uppercase text-sm">{new Date(occ.created_at).toLocaleDateString()}:</strong> {occ.title} - {occ.description}
                                     </li>
                                 ))}
-                                {occurrences.length === 0 && <li className="italic text-slate-400 list-none">Nenhuma ocorrência registrada no período.</li>}
+                                {occurrences.length === 0 && <li className="italic text-slate-500 list-none">Nenhuma ocorrência registrada no período.</li>}
                             </ul>
                         </section>
 
                         {/* 6. PARECER TÉCNICO */}
                         <section className="mb-12">
-                            <h2 className="text-sm font-black text-white bg-slate-900 px-3 py-1 uppercase inline-block mb-4">6. Parecer Técnico</h2>
+                            <h2 className="text-base font-black text-white bg-slate-900 px-4 py-1.5 uppercase inline-block mb-4">6. Parecer Técnico</h2>
                             <textarea
-                                className="w-full h-40 border border-slate-200 p-4 text-sm resize-none outline-none print:border-none print:p-0 print:h-auto"
+                                className="w-full h-48 border border-slate-300 p-5 text-base text-slate-800 resize-none outline-none print:border-none print:p-0 print:h-auto font-medium"
                                 placeholder="Digite aqui o parecer técnico, evolução ou observações finais para impressão..."
                                 value={technicalOpinion}
                                 onChange={e => setTechnicalOpinion(e.target.value)}
@@ -174,13 +174,13 @@ const GovernmentReport: React.FC = () => {
 
                         {/* ASSINATURAS */}
                         <div className="grid grid-cols-2 gap-12 mt-20 pt-10 break-inside-avoid">
-                            <div className="border-t border-slate-400 text-center pt-2">
-                                <p className="font-bold text-sm uppercase">{patient.name}</p>
-                                <p className="text-xs text-slate-500">Acolhido</p>
+                            <div className="border-t border-slate-500 text-center pt-2">
+                                <p className="font-bold text-base uppercase text-slate-900">{patient.name}</p>
+                                <p className="text-sm text-slate-600">Acolhido</p>
                             </div>
-                            <div className="border-t border-slate-400 text-center pt-2">
-                                <p className="font-bold text-sm uppercase">Responsável Técnico</p>
-                                <p className="text-xs text-slate-500">Carimbo / Assinatura</p>
+                            <div className="border-t border-slate-500 text-center pt-2">
+                                <p className="font-bold text-base uppercase text-slate-900">Responsável Técnico</p>
+                                <p className="text-sm text-slate-600">Carimbo / Assinatura</p>
                             </div>
                         </div>
 
