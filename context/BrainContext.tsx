@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { BrainState, UIState, QuickActionType, ModuleType, SettingsSectionType } from '../types';
 import { Repository } from '../data/repo';
 import { MockRepository } from '../data/mockRepo';
@@ -116,6 +116,7 @@ const resolveClinicId = (userData: any, fallback?: string | null) =>
 
 export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [brain, setBrain] = useState<BrainState>(initialState);
+  const failedTablesRef = useRef<Set<string>>(new Set());
 
   const addToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -238,18 +239,19 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const push = async (table: string, data: any) => {
-    const clinicId = data.clinic_id || brain.session.clinicId || resolveClinicId(brain.session.user);
-    if (!clinicId) throw new Error('Clinic ID Missing');
+    const clinicId = data.clinic_id || brain.session.clinicId || resolveClinicId(brain.session.user) || 'local-clinic';
 
     const payload = { ...data, clinic_id: clinicId, id: data.id || crypto.randomUUID() };
 
     try {
+      if (failedTablesRef.current.has(table)) throw new Error('TABLE_OFFLINE');
       const { data: saved, error } = await supabase.from(table).insert(payload).select().single();
       if (error) throw error;
       localUpsert(table, clinicId, saved || payload);
       await initialize();
       return saved || payload;
     } catch (err: any) {
+      failedTablesRef.current.add(table);
       localUpsert(table, clinicId, payload);
       await initialize();
       addToast(`Salvo localmente (${table}). Banco indisponível.`, 'warning');
@@ -258,10 +260,10 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const update = async (table: string, id: string, data: any) => {
-    const clinicId = brain.session.clinicId || resolveClinicId(brain.session.user);
-    if (!clinicId) throw new Error('Clinic ID Missing');
+    const clinicId = brain.session.clinicId || resolveClinicId(brain.session.user) || 'local-clinic';
 
     try {
+      if (failedTablesRef.current.has(table)) throw new Error('TABLE_OFFLINE');
       const { error } = await supabase.from(table).update(data).eq('id', id);
       if (error) throw error;
       const old = localGetTable(table, clinicId).find((r: any) => r.id === id) || { id, clinic_id: clinicId };
@@ -269,6 +271,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       addToast('Atualizado!', 'success');
       await initialize();
     } catch (err) {
+      failedTablesRef.current.add(table);
       const old = localGetTable(table, clinicId).find((r: any) => r.id === id) || { id, clinic_id: clinicId };
       localUpsert(table, clinicId, { ...old, ...data, id });
       addToast('Atualizado localmente.', 'warning');
@@ -277,10 +280,10 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const remove = async (table: string, id: string) => {
-    const clinicId = brain.session.clinicId || resolveClinicId(brain.session.user);
-    if (!clinicId) throw new Error('Clinic ID Missing');
+    const clinicId = brain.session.clinicId || resolveClinicId(brain.session.user) || 'local-clinic';
 
     try {
+      if (failedTablesRef.current.has(table)) throw new Error('TABLE_OFFLINE');
       if (table === 'patients') {
         await supabase.from('transactions').delete().eq('patient_id', id);
       }
@@ -290,6 +293,7 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       addToast('Removido.', 'success');
       await initialize();
     } catch (err) {
+      failedTablesRef.current.add(table);
       localDelete(table, clinicId, id);
       addToast('Removido localmente.', 'warning');
       await initialize();

@@ -33,11 +33,11 @@ const GovernmentReport: React.FC = () => {
                     <select
                         value={selectedPatientId}
                         onChange={e => setSelectedPatientId(e.target.value)}
-                        className="w-full p-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500"
+                        className="w-full p-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500" style={{ color: "#0f172a" }}
                     >
                         <option value="">-- Selecione --</option>
                         {brain.patients.filter(p => p.status === 'active').map(p => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
+                            <option key={p.id} value={p.id} style={{ color: "#0f172a", background: "#ffffff" }}>{p.name}</option>
                         ))}
                     </select>
                 </div>
@@ -48,7 +48,7 @@ const GovernmentReport: React.FC = () => {
                         type="date"
                         value={reportDate}
                         onChange={e => setReportDate(e.target.value)}
-                        className="w-full p-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500"
+                        className="w-full p-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold outline-none focus:border-indigo-500" style={{ color: "#0f172a" }}
                     />
                 </div>
 
@@ -65,7 +65,7 @@ const GovernmentReport: React.FC = () => {
 
             {/* ÁREA DE IMPRESSÃO */}
             {patient ? (
-                <div className="overflow-x-auto pb-8">
+                <div className="overflow-x-auto pb-8 print:overflow-visible">
                     <div className="bg-white p-8 md:p-12 min-w-[210mm] md:max-w-[210mm] mx-auto min-h-[297mm] shadow-lg print:shadow-none print:w-full print:max-w-none print:p-0 print:m-0" id="print-area">
 
                         {/* CABEÇALHO */}
