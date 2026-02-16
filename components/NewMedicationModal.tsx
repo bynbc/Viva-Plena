@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Pill, Loader2, Plus, X, UploadCloud, FileText, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { Pill, Loader2, Plus, X, UploadCloud } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import MobileModal from './common/MobileModal';
 
@@ -8,7 +8,6 @@ const NewMedicationModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [patientId, setPatientId] = useState('');
   const [prescriptionFile, setPrescriptionFile] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Lista de itens do estoque que são REMÉDIOS
   const stockMeds = brain.inventory.filter(i => i.category === 'Medicamentos');
@@ -63,9 +62,8 @@ const NewMedicationModal: React.FC = () => {
     try {
       const patient = activePatients.find(p => p.id === patientId);
 
-      await Promise.all(validItems.map(item =>
-        push('medications', {
-          clinic_id: brain.session.clinicId,
+      for (const item of validItems) {
+        await push('medications', {
           patient_id: patientId,
           patient_name: patient?.name,
           name: item.name,
@@ -73,15 +71,16 @@ const NewMedicationModal: React.FC = () => {
           scheduled_time: item.time,
           prescription_file: prescriptionFile,
           status: 'pending',
-          inventory_item_id: item.inventory_id || null, // <--- O PULO DO GATO: Salvando o ID do estoque
+          inventory_item_id: item.inventory_id || null,
           prescription_expiry: (item as any).prescription_expiry || null
-        })
-      ));
+        });
+      }
 
       addToast(`${validItems.length} prescrições criadas!`, "success");
       setQuickAction(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      addToast(`Erro ao salvar prescrição: ${err.message || 'Falha desconhecida'}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -107,7 +106,22 @@ const NewMedicationModal: React.FC = () => {
           </select>
         </div>
 
-        {/* Lista de Medicamentos */}
+
+
+        <div className="border-2 border-dashed border-slate-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center bg-slate-50/50 hover:bg-indigo-50 hover:border-indigo-200 transition-colors cursor-pointer relative">
+          <input type="file" accept=".pdf,image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+          <UploadCloud size={30} className={`mb-2 ${prescriptionFile ? 'text-indigo-600' : 'text-slate-300'}`} />
+          {prescriptionFile ? (
+            <p className="text-xs font-bold text-indigo-600">Receita anexada</p>
+          ) : (
+            <>
+              <p className="text-xs font-bold text-slate-500">Anexar receita (opcional)</p>
+              <p className="text-[9px] font-bold text-slate-300 mt-1 uppercase">PDF, JPG ou PNG (Máx 5MB)</p>
+            </>
+          )}
+        </div>
+
+                {/* Lista de Medicamentos */}
         <div className="space-y-3 pt-4 border-t border-slate-100">
           <div className="flex justify-between items-end px-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Medicamentos</label>

@@ -91,3 +91,33 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+/* PRINT / RELATÓRIO INTERNO */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  #print-area {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+  }
+
+  table, tr, td, th, section, ul, li {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
