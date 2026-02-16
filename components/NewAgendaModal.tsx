@@ -24,15 +24,15 @@ const NewAgendaModal: React.FC = () => {
     try {
       const patient = activePatients.find(p => p.id === patientId);
 
-      // Monta o objeto do evento
+      // Monta o objeto do evento (CLEAN PAYLOAD)
       const payload = {
         clinic_id: brain.session.clinicId,
-        title: title,
-        patient_id: patientId || null, // Envia null se for "Geral"
-        patient_name: patient?.name || null,
+        title: title.trim(),
+        patient_id: patientId || null,
+        // patient_name: Resolvido automaticamente pelo BrainContext se omitido
         start_at: new Date(startAt).toISOString(),
         visitor_name: visitorName || null,
-        description: `Tipo: ${type}`, // Agora a coluna existe no banco!
+        description: type || 'Outro',
         created_at: new Date().toISOString(),
         created_by: brain.session.user?.username || 'Sistema'
       };
@@ -53,7 +53,7 @@ const NewAgendaModal: React.FC = () => {
 
   const footer = (
     <div className="flex gap-3 w-full">
-      <button type="button" onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-slate-100 rounded-2xl font-bold text-xs uppercase text-slate-500 hover:bg-slate-200 transition-colors">Cancelar</button>
+      <button type="button" onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold text-xs uppercase text-slate-400 hover:bg-white/10 hover:text-white transition-colors">Cancelar</button>
       <button type="button" onClick={() => handleSave()} disabled={loading} className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold text-xs uppercase shadow-lg hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
         {loading ? <Loader2 className="animate-spin" size={18} /> : <><Save size={18} /> Confirmar</>}
       </button>
@@ -71,7 +71,7 @@ const NewAgendaModal: React.FC = () => {
             placeholder="Ex: Visita Familiar, Consulta Dr. Pedro..."
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full px-5 py-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 transition-colors"
+            className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 transition-colors placeholder:text-slate-500"
             required
             autoFocus
           />
@@ -85,7 +85,7 @@ const NewAgendaModal: React.FC = () => {
               type="datetime-local"
               value={startAt}
               onChange={e => setStartAt(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 transition-colors"
+              className="w-full pl-12 pr-4 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 transition-colors calendar-picker-indicator-white"
               required
             />
           </div>
@@ -94,7 +94,7 @@ const NewAgendaModal: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Tipo</label>
-            <select value={type} onChange={e => setType(e.target.value)} className="w-full px-5 py-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-amber-500">
+            <select value={type} onChange={e => setType(e.target.value)} className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 [&>option]:text-slate-900">
               <option value="Consulta">Consulta</option>
               <option value="Visita">Visita Familiar</option>
               <option value="Terapia">Terapia Grupo</option>
@@ -104,7 +104,7 @@ const NewAgendaModal: React.FC = () => {
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Acolhido</label>
-            <select value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-5 py-4 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-amber-500">
+            <select value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 [&>option]:text-slate-900">
               <option value="">(Geral / Todos)</option>
               {activePatients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -121,7 +121,7 @@ const NewAgendaModal: React.FC = () => {
                 placeholder="Quem vem visitar?"
                 value={visitorName}
                 onChange={e => setVisitorName(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 text-slate-900 border border-amber-200 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-white/5 text-white border border-amber-500/50 rounded-2xl font-bold text-sm outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-500"
               />
             </div>
           </div>

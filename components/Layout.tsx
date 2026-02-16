@@ -94,7 +94,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <React.Fragment key={item.id}>
                 {showGroupTitle && (
                   <div className="mt-6 mb-2 px-4">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{item.group}</span>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{item.group}</span>
                   </div>
                 )}
 
@@ -103,7 +103,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className={`w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden
                     ${isActive
                       ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 translate-x-1'
-                      : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      : 'text-slate-100 hover:bg-white/10 hover:text-white'
                     }
                   `}
                 >

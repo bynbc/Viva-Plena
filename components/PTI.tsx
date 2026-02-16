@@ -3,8 +3,9 @@ import { Brain, Target, Calendar, CheckCircle2, Search, Save, ChevronRight } fro
 import { useBrain } from '../context/BrainContext';
 
 const PTI: React.FC = () => {
-  const { brain, push, addToast } = useBrain();
+  const { brain, push, update, remove, addToast } = useBrain(); // Added update, remove
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [selectedPtiId, setSelectedPtiId] = useState<string | null>(null); // State for editing
   const [searchTerm, setSearchTerm] = useState('');
 
   // Estados do Formulário PTI (Manual)
@@ -17,23 +18,27 @@ const PTI: React.FC = () => {
   const filteredPatients = activePatients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const selectedPatient = brain.patients.find(p => p.id === selectedPatientId);
 
-  // Carrega o PTI existente somente quando o paciente MUDAR
+  // Carrega o PTI existente (mais recente) somente quando o paciente MUDAR e NÃO estiver editando um específico
   useEffect(() => {
     if (selectedPatientId) {
-      // Procura o PTI mais recente desse paciente
-      const existingPTI = brain.pti?.find(p => p.patient_id === selectedPatientId);
-      if (existingPTI && existingPTI.goals) {
-        setGoals(existingPTI.goals.short_term || '');
-        setApproach(existingPTI.goals.psychological_approach || '');
-        setDeadline(existingPTI.goals.deadline || '');
+      // Pega todos os PTIs do paciente
+      const patientPTIs = brain.pti?.filter(p => p.patient_id === selectedPatientId) || [];
+      // Ordena por data (mais recente primeiro)
+      const latestPTI = patientPTIs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+
+      if (latestPTI && latestPTI.goals) {
+        setSelectedPtiId(latestPTI.id);
+        setGoals(latestPTI.goals.short_term || '');
+        setApproach(latestPTI.goals.psychological_approach || '');
+        setDeadline(latestPTI.goals.deadline || '');
       } else {
-        // Limpa se não tiver nada
+        setSelectedPtiId(null);
         setGoals('');
         setApproach('');
         setDeadline('');
       }
     }
-  }, [selectedPatientId]); // REMOVIDO brain.pti das dependências para evitar loop/overwrite enquanto digita
+  }, [selectedPatientId, brain.pti]);
 
   const handleSavePTI = async () => {
     if (!selectedPatientId) return;
@@ -41,12 +46,7 @@ const PTI: React.FC = () => {
 
     setLoading(true);
     try {
-      // Salva/Atualiza o PTI no banco
-      // Como o banco não tem UPDATE fácil no push, vamos criar um novo registro que será o "vigente"
-      // ou se você tiver um método update implementado, melhor.
-      // Aqui vou assumir que criamos um novo histórico de plano ou atualizamos o atual.
-
-      await push('pti_goals', {
+      const payload = {
         clinic_id: brain.session.clinicId,
         patient_id: selectedPatientId,
         goals: {
@@ -56,10 +56,20 @@ const PTI: React.FC = () => {
           updated_at: new Date().toISOString(),
           updated_by: brain.session.user?.username
         },
-        created_at: new Date().toISOString()
-      });
+        created_at: new Date().toISOString() // Always set created_at for sorting (update ignores this if DB column is read-only, but logic uses it)
+      };
 
-      addToast("Plano Terapêutico atualizado com sucesso!", "success");
+      if (selectedPtiId) {
+        // UPDATE EXISTING
+        await update('pti_goals', selectedPtiId, {
+          goals: payload.goals
+        });
+        addToast("Plano atualizado!", "success");
+      } else {
+        // CREATE NEW
+        await push('pti_goals', payload);
+        addToast("Novo Plano criado!", "success");
+      }
     } catch (err) {
       addToast("Erro ao salvar o plano.", "error");
     } finally {
@@ -93,7 +103,7 @@ const PTI: React.FC = () => {
                 onClick={() => setSelectedPatientId(p.id)}
                 className={`w-full p-3 rounded-2xl flex items-center gap-3 transition-all ${selectedPatientId === p.id
                   ? 'bg-indigo-600 text-white shadow-indigo-200 shadow-lg'
-                  : 'bg-white/40 hover:bg-white/80 text-slate-600 border border-white/50'
+                  : 'bg-white/80 hover:bg-white text-slate-700 border border-white/50 shadow-sm'
                   }`}
               >
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${selectedPatientId === p.id ? 'bg-white/20' : 'bg-slate-200'
@@ -134,48 +144,102 @@ const PTI: React.FC = () => {
               </div>
             </header>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {/* METAS */}
-              <div className="p-4 md:p-6 bg-white/40 rounded-3xl border border-white/60 shadow-inner">
-                <div className="flex items-center gap-3 mb-4 text-slate-700">
-                  <Target size={24} className="text-indigo-600" />
-                  <h3 className="font-black text-lg">Metas de Curto/Médio Prazo</h3>
+              {/* COLUNA ESQUERDA: FORMULÁRIO */}
+              <div className="space-y-6">
+                {/* METAS */}
+                <div className="p-4 bg-white/40 rounded-3xl border border-white/60 shadow-inner">
+                  <div className="flex items-center gap-3 mb-4 text-slate-700">
+                    <Target size={24} className="text-indigo-600" />
+                    <h3 className="font-black text-lg">Metas de Curto/Médio Prazo</h3>
+                  </div>
+                  <textarea
+                    value={goals}
+                    onChange={e => setGoals(e.target.value)}
+                    className="w-full p-4 bg-white/60 rounded-2xl border border-white/50 outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md transition-all min-h-[150px] text-sm text-slate-700 font-medium"
+                    placeholder="- Adaptação à rotina..."
+                  />
                 </div>
-                <p className="text-xs text-slate-400 font-bold uppercase mb-2">Descreva as metas acordadas com a equipe:</p>
-                <textarea
-                  value={goals}
-                  onChange={e => setGoals(e.target.value)}
-                  className="w-full p-4 bg-white/60 rounded-2xl border border-white/50 outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md transition-all min-h-[300px] md:min-h-[200px] text-base md:text-sm text-slate-700 font-medium leading-relaxed backdrop-blur-sm"
-                  placeholder="- Adaptação à rotina&#10;- Redução de ansiedade&#10;- Participação nas oficinas..."
-                />
+
+                {/* ABORDAGEM */}
+                <div className="p-4 bg-white/40 rounded-3xl border border-white/60 shadow-inner">
+                  <div className="flex items-center gap-3 mb-4 text-slate-700">
+                    <Brain size={24} className="text-indigo-600" />
+                    <h3 className="font-black text-lg">Abordagem Terapêutica</h3>
+                  </div>
+                  <textarea
+                    value={approach}
+                    onChange={e => setApproach(e.target.value)}
+                    className="w-full p-4 bg-white/60 rounded-2xl border border-white/50 outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md transition-all min-h-[150px] text-sm text-slate-700 font-medium"
+                    placeholder="Ex: Terapia Cognitivo-Comportamental..."
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4 border-t border-slate-100 gap-2">
+                  {/* BUTTON TO CLEAR / NEW */}
+                  <button
+                    onClick={() => { setSelectedPtiId(null); setGoals(''); setApproach(''); setDeadline(''); }}
+                    className="px-4 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs uppercase hover:bg-slate-200 transition-colors"
+                  >
+                    Novo Plano
+                  </button>
+
+                  <button
+                    onClick={handleSavePTI}
+                    disabled={loading}
+                    className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase hover:bg-indigo-700 transition-all shadow-lg flex items-center gap-2"
+                  >
+                    {loading ? 'Salvando...' : <><Save size={18} /> {selectedPtiId ? 'Atualizar Plano' : 'Salvar Novo'}</>}
+                  </button>
+                </div>
               </div>
 
-              {/* ABORDAGEM */}
-              <div className="p-4 md:p-6 bg-white/40 rounded-3xl border border-white/60 shadow-inner">
-                <div className="flex items-center gap-3 mb-4 text-slate-700">
-                  <Brain size={24} className="text-indigo-600" />
-                  <h3 className="font-black text-lg">Abordagem Terapêutica & Estratégias</h3>
+              {/* COLUNA DIREITA: HISTÓRICO */}
+              <div className="glass-card bg-white/30 p-6 rounded-[32px] border border-white/50">
+                <h3 className="font-black text-slate-700 mb-4 flex items-center gap-2">
+                  <Calendar size={18} /> Histórico de Planos
+                </h3>
+
+                <div className="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                  {brain.pti
+                    .filter(p => p.patient_id === selectedPatientId)
+                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .map(pti => (
+                      <div key={pti.id} className={`p-4 rounded-2xl border transition-all relative group cursor-pointer
+                               ${selectedPtiId === pti.id ? 'bg-indigo-50 border-indigo-200 shadow-md' : 'bg-white border-slate-100 hover:border-indigo-200'}
+                           `} onClick={() => {
+                          setSelectedPtiId(pti.id);
+                          setGoals(pti.goals?.short_term || '');
+                          setApproach(pti.goals?.psychological_approach || '');
+                          setDeadline(pti.goals?.deadline || '');
+                        }}>
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-xs font-black text-slate-400 uppercase">
+                            {new Date(pti.created_at).toLocaleDateString('pt-BR')}
+                          </span>
+                          <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                            <button
+                              onClick={() => confirm('Excluir este plano?') && remove('pti_goals', pti.id)}
+                              className="p-1 px-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-sm font-bold text-slate-700 line-clamp-2">
+                          {pti.goals?.short_term || 'Sem metas definidas'}
+                        </p>
+                        {pti.goals?.deadline && (
+                          <div className="mt-2 inline-block px-2 py-1 bg-slate-100 text-slate-500 rounded-md text-[10px] font-black uppercase">
+                            Vigência: {pti.goals?.deadline}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  }
                 </div>
-                <p className="text-xs text-slate-400 font-bold uppercase mb-2">Metodologia e focos do tratamento:</p>
-                <textarea
-                  value={approach}
-                  onChange={e => setApproach(e.target.value)}
-                  className="w-full p-4 bg-white/60 rounded-2xl border border-white/50 outline-none focus:border-indigo-500 focus:bg-white focus:shadow-md transition-all min-h-[300px] md:min-h-[200px] text-base md:text-sm text-slate-700 font-medium leading-relaxed backdrop-blur-sm"
-                  placeholder="Ex: Terapia Cognitivo-Comportamental com foco em prevenção de recaída..."
-                />
-
               </div>
-            </div>
-
-            <div className="flex justify-end pt-4 border-t border-slate-100">
-              <button
-                onClick={handleSavePTI}
-                disabled={loading}
-                className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase hover:bg-emerald-600 transition-all shadow-lg flex items-center gap-2"
-              >
-                {loading ? 'Salvando...' : <><Save size={18} /> Salvar Plano Terapêutico</>}
-              </button>
             </div>
           </div>
         )}

@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
-import { Activity, Heart, Clipboard, FileText, Search, User, Plus, Stethoscope, Pill, Brain } from 'lucide-react';
+import { Activity, Heart, Clipboard, FileText, Search, User, Plus, Stethoscope, Pill, Brain, Edit2, Trash2 } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 
 const HealthRecords: React.FC = () => {
-    const { brain, push, addToast } = useBrain();
+    const { brain, push, update, remove, addToast } = useBrain(); // Added update, remove
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Estado para novo registro
+    // Estado para novo registro / edição
     const [isAdding, setIsAdding] = useState(false);
+    const [editingRecordId, setEditingRecordId] = useState<string | null>(null); // New State
     const [newRecordType, setNewRecordType] = useState('Evolução de Enfermagem');
     const [newRecordContent, setNewRecordContent] = useState('');
 
-    // Limpa o conteúdo quando troca o tipo
+    // Limpa o conteúdo quando troca o tipo (SE NÃO ESTIVER EDITANDO)
     React.useEffect(() => {
-        setNewRecordContent('');
+        if (!editingRecordId) setNewRecordContent('');
     }, [newRecordType]);
+
+    // Limpa estado ao fechar
+    React.useEffect(() => {
+        if (!isAdding) {
+            setEditingRecordId(null);
+            setNewRecordContent('');
+        }
+    }, [isAdding]);
 
     // Filtros
     const activePatients = brain.patients.filter(p => p.status === 'active');
@@ -32,17 +41,28 @@ const HealthRecords: React.FC = () => {
         if (!selectedPatientId) return;
 
         try {
-            await push('health_records', {
-                clinic_id: brain.session.clinicId,
-                patient_id: selectedPatientId,
-                type: newRecordType,
-                content: newRecordContent,
-                professional_name: brain.session.user?.username || 'Profissional', // Pega o nome de quem tá logado
-                created_at: new Date().toISOString()
-            });
+            if (editingRecordId) {
+                // UPDATE
+                await update('health_records', editingRecordId, {
+                    type: newRecordType,
+                    content: newRecordContent,
+                });
+                addToast("Registro atualizado!", "success");
+            } else {
+                // CREATE
+                await push('health_records', {
+                    clinic_id: brain.session.clinicId,
+                    patient_id: selectedPatientId,
+                    type: newRecordType,
+                    content: newRecordContent,
+                    professional_name: brain.session.user?.username || 'Profissional',
+                    created_at: new Date().toISOString()
+                });
+                addToast("Evolução registrada com sucesso!", "success");
+            }
 
-            addToast("Evolução registrada com sucesso!", "success");
             setIsAdding(false);
+            setEditingRecordId(null);
             setNewRecordContent('');
         } catch (err) {
             addToast("Erro ao salvar.", "error");
@@ -68,9 +88,8 @@ const HealthRecords: React.FC = () => {
                     <div className="space-y-2 md:overflow-y-auto overflow-visible flex-1 custom-scrollbar max-h-[300px] md:max-h-none">
                         {filteredPatients.map(p => (
                             <button
-                                key={p.id}
                                 onClick={() => setSelectedPatientId(p.id)}
-                                className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${selectedPatientId === p.id ? 'bg-pink-600 text-white shadow-pink-200 shadow-lg' : 'bg-white/40 text-slate-600 hover:bg-white/80 border border-white/50'}`}
+                                className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all ${selectedPatientId === p.id ? 'bg-pink-600 text-white shadow-pink-200 shadow-lg' : 'bg-white/80 text-slate-700 hover:bg-white border border-white/50 shadow-sm'}`}
                             >
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${selectedPatientId === p.id ? 'bg-white/20' : 'bg-slate-200'}`}>
                                     {p.name.substring(0, 2)}
@@ -156,25 +175,48 @@ const HealthRecords: React.FC = () => {
                             ) : (
                                 <div className="space-y-6 pl-4 border-l-2 border-slate-100">
                                     {patientRecords.map(record => (
-                                        <div key={record.id} className="relative pl-8 pb-2">
+                                        <div key={record.id} className="relative pl-8 pb-2 group">
                                             <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white shadow-sm ${record.type === 'Atendimento Médico' ? 'bg-indigo-500' :
                                                 record.type === 'Psicologia' ? 'bg-purple-500' :
                                                     'bg-pink-500'
                                                 }`}></div>
 
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md text-white ${record.type === 'Atendimento Médico' ? 'bg-indigo-500' :
-                                                    record.type === 'Psicologia' ? 'bg-purple-500' :
-                                                        'bg-pink-500'
-                                                    }`}>
-                                                    {record.type || 'Evolução'}
-                                                </span>
-                                                <span className="text-xs font-bold text-slate-400 uppercase">
-                                                    {new Date(record.created_at).toLocaleString('pt-BR')}
-                                                </span>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md text-white ${record.type === 'Atendimento Médico' ? 'bg-indigo-500' :
+                                                        record.type === 'Psicologia' ? 'bg-purple-500' :
+                                                            'bg-pink-500'
+                                                        }`}>
+                                                        {record.type || 'Evolução'}
+                                                    </span>
+                                                    <span className="text-xs font-bold text-slate-400 uppercase">
+                                                        {new Date(record.created_at).toLocaleString('pt-BR')}
+                                                    </span>
+                                                </div>
+
+                                                {/* ACTIONS */}
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingRecordId(record.id);
+                                                            setNewRecordType(record.type || 'Evolução de Enfermagem');
+                                                            setNewRecordContent(record.content);
+                                                            setIsAdding(true);
+                                                        }}
+                                                        className="p-1.5 text-slate-300 hover:text-indigo-600 bg-slate-50 hover:bg-indigo-50 rounded-lg"
+                                                    >
+                                                        <Edit2 size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => confirm('Excluir este registro?') && remove('health_records', record.id)}
+                                                        className="p-1.5 text-slate-300 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 rounded-lg"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
 
-                                            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                                            <div className={`bg-white p-5 rounded-2xl border ${editingRecordId === record.id ? 'border-pink-500 ring-2 ring-pink-100' : 'border-slate-100'} shadow-sm hover:shadow-md transition-all`}>
                                                 <p className="text-slate-700 font-medium text-sm leading-relaxed whitespace-pre-wrap">{record.content}</p>
                                                 <div className="mt-3 pt-3 border-t border-slate-50 flex justify-between items-center">
                                                     <span className="text-[10px] font-black text-slate-300 uppercase flex items-center gap-1">

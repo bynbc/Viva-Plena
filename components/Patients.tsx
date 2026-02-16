@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Search, Plus, Calendar, MoreHorizontal, UserSquare2 } from 'lucide-react';
+import { User, Search, Plus, Calendar, MoreHorizontal, UserSquare2, X } from 'lucide-react';
 import { useBrain } from '../context/BrainContext';
 import EmptyState from './common/EmptyState';
 
@@ -12,9 +12,15 @@ const Patients: React.FC<PatientsProps> = ({ onSelectPatient }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const activePatients = brain.patients.filter(p => p.status === 'active');
-  const filteredPatients = activePatients.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
+  const filteredPatients = activePatients.filter(p => {
+    const term = searchTerm.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(term) ||
+      (p.cpf && p.cpf.includes(term)) ||
+      (p.address_city && p.address_city.toLowerCase().includes(term))
+    );
+  });
 
   const handlePatientClick = (id: string) => {
     selectPatient(id);
@@ -43,11 +49,16 @@ const Patients: React.FC<PatientsProps> = ({ onSelectPatient }) => {
       <div className="bg-white/5 p-2 rounded-2xl shadow-lg border border-white/10 flex items-center backdrop-blur-md group focus-within:bg-white/10 transition-colors">
         <Search className="text-indigo-300 ml-4" size={20} />
         <input
-          placeholder="Buscar pelo nome..."
+          placeholder="Buscar por nome, CPF ou cidade..."
           className="w-full p-4 font-bold text-white outline-none bg-transparent placeholder:text-slate-500"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
+        {searchTerm && (
+          <button onClick={() => setSearchTerm('')} className="p-2 text-slate-400 hover:text-white transition-colors mr-2">
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* Lista */}

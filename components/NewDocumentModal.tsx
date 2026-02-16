@@ -30,7 +30,7 @@ const NewDocumentModal: React.FC = () => {
         clinic_id: brain.session.clinicId,
         title: name,
         type,
-        url: fileContent, // Salva o base64 do arquivo
+        file_url: fileContent, // CORRIGIDO: Schema exige file_url
         created_at: new Date().toISOString()
       });
       addToast('Documento salvo!', 'success');

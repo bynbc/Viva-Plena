@@ -4,22 +4,29 @@ import { useBrain } from '../context/BrainContext';
 import EmptyState from './common/EmptyState';
 
 const Documents: React.FC = () => {
-  const { brain, setQuickAction } = useBrain();
+  const { brain, setQuickAction, remove } = useBrain(); // Added remove
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filtra pelo título (title)
-  const filteredDocs = brain.documents.filter(doc => 
+  const filteredDocs = brain.documents.filter(doc =>
     doc.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDelete = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este documento?')) {
+      await remove('documents', id);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-20 animate-in fade-in">
+      {/* ... Header ... */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-black text-slate-800 tracking-tight">Documentos</h2>
           <p className="text-sm font-bold text-slate-400">Arquivos e contratos</p>
         </div>
-        <button 
+        <button
           onClick={() => setQuickAction('new_document')}
           className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-slate-200 transition-all active:scale-95 flex items-center gap-2"
         >
@@ -30,8 +37,8 @@ const Documents: React.FC = () => {
 
       <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center">
         <Search className="text-slate-400 ml-3" size={20} />
-        <input 
-          placeholder="Buscar documento..." 
+        <input
+          placeholder="Buscar documento..."
           className="w-full p-3 font-bold text-slate-700 outline-none bg-transparent placeholder:text-slate-300"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
@@ -72,20 +79,28 @@ const Documents: React.FC = () => {
                       {doc.type}
                     </span>
                   </td>
-                  <td className="p-6 text-right">
-                    {/* CORRIGIDO: file_url */}
-                    {doc.file_url ? (
-                      <a 
-                        href={doc.file_url} 
-                        target="_blank" 
+                  <td className="p-6 text-right flex items-center justify-end gap-2">
+                    {/* DOWNLOAD DO CORRIGIDO: file_url */}
+                    {doc.file_url && (
+                      <a
+                        href={doc.file_url}
+                        target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all"
+                        title="Baixar"
                       >
                         <Download size={18} />
                       </a>
-                    ) : (
-                      <span className="text-xs text-slate-300 font-bold">Sem arquivo</span>
                     )}
+
+                    {/* DELETE ACTION */}
+                    <button
+                      onClick={() => handleDelete(doc.id)}
+                      className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-600 hover:text-white transition-all"
+                      title="Excluir"
+                    >
+                      <File size={18} className="rotate-45" />
+                    </button>
                   </td>
                 </tr>
               ))}

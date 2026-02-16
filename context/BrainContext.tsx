@@ -67,9 +67,20 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [brain, setBrain] = useState<BrainState>(initialState);
 
   const addToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
-    const id = Math.random().toString(36).substring(7);
-    setBrain(prev => ({ ...prev, ui: { ...prev.ui, toasts: [...prev.ui.toasts, { id, message, type }] } }));
-    setTimeout(() => setBrain(prev => ({ ...prev, ui: { ...prev.ui, toasts: prev.ui.toasts.filter(t => t.id !== id) } })), 5000);
+    // ANTI-SPAM: Prevent duplicate messages
+    setBrain(prev => {
+      const isDuplicate = prev.ui.toasts.some(t => t.message === message);
+      if (isDuplicate) return prev;
+
+      const id = Math.random().toString(36).substring(7);
+
+      // Auto-remove after 5s
+      setTimeout(() => {
+        setBrain(current => ({ ...current, ui: { ...current.ui, toasts: current.ui.toasts.filter(t => t.id !== id) } }));
+      }, 5000);
+
+      return { ...prev, ui: { ...prev.ui, toasts: [...prev.ui.toasts, { id, message, type }] } };
+    });
   };
 
   const push = async (table: string, data: any) => {

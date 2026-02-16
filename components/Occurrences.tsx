@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Plus, Search, Calendar, User, CheckCircle2 } from 'lucide-react';
-import { useBrain } from '../context/BrainContext'; // Correção
-
+import { AlertTriangle, Plus, Search, Calendar, User, CheckCircle2, Trash2, Edit2 } from 'lucide-react';
+import { useBrain } from '../context/BrainContext';
 
 const Occurrences: React.FC = () => {
-  const { brain, setQuickAction } = useBrain(); // Correção
-  const { occurrences, loading } = brain; // Correção
+  const { brain, setQuickAction, update, remove, edit } = useBrain();
+  const { occurrences, loading } = brain;
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -47,31 +46,56 @@ const Occurrences: React.FC = () => {
       <div className="space-y-4">
         {loading ? (
           <p className="text-center text-slate-400">Carregando...</p>
-        ) : filteredOccurrences.map(occ => (
-          <div key={occ.id} className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm relative overflow-hidden">
-            <div className={`absolute left-0 top-0 bottom-0 w-2 
+        ) : filteredOccurrences.map(occ => {
+          // Dynamic Name Resolution
+          const relatedPatient = brain.patients.find(p => p.id === occ.patient_id);
+          const patientName = relatedPatient?.name || occ.patient_name || 'Desconhecido';
+
+          return (
+            <div key={occ.id} className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm relative overflow-hidden group">
+              <div className={`absolute left-0 top-0 bottom-0 w-2 
                 ${occ.severity === 'CRITICAL' || occ.severity === 'Crítica' ? 'bg-rose-500' : 'bg-amber-400'}
              `} />
 
-            <div className="pl-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold text-slate-800 text-lg">{occ.title}</h3>
-                <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest
-                      ${occ.status === 'resolved' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}
-                   `}>
-                  {occ.status === 'resolved' ? 'Resolvido' : 'Em Aberto'}
-                </span>
-              </div>
+              <div className="pl-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-bold text-slate-800 text-lg">{occ.title}</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => update('occurrences', occ.id, { status: occ.status === 'open' ? 'resolved' : 'open' })}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest cursor-pointer transition-colors
+                            ${occ.status === 'resolved' ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' : 'bg-rose-100 text-rose-600 hover:bg-rose-200'}
+                        `}
+                    >
+                      {occ.status === 'resolved' ? 'Resolvido' : 'Em Aberto'}
+                    </button>
+                    {/* EDIT ACTION */}
+                    <button
+                      onClick={() => edit('occurrences', occ)}
+                      className="p-2 text-slate-400 hover:text-indigo-600 bg-slate-50 hover:bg-indigo-50 rounded-lg transition-colors"
+                    >
+                      <CheckCircle2 size={16} />
+                    </button>
+                    {/* DELETE ACTION */}
+                    <button
+                      onClick={() => confirm('Excluir ocorrência?') && remove('occurrences', occ.id)}
+                      className="p-2 text-slate-400 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
 
-              <p className="text-slate-600 mb-4">{occ.description}</p>
+                <p className="text-slate-600 mb-4">{occ.description}</p>
 
-              <div className="flex items-center gap-4 text-xs font-bold text-slate-400">
-                <div className="flex items-center gap-1"><User size={14} /> {occ.patient_name}</div>
-                <div className="flex items-center gap-1"><Calendar size={14} /> {new Date(occ.created_at).toLocaleDateString()}</div>
+                <div className="flex items-center gap-4 text-xs font-bold text-slate-400">
+                  <div className="flex items-center gap-1"><User size={14} /> {patientName}</div>
+                  <div className="flex items-center gap-1"><Calendar size={14} /> {new Date(occ.created_at).toLocaleDateString()}</div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
     </div>
