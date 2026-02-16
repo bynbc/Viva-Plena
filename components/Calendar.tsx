@@ -55,8 +55,8 @@ const Calendar: React.FC = () => {
     <div className="space-y-6 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Agenda</h1>
-          <p className="text-lg text-slate-500 font-medium">Compromissos e visitas.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight drop-shadow">Agenda</h1>
+          <p className="text-lg text-indigo-200 font-medium">Compromissos e visitas.</p>
         </div>
         <button
           onClick={() => setQuickAction('new_agenda')}
@@ -79,11 +79,11 @@ const Calendar: React.FC = () => {
 
       <div className="space-y-3">
         {loading ? (
-          <p className="text-center text-slate-400 py-10">Carregando agenda...</p>
+          <p className="text-center text-slate-300 py-10">Carregando agenda...</p>
         ) : dailyEvents.length === 0 ? (
           <div className="text-center py-12 opacity-50">
             <CalendarIcon size={48} className="mx-auto mb-3 text-slate-300" />
-            <p className="font-medium text-slate-400">Nenhum compromisso para este dia.</p>
+            <p className="font-medium text-slate-300">Nenhum compromisso para este dia.</p>
           </div>
         ) : (
           dailyEvents.map((evt) => (
