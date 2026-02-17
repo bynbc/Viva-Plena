@@ -181,7 +181,11 @@ export const BrainProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (err) { return { success: false, errorCode: 'UNKNOWN' }; }
   };
 
-  const logout = () => { localStorage.removeItem('vp_user_id'); setBrain(initialState); };
+  const logout = () => {
+    localStorage.removeItem('vp_user_id');
+    // CRITICAL FIX: Must set loading to false so LoginScreen can render
+    setBrain({ ...initialState, loading: false });
+  };
 
   const loadSystemData = async (userData: any) => {
     try {
