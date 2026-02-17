@@ -8,7 +8,7 @@ import { useBrain } from '../context/BrainContext';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, PieChart as RePieChart, Pie } from 'recharts';
 import GovernmentReport from './GovernmentReport'; // Integrating the detailed report
 
-type ReportTab = 'overview' | 'clinical' | 'financial' | 'stock';
+type ReportTab = 'overview' | 'clinical' | 'financial' | 'stock' | 'government';
 
 const Reports: React.FC = () => {
     const { brain } = useBrain();
@@ -54,17 +54,18 @@ const Reports: React.FC = () => {
                     <p className="text-slate-500 font-bold">Relatórios, Indicadores e Gestão Estratégica</p>
                 </div>
 
-                <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm overflow-x-auto max-w-full">
                     {[
                         { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
-                        { id: 'clinical', label: 'Clínico & Pacientes', icon: Activity },
+                        { id: 'clinical', label: 'Clínico', icon: Activity },
+                        { id: 'government', label: 'Governamental', icon: FileText },
                         { id: 'financial', label: 'Financeiro', icon: DollarSign },
                         { id: 'stock', label: 'Estoque', icon: Package },
                     ].map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as ReportTab)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase transition-all ${activeTab === tab.id
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase transition-all whitespace-nowrap ${activeTab === tab.id
                                     ? 'bg-indigo-600 text-white shadow-md'
                                     : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
                                 }`}
@@ -216,6 +217,91 @@ const Reports: React.FC = () => {
                             {brain.inventory.filter(i => i.quantity <= (i.min_threshold || 5)).length === 0 && (
                                 <p className="text-center text-slate-400 py-10 font-bold">Nenhum item em estado crítico.</p>
                             )}
+                        </div>
+                    </div>
+                )}
+
+                {/* --- TAB: GOVERNMENT (MDS/AUDIT) --- */}
+                {activeTab === 'government' && (
+                    <div className="space-y-6 animate-in slide-in-from-right-4">
+                        <div className="bg-slate-900 text-white p-8 rounded-[32px] shadow-lg print:shadow-none print:bg-white print:text-black print:border print:border-black">
+                            <div className="flex justify-between items-start mb-8">
+                                <div>
+                                    <h2 className="text-2xl font-black uppercase tracking-widest">Relatório Oficial de Gestão</h2>
+                                    <p className="text-slate-400 font-medium mt-1 print:text-slate-600">Ministério do Desenvolvimento Social / Conselhos</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs font-bold text-slate-500 uppercase print:text-black">Período de Análise</p>
+                                    <p className="font-black text-xl">{startDate ? new Date(startDate).toLocaleDateString() : 'Início'} - {endDate ? new Date(endDate).toLocaleDateString() : 'Hoje'}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {/* METRIC: Atendimentos */}
+                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">Total de Atendimentos</p>
+                                    <p className="text-3xl font-black mt-1">{brain.patients.length}</p>
+                                </div>
+
+                                {/* METRIC: Tempo Médio (Simple Frontend Calc) */}
+                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">Tempo Médio (Dias)</p>
+                                    <p className="text-3xl font-black mt-1">
+                                        {(() => {
+                                            const exited = brain.patients.filter(p => p.exit_date && p.entry_date);
+                                            if (exited.length === 0) return 0;
+                                            const totalDays = exited.reduce((acc, p) => {
+                                                const start = new Date(p.entry_date!);
+                                                const end = new Date(p.exit_date!);
+                                                return acc + (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+                                            }, 0);
+                                            return Math.round(totalDays / exited.length);
+                                        })()}
+                                    </p>
+                                </div>
+
+                                {/* METRIC: Taxa de Alta */}
+                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">Taxa de Alta (%)</p>
+                                    <p className="text-3xl font-black mt-1 text-emerald-400 print:text-black">
+                                        {(() => {
+                                            const discharged = brain.patients.filter(p => p.status === 'discharged').length; // discharged or alta
+                                            const totalExits = brain.patients.filter(p => ['discharged', 'evaded', 'deceased', 'alta', 'evasão'].includes(p.status)).length;
+                                            if (totalExits === 0) return 0;
+                                            return Math.round((discharged / totalExits) * 100);
+                                        })()}%
+                                    </p>
+                                </div>
+
+                                {/* METRIC: Reincidência (CPF Check) */}
+                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">Reincidência</p>
+                                    <p className="text-3xl font-black mt-1 text-rose-400 print:text-black">
+                                        {(() => {
+                                            const cpfs = brain.patients.map(p => p.cpf).filter(c => c && c.length > 5);
+                                            const uniqueCpfs = new Set(cpfs);
+                                            return cpfs.length - uniqueCpfs.size;
+                                        })()}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 pt-8 border-t border-white/10 print:border-black">
+                                <h3 className="text-sm font-bold uppercase mb-4">Custo per Capita (Estimado)</h3>
+                                <div className="flex gap-4 items-end">
+                                    <p className="text-4xl font-black text-white print:text-black">
+                                        {(financialData.reduce((acc, i) => acc + i.value, 0) / (activePatients.length || 1)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                    </p>
+                                    <span className="text-xs text-slate-400 mb-2 font-bold uppercase">/ Paciente Ativo</span>
+                                    <p className="text-xs text-slate-500 mb-2 ml-auto max-w-[200px] text-right">
+                                        *Cálculo baseado nas despesas totais divididas pelo número atual de acolhidos.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button onClick={() => window.print()} className="mt-8 bg-white text-slate-900 px-6 py-3 rounded-xl font-black uppercase text-xs hover:bg-slate-200 transition-colors print:hidden w-full md:w-auto">
+                                <Printer size={16} className="inline mr-2" /> Imprimir Relatório Oficial
+                            </button>
                         </div>
                     </div>
                 )}
