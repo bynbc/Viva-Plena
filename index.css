@@ -22,48 +22,121 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- GLASSMORPHISM UTILITIES --- */
+/* --- GLASSMORPHISM 2.0 (PREMIUM) --- */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.2);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 20px 40px -8px rgba(0, 0, 0, 0.2),
+    inset 0 0 30px rgba(255, 255, 255, 0.02);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px) scale(1.005);
+  box-shadow:
+    0 30px 60px -12px rgba(81, 75, 240, 0.15),
+    inset 0 0 40px rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(40px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .text-glow {
-  text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  text-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
 }
 
-/* --- ANIMATIONS --- */
+.text-glow-gold {
+  text-shadow: 0 0 25px rgba(234, 179, 8, 0.3);
+}
+
+/* --- PREMIUM ANIMATIONS --- */
 @keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
   }
 
   33% {
-    transform: translate(30px, -50px) scale(1.1);
+    transform: translate(40px, -60px) scale(1.15);
   }
 
   66% {
-    transform: translate(-20px, 20px) scale(0.9);
+    transform: translate(-30px, 30px) scale(0.9);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
   }
 
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
   100% {
-    transform: translate(0px, 0px) scale(1);
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .animate-blob {
-  animation: blob 7s infinite;
+  animation: blob 15s infinite ease-in-out;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animation-delay-2000 {
@@ -74,9 +147,10 @@ body {
   animation-delay: 4s;
 }
 
-/* --- SCROLLBAR --- */
+/* --- REFINED SCROLLBAR --- */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -85,22 +159,31 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
+  width: 8px;
+  /* Expand on hover */
 }
 
 /* --- PRINT UTILITIES --- */
 @media print {
-  @page { margin: 10mm; }
+  @page {
+    margin: 10mm;
+  }
+
   body * {
     visibility: hidden;
   }
-  .print-area, .print-area * {
+
+  .print-area,
+  .print-area * {
     visibility: visible;
   }
+
   .print-area {
     position: absolute;
     left: 0;
@@ -111,6 +194,7 @@ body {
     border: none;
     box-shadow: none;
   }
+
   .no-print {
     display: none !important;
   }

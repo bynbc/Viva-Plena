@@ -76,7 +76,6 @@ const NewMedicationModal: React.FC = () => {
             prescription_file: prescriptionFile,
             status: 'pending',
             inventory_item_id: item.inventory_id || null,
-            inventory_item_id: item.inventory_id || null,
             prescription_expiry: (item as any).prescription_expiry || null
           });
           successCount++;
