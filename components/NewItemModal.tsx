@@ -87,7 +87,7 @@ const NewItemModal: React.FC = () => {
             type="number"
             value={quantity}
             onChange={e => setQuantity(e.target.value)}
-            placeholder="Qtd"
+            placeholder="Qtd Total (Un/Comp)"
             className="w-full p-4 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-100 outline-none"
           />
           <select
@@ -101,6 +101,24 @@ const NewItemModal: React.FC = () => {
             <option value="Equipamentos">Equipamentos</option>
             <option value="Outros">Outros</option>
           </select>
+        </div>
+
+        {/* Unidade de Medida */}
+        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Unidade</label>
+          <div className="flex gap-2 mt-1 overflow-x-auto pb-1">
+            {['un', 'cx', 'fr', 'kg', 'l', 'comp'].map(u => (
+              <button
+                key={u}
+                type="button"
+                onClick={() => update('inventory', editingItem?.id, { unit: u })}
+                className={`px-3 py-1 rounded-lg text-xs font-bold uppercase border ${editingItem?.unit === u ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200'}`}
+              >
+                {u}
+              </button>
+            ))}
+            {/* Fallback para edição rápida ou unit fixo no create (Logic Update Needed in handleSave) */}
+          </div>
         </div>
 
         {!editingItem && (

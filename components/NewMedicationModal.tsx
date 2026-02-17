@@ -60,28 +60,40 @@ const NewMedicationModal: React.FC = () => {
     if (validItems.length === 0) return addToast("Adicione pelo menos um medicamento.", "warning");
 
     setLoading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
     try {
-      const patient = activePatients.find(p => p.id === patientId);
+      for (const item of validItems) {
+        try {
+          await push('medications', {
+            clinic_id: brain.session.clinicId,
+            patient_id: patientId,
+            patient_name: activePatients.find(p => p.id === patientId)?.name,
+            name: item.name,
+            dosage: item.dosage,
+            scheduled_time: item.time,
+            prescription_file: prescriptionFile,
+            status: 'pending',
+            inventory_item_id: item.inventory_id || null,
+            prescription_expiry: (item as any).prescription_expiry || null
+          });
+          successCount++;
+        } catch (innerErr) {
+          console.error(`Falha ao salvar item ${item.name}:`, innerErr);
+          errorCount++;
+        }
+      }
 
-      await Promise.all(validItems.map(item =>
-        push('medications', {
-          clinic_id: brain.session.clinicId,
-          patient_id: patientId,
-          patient_name: patient?.name,
-          name: item.name,
-          dosage: item.dosage,
-          scheduled_time: item.time,
-          prescription_file: prescriptionFile,
-          status: 'pending',
-          inventory_item_id: item.inventory_id || null, // <--- O PULO DO GATO: Salvando o ID do estoque
-          prescription_expiry: (item as any).prescription_expiry || null
-        })
-      ));
+      if (successCount > 0) {
+        addToast(`${successCount} prescrições criadas!`, "success");
+        setQuickAction(null);
+      }
+      if (errorCount > 0) addToast(`${errorCount} erros ao salvar.`, "error");
 
-      addToast(`${validItems.length} prescrições criadas!`, "success");
-      setQuickAction(null);
     } catch (err) {
-      console.error(err);
+      console.error('Erro geral:', err);
+      addToast("Erro crítico ao processar.", "error");
     } finally {
       setLoading(false);
     }

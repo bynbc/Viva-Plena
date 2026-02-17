@@ -57,7 +57,7 @@ const Reports: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Card 1 */}
+                    {/* Card 1: Acolhimentos */}
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><Users size={20} /></div>
@@ -66,41 +66,38 @@ const Reports: React.FC = () => {
                         <p className="text-4xl font-black text-slate-800">{patientsInPeriod.length}</p>
                     </div>
 
-                    {/* Card 2 - ZERADO */}
+                    {/* Card 2: Estoque (Novo) */}
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 bg-indigo-100 text-indigo-600 rounded-xl"><Clock size={20} /></div>
-                            <p className="text-xs font-black text-slate-400 uppercase">Tempo Médio de Permanência</p>
+                            <div className="p-3 bg-indigo-100 text-indigo-600 rounded-xl"><CheckCircle size={20} /></div>
+                            <p className="text-xs font-black text-slate-400 uppercase">Itens em Estoque</p>
                         </div>
-                        <p className="text-4xl font-black text-slate-800">{avgStay} <span className="text-lg text-slate-400 font-bold">dias</span></p>
+                        <p className="text-4xl font-black text-slate-800">{brain.inventory?.length || 0}</p>
+                        <p className="text-xs text-slate-400 mt-2 font-bold uppercase">
+                            Críticos: {brain.inventory?.filter(i => i.quantity <= (i.min_threshold || 5)).length || 0}
+                        </p>
                     </div>
 
-                    {/* Card 3 */}
-                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><CheckCircle size={20} /></div>
-                            <p className="text-xs font-black text-slate-400 uppercase">Taxa de Alta Eficaz</p>
-                        </div>
-                        <p className="text-4xl font-black text-slate-800">{dischargeRate}%</p>
-                    </div>
-
-                    {/* Card 4 */}
+                    {/* Card 3: Ocorrências (Novo) */}
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-rose-100 text-rose-600 rounded-xl"><TrendingUp size={20} /></div>
-                            <p className="text-xs font-black text-slate-400 uppercase">Índice de Reincidência</p>
+                            <p className="text-xs font-black text-slate-400 uppercase">Ocorrências</p>
                         </div>
-                        <p className="text-4xl font-black text-slate-800">{recidivismRate}%</p>
+                        <p className="text-4xl font-black text-slate-800">{brain.occurrences?.length || 0}</p>
+                        <p className="text-xs text-rose-400 mt-2 font-bold uppercase">
+                            Abertas: {brain.occurrences?.filter(o => o.status === 'open').length || 0}
+                        </p>
                     </div>
 
-                    {/* Card 5 */}
-                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 md:col-span-2">
+                    {/* Card 4: Financeiro (Expandido) */}
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 md:col-span-3">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-amber-100 text-amber-600 rounded-xl"><DollarSign size={20} /></div>
-                                <p className="text-xs font-black text-slate-400 uppercase">Balanço Financeiro</p>
+                                <p className="text-xs font-black text-slate-400 uppercase">Balanço Financeiro (Período)</p>
                             </div>
-                            <p className={`text-2xl font-black ${balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            <p className={`text-3xl font-black ${balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 {balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             </p>
                         </div>

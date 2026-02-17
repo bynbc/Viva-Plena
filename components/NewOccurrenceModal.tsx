@@ -22,25 +22,34 @@ const NewOccurrenceModal: React.FC<NewOccurrenceModalProps> = ({ onClose }) => {
   const activePatients = brain.patients.filter(p => p.status === 'active');
 
   const handleSave = async () => {
+    if (!formData.title.trim() || !formData.description.trim()) {
+      return addToast('Preencha título e descrição.', 'warning');
+    }
+
     setLoading(true);
     try {
       const selectedPatient = activePatients.find(p => p.id === formData.patient_id);
 
-      await push('occurrences', {
+      const payload = {
         clinic_id: brain.session.clinicId,
-        patient_id: formData.patient_id || null, // Salva o ID se tiver
-        patient_name: selectedPatient?.name || null, // Salva o nome para facilitar
-        title: formData.title,
-        description: formData.description,
+        patient_id: formData.patient_id || null,
+        patient_name: selectedPatient?.name || null,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
         severity: formData.severity,
         status: 'open',
         created_at: new Date().toISOString(),
-        created_by: brain.session.user?.username
-      });
+        created_by: brain.session.user?.username || 'Sistema'
+      };
+
+      console.log('Salando Ocorrência:', payload); // Debug
+
+      await push('occurrences', payload);
       addToast('Ocorrência criada!', 'success');
       onClose();
-    } catch (err) {
-      addToast('Erro ao criar.', 'error');
+    } catch (err: any) {
+      console.error('Erro ao salvar ocorrência:', err);
+      addToast(`Erro: ${err.message || 'Falha ao salvar'}`, 'error');
     } finally {
       setLoading(false);
     }

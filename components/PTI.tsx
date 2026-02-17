@@ -70,8 +70,9 @@ const PTI: React.FC = () => {
         await push('pti_goals', payload);
         addToast("Novo Plano criado!", "success");
       }
-    } catch (err) {
-      addToast("Erro ao salvar o plano.", "error");
+    } catch (err: any) {
+      console.error("Erro ao salvar PTI:", err);
+      addToast(`Erro ao salvar: ${err.message || 'Falha de conexão'}`, "error");
     } finally {
       setLoading(false);
     }
