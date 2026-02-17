@@ -68,6 +68,8 @@ const PTI: React.FC = () => {
       } else {
         // CREATE NEW
         await push('pti_goals', payload);
+        // RESET STATE AFTER SAVE
+        setGoals({ short_term: '', medium_term: '', long_term: '', psychological_approach: '' });
         addToast("Novo Plano criado!", "success");
       }
     } catch (err: any) {

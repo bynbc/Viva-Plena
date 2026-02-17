@@ -29,7 +29,8 @@ const NewAgendaModal: React.FC = () => {
         clinic_id: brain.session.clinicId,
         title: title.trim(),
         patient_id: patientId || null,
-        // patient_name: Resolvido automaticamente pelo BrainContext se omitido
+        patient_id: patientId || null,
+        patient_name: patient?.name || null, // FIX: Explicitly sending patient name
         start_at: new Date(startAt).toISOString(),
         visitor_name: visitorName || null,
         description: type || 'Outro',

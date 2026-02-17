@@ -50,6 +50,11 @@ const NewOccurrenceModal: React.FC<NewOccurrenceModalProps> = ({ onClose }) => {
     } catch (err: any) {
       console.error('Erro ao salvar ocorrência:', err);
       addToast(`Erro: ${err.message || 'Falha ao salvar'}`, 'error');
+      setFormData({ title: '', description: '', severity: 'MEDIUM', patient_id: '' }); // Clear form
+    } catch (err: any) {
+      console.error('Erro ao salvar ocorrência:', err);
+      // Ensure we don't leave it loading
+      addToast(`Erro: ${err.message || 'Falha ao salvar'}`, 'error');
     } finally {
       setLoading(false);
     }
