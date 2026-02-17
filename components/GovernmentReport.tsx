@@ -68,7 +68,7 @@ const GovernmentReport: React.FC = () => {
             {/* ÁREA DE IMPRESSÃO */}
             {patient ? (
                 <div className="overflow-x-auto pb-8 print:overflow-visible print:pb-0">
-                    <div className="print-area bg-white p-8 md:p-12 min-w-[210mm] md:max-w-[210mm] mx-auto min-h-[297mm] shadow-lg print:shadow-none print:w-full print:max-w-none print:p-[15mm] print:m-0" id="print-area">
+                    <div className="print-area bg-white p-8 md:p-12 min-w-[210mm] max-w-[210mm] mx-auto min-h-[297mm] shadow-lg print:shadow-none print:w-auto print:max-w-none print:p-8 print:m-0 h-auto" id="print-area">
 
                         {/* CABEÇALHO */}
                         <div className="border-b-2 border-slate-800 pb-6 mb-8 text-center print:border-black">

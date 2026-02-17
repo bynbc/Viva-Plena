@@ -36,8 +36,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     // ADMINISTRATIVO
     { id: 'finance', label: 'Financeiro', icon: Wallet, group: 'Admin' },
     { id: 'human-resources', label: 'Recursos Humanos', icon: Briefcase, group: 'Admin' },
-    { id: 'government-report', label: 'Relatórios Técnicos', icon: FileText, group: 'Admin' },
-    { id: 'reports', label: 'Dashboards', icon: BarChart3, group: 'Admin' },
+    {/* { id: 'government-report', label: 'Relatórios Técnicos', icon: FileText, group: 'Admin' }, Removed: Centralized in Reports */ }
+    { id: 'reports', label: 'Dashboards & Relatórios', icon: BarChart3, group: 'Admin' },
     { id: 'users', label: 'Acesso Sistema', icon: UserCog, group: 'Admin' },
   ];
 
