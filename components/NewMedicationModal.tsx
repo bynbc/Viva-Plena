@@ -119,6 +119,46 @@ const NewMedicationModal: React.FC = () => {
           </select>
         </div>
 
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Upload da Receita (Opcional)</label>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex-1 py-4 rounded-xl border-dashed border-2 flex flex-col items-center justify-center gap-2 transition-all ${prescriptionFile ? 'border-emerald-500 bg-emerald-50 text-emerald-600' : 'border-slate-300 bg-slate-50 text-slate-400 hover:bg-slate-100'
+                }`}
+            >
+              {prescriptionFile ? (
+                <>
+                  <FileText size={24} />
+                  <span className="text-xs font-bold uppercase">Receita Anexada</span>
+                </>
+              ) : (
+                <>
+                  <UploadCloud size={24} />
+                  <span className="text-xs font-bold uppercase">Toque para anexar foto/PDF</span>
+                </>
+              )}
+            </button>
+            {prescriptionFile && (
+              <button
+                type="button"
+                onClick={() => setPrescriptionFile(null)}
+                className="p-4 bg-rose-100 text-rose-600 rounded-xl"
+              >
+                <X size={20} />
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+        </div>
+
         {/* Lista de Medicamentos */}
         <div className="space-y-3 pt-4 border-t border-slate-100">
           <div className="flex justify-between items-end px-2">

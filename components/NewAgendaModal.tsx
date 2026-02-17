@@ -20,6 +20,10 @@ const NewAgendaModal: React.FC = () => {
     if (e) e.preventDefault();
     if (!title || !startAt) return addToast("Preencha título e horário.", "warning");
 
+    if (!brain.session?.clinicId) {
+      return addToast("Erro de sessão: ID da clínica não encontrado.", "error");
+    }
+
     setLoading(true);
     try {
       const patient = activePatients.find(p => p.id === patientId);
@@ -29,7 +33,7 @@ const NewAgendaModal: React.FC = () => {
         clinic_id: brain.session.clinicId,
         title: title.trim(),
         patient_id: patientId || null,
-        patient_name: patient?.name || null, // FIX: Explicitly sending patient name
+        patient_name: patient?.name || null,
         start_at: new Date(startAt).toISOString(),
         visitor_name: visitorName || null,
         description: type || 'Outro',
@@ -37,14 +41,14 @@ const NewAgendaModal: React.FC = () => {
         created_by: brain.session.user?.username || 'Sistema'
       };
 
+      console.log('Saving Agenda:', payload); // Debug
       await push('agenda', payload);
 
       addToast("Agendamento realizado com sucesso!", "success");
       setQuickAction(null);
     } catch (err: any) {
-      console.error(err);
-      // Feedback visual do erro
-      const msg = err.message || "Erro desconhecido";
+      console.error("Agenda Save Error:", err);
+      const msg = err.message || "Erro desconhecido ao salvar.";
       addToast(`Erro ao agendar: ${msg}`, "error");
     } finally {
       setLoading(false);
@@ -54,7 +58,7 @@ const NewAgendaModal: React.FC = () => {
   const footer = (
     <div className="flex gap-3 w-full">
       <button type="button" onClick={() => setQuickAction(null)} className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold text-xs uppercase text-slate-400 hover:bg-white/10 hover:text-white transition-colors">Cancelar</button>
-      <button type="button" onClick={() => handleSave()} disabled={loading} className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold text-xs uppercase shadow-lg hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
+      <button form="new-agenda-form" type="submit" disabled={loading} className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold text-xs uppercase shadow-lg hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
         {loading ? <Loader2 className="animate-spin" size={18} /> : <><Save size={18} /> Confirmar</>}
       </button>
     </div>
