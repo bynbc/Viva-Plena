@@ -266,9 +266,67 @@ const Reports: React.FC = () => {
 
                 {/* --- TAB: GOVERNMENT (MDS/AUDIT) --- */}
                 {activeTab === 'government' && (
-                    <div className="space-y-6 animate-in slide-in-from-right-4 text-black">
-                        {/* ADDED 'print-area' CLASS HERE AND CHANGED TEXT COLOR FOR PRINT VISIBILITY */}
-                        <div className="print-area bg-white text-slate-900 p-8 rounded-[32px] shadow-lg print:shadow-none print:bg-white print:text-black print:border print:border-black print:w-full print:max-w-none print:m-0">
+                    <div className="space-y-6 animate-in slide-in-from-right-4">
+
+                        {/* --- SCREEN VIEW (DASHBOARD - SIMPLIFIED) --- */}
+                        <div className="print:hidden space-y-6">
+                            <div className="flex justify-between items-center bg-white p-6 rounded-[24px] shadow-sm border border-slate-100">
+                                <div>
+                                    <h2 className="text-2xl font-black text-slate-800">Painel Governamental (MDS)</h2>
+                                    <p className="text-slate-500 font-bold">Resumo Executivo para Gestão</p>
+                                </div>
+                                <button onClick={() => window.print()} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase text-xs hover:bg-slate-700 transition-colors flex items-center gap-2">
+                                    <Printer size={16} /> Imprimir Relatório Detalhado
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+                                    <p className="text-xs font-black text-slate-400 uppercase">Atendimentos</p>
+                                    <p className="text-4xl font-black text-slate-800 mt-2">{brain.patients.length}</p>
+                                </div>
+                                <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+                                    <p className="text-xs font-black text-slate-400 uppercase">Ocorrências</p>
+                                    <p className="text-4xl font-black text-rose-500 mt-2">{brain.occurrences.length}</p>
+                                </div>
+                                <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+                                    <p className="text-xs font-black text-slate-400 uppercase">Reincidência</p>
+                                    <p className="text-4xl font-black text-indigo-500 mt-2">
+                                        {(() => {
+                                            const cpfs = brain.patients.map(p => p.cpf).filter(c => c && c.length > 5);
+                                            const uniqueCpfs = new Set(cpfs);
+                                            return cpfs.length - uniqueCpfs.size;
+                                        })()}
+                                    </p>
+                                </div>
+                                <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+                                    <p className="text-xs font-black text-slate-400 uppercase">Custo Médio</p>
+                                    <p className="text-xl font-black text-emerald-600 mt-2">
+                                        {(financialData.reduce((acc, i) => acc + i.value, 0) / (activePatients.length || 1)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="glass-card p-6 rounded-[24px]">
+                                <h3 className="font-bold text-white mb-4">Resumo de Ocorrências</h3>
+                                <div className="space-y-2">
+                                    {brain.occurrences.slice(0, 3).map(occ => (
+                                        <div key={occ.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                                            <span className="text-xs text-slate-300 font-bold">{new Date(occ.created_at).toLocaleDateString()}</span>
+                                            <span className="text-sm font-medium text-white">{occ.title}</span>
+                                            <span className={`text-[10px] px-2 py-1 rounded bg-white/10 uppercase ${occ.severity === 'high' ? 'text-rose-400' : 'text-emerald-400'
+                                                }`}>{occ.severity}</span>
+                                        </div>
+                                    ))}
+                                    <p className="text-xs text-center text-slate-500 mt-2 italic">
+                                        Use a impressão para ver todos os detalhes.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* --- PRINT VIEW (DETAILED REPORT - HIDDEN ON SCREEN) --- */}
+                        <div className="hidden print:block print-area bg-white text-slate-900 p-8 rounded-[32px] shadow-lg print:shadow-none print:bg-white print:text-black print:border print:border-black print:w-full print:max-w-none print:m-0">
                             <div className="flex justify-between items-start mb-8">
                                 <div>
                                     <h2 className="text-2xl font-black uppercase tracking-widest text-slate-900">Relatório Oficial de Gestão</h2>
@@ -280,14 +338,14 @@ const Reports: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                                 {/* METRIC: Atendimentos */}
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Total de Atendimentos</p>
                                     <p className="text-3xl font-black mt-1 text-slate-900">{brain.patients.length}</p>
                                 </div>
 
-                                {/* METRIC: Tempo Médio (Simple Frontend Calc) */}
+                                {/* METRIC: Tempo Médio */}
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Tempo Médio (Dias)</p>
                                     <p className="text-3xl font-black mt-1 text-slate-900">
@@ -317,7 +375,7 @@ const Reports: React.FC = () => {
                                     </p>
                                 </div>
 
-                                {/* METRIC: Reincidência (CPF Check) */}
+                                {/* METRIC: Reincidência */}
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Reincidência</p>
                                     <p className="text-3xl font-black mt-1 text-rose-600">
@@ -330,6 +388,35 @@ const Reports: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* DETAILED LISTS FOR PRINT ONLY */}
+                            <div className="space-y-4 mb-8">
+                                <h3 className="text-sm font-bold uppercase border-b border-black pb-1">Detalhamento de Ocorrências</h3>
+                                {brain.occurrences.length > 0 ? (
+                                    <table className="w-full text-xs text-left border-collapse">
+                                        <thead>
+                                            <tr>
+                                                <th className="border border-black p-1">Data</th>
+                                                <th className="border border-black p-1">Acolhido</th>
+                                                <th className="border border-black p-1">Título</th>
+                                                <th className="border border-black p-1">Descrição</th>
+                                                <th className="border border-black p-1">Gravidade</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {brain.occurrences.map(occ => (
+                                                <tr key={occ.id}>
+                                                    <td className="border border-black p-1">{new Date(occ.created_at).toLocaleDateString()}</td>
+                                                    <td className="border border-black p-1">{occ.patient_name}</td>
+                                                    <td className="border border-black p-1">{occ.title}</td>
+                                                    <td className="border border-black p-1">{occ.description}</td>
+                                                    <td className="border border-black p-1 uppercase">{occ.severity}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : <p className="text-xs italic">Nenhuma ocorrência registrada.</p>}
+                            </div>
+
                             <div className="mt-8 pt-8 border-t border-slate-200 print:border-black">
                                 <h3 className="text-sm font-bold uppercase mb-4 text-slate-800">Custo per Capita (Estimado)</h3>
                                 <div className="flex gap-4 items-end">
@@ -337,15 +424,12 @@ const Reports: React.FC = () => {
                                         {(financialData.reduce((acc, i) => acc + i.value, 0) / (activePatients.length || 1)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                     </p>
                                     <span className="text-xs text-slate-500 mb-2 font-bold uppercase">/ Paciente Ativo</span>
-                                    <p className="text-xs text-slate-400 mb-2 ml-auto max-w-[200px] text-right">
-                                        *Cálculo baseado nas despesas totais divididas pelo número atual de acolhidos.
-                                    </p>
                                 </div>
                             </div>
 
-                            <button onClick={() => window.print()} className="mt-8 bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase text-xs hover:bg-slate-700 transition-colors print:hidden w-full md:w-auto">
-                                <Printer size={16} className="inline mr-2" /> Imprimir Relatório Oficial
-                            </button>
+                            <div className="mt-12 text-center text-xs uppercase font-bold text-slate-900">
+                                Documento Gerado Automaticamente pelo Sistema Vida Plena
+                            </div>
                         </div>
                     </div>
                 )}
