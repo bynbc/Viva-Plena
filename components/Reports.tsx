@@ -66,8 +66,8 @@ const Reports: React.FC = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as ReportTab)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase transition-all whitespace-nowrap ${activeTab === tab.id
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
+                                ? 'bg-indigo-600 text-white shadow-md'
+                                : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
                                 }`}
                         >
                             <tab.icon size={16} /> <span className="hidden md:inline">{tab.label}</span>
@@ -190,32 +190,75 @@ const Reports: React.FC = () => {
 
                 {/* --- TAB: FINANCIAL --- */}
                 {activeTab === 'financial' && (
-                    <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm animate-in slide-in-from-right-4">
-                        <div className="text-center py-20 text-slate-300">
-                            <DollarSign size={48} className="mx-auto mb-4 opacity-50" />
-                            <h3 className="text-xl font-black text-slate-400">Detalhamento Financeiro</h3>
-                            <p className="font-bold uppercase mt-2 text-sm">Funcionalidade de expansão em desenvolvimento.</p>
-                            <p className="text-xs text-slate-400 mt-1">Use a aba "Visão Geral" para indicadores chave.</p>
+                    <div className="glass-card p-8 rounded-[32px] animate-in slide-in-from-right-4">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-xl font-black text-white">Detalhamento Financeiro</h3>
+                            <div className="flex gap-2">
+                                <div className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    <span className="text-[10px] uppercase font-bold block">Receitas</span>
+                                    <span className="text-lg font-black">{brain.transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                                </div>
+                                <div className="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                                    <span className="text-[10px] uppercase font-bold block">Despesas</span>
+                                    <span className="text-lg font-black">{brain.transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + Number(t.amount), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left text-slate-300">
+                                <thead className="text-xs uppercase bg-white/5 text-slate-400">
+                                    <tr>
+                                        <th className="px-6 py-3 rounded-l-xl">Data</th>
+                                        <th className="px-6 py-3">Descrição</th>
+                                        <th className="px-6 py-3">Categoria</th>
+                                        <th className="px-6 py-3">Status</th>
+                                        <th className="px-6 py-3 text-right rounded-r-xl">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {brain.transactions.slice(0, 15).map((t) => (
+                                        <tr key={t.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                            <td className="px-6 py-4 font-medium">{new Date(t.date).toLocaleDateString()}</td>
+                                            <td className="px-6 py-4">{t.description}</td>
+                                            <td className="px-6 py-4"><span className="px-2 py-1 rounded-lg bg-white/10 text-xs">{t.category}</span></td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded-lg text-xs font-bold ${t.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                        t.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
+                                                            'bg-rose-500/20 text-rose-400'
+                                                    }`}>
+                                                    {t.status === 'paid' ? 'Pago' : t.status === 'pending' ? 'Pendente' : 'Atrasado'}
+                                                </span>
+                                            </td>
+                                            <td className={`px-6 py-4 text-right font-black ${t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                {t.type === 'expense' ? '- ' : '+ '}
+                                                {Number(t.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {brain.transactions.length === 0 && <p className="text-center py-10 text-slate-500">Nenhuma transação registrada.</p>}
                         </div>
                     </div>
                 )}
 
                 {/* --- TAB: STOCK --- */}
                 {activeTab === 'stock' && (
-                    <div className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm animate-in slide-in-from-right-4">
-                        <h3 className="font-black text-slate-800 text-lg mb-6">Itens com Estoque Baixo</h3>
+                    <div className="glass-card p-8 rounded-[32px] animate-in slide-in-from-right-4">
+                        <h3 className="font-black text-white text-lg mb-6">Itens com Estoque Baixo</h3>
                         <div className="space-y-3">
                             {brain.inventory.filter(i => i.quantity <= (i.min_threshold || 5)).map(item => (
-                                <div key={item.id} className="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                <div key={item.id} className="flex items-center justify-between p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
                                     <div className="flex items-center gap-3">
-                                        <AlertTriangle size={18} className="text-amber-500" />
-                                        <span className="font-bold text-slate-700">{item.name}</span>
+                                        <AlertTriangle size={18} className="text-amber-400" />
+                                        <span className="font-bold text-slate-200">{item.name}</span>
                                     </div>
-                                    <span className="font-black text-amber-600">{item.quantity} {item.unit}</span>
+                                    <span className="font-black text-amber-400">{item.quantity} {item.unit}</span>
                                 </div>
                             ))}
                             {brain.inventory.filter(i => i.quantity <= (i.min_threshold || 5)).length === 0 && (
-                                <p className="text-center text-slate-400 py-10 font-bold">Nenhum item em estado crítico.</p>
+                                <p className="text-center text-slate-500 py-10 font-bold">Nenhum item em estado crítico.</p>
                             )}
                         </div>
                     </div>
@@ -223,30 +266,31 @@ const Reports: React.FC = () => {
 
                 {/* --- TAB: GOVERNMENT (MDS/AUDIT) --- */}
                 {activeTab === 'government' && (
-                    <div className="space-y-6 animate-in slide-in-from-right-4">
-                        <div className="bg-slate-900 text-white p-8 rounded-[32px] shadow-lg print:shadow-none print:bg-white print:text-black print:border print:border-black">
+                    <div className="space-y-6 animate-in slide-in-from-right-4 text-black">
+                        {/* ADDED 'print-area' CLASS HERE AND CHANGED TEXT COLOR FOR PRINT VISIBILITY */}
+                        <div className="print-area bg-white text-slate-900 p-8 rounded-[32px] shadow-lg print:shadow-none print:bg-white print:text-black print:border print:border-black print:w-full print:max-w-none print:m-0">
                             <div className="flex justify-between items-start mb-8">
                                 <div>
-                                    <h2 className="text-2xl font-black uppercase tracking-widest">Relatório Oficial de Gestão</h2>
-                                    <p className="text-slate-400 font-medium mt-1 print:text-slate-600">Ministério do Desenvolvimento Social / Conselhos</p>
+                                    <h2 className="text-2xl font-black uppercase tracking-widest text-slate-900">Relatório Oficial de Gestão</h2>
+                                    <p className="text-slate-500 font-medium mt-1">Ministério do Desenvolvimento Social / Conselhos</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-xs font-bold text-slate-500 uppercase print:text-black">Período de Análise</p>
-                                    <p className="font-black text-xl">{startDate ? new Date(startDate).toLocaleDateString() : 'Início'} - {endDate ? new Date(endDate).toLocaleDateString() : 'Hoje'}</p>
+                                    <p className="text-xs font-bold text-slate-500 uppercase">Período de Análise</p>
+                                    <p className="font-black text-xl text-slate-900">{startDate ? new Date(startDate).toLocaleDateString() : 'Início'} - {endDate ? new Date(endDate).toLocaleDateString() : 'Hoje'}</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                 {/* METRIC: Atendimentos */}
-                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Total de Atendimentos</p>
-                                    <p className="text-3xl font-black mt-1">{brain.patients.length}</p>
+                                    <p className="text-3xl font-black mt-1 text-slate-900">{brain.patients.length}</p>
                                 </div>
 
                                 {/* METRIC: Tempo Médio (Simple Frontend Calc) */}
-                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Tempo Médio (Dias)</p>
-                                    <p className="text-3xl font-black mt-1">
+                                    <p className="text-3xl font-black mt-1 text-slate-900">
                                         {(() => {
                                             const exited = brain.patients.filter(p => p.exit_date && p.entry_date);
                                             if (exited.length === 0) return 0;
@@ -261,9 +305,9 @@ const Reports: React.FC = () => {
                                 </div>
 
                                 {/* METRIC: Taxa de Alta */}
-                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Taxa de Alta (%)</p>
-                                    <p className="text-3xl font-black mt-1 text-emerald-400 print:text-black">
+                                    <p className="text-3xl font-black mt-1 text-emerald-600">
                                         {(() => {
                                             const discharged = brain.patients.filter(p => p.status === 'discharged').length; // discharged or alta
                                             const totalExits = brain.patients.filter(p => ['discharged', 'evaded', 'deceased', 'alta', 'evasão'].includes(p.status)).length;
@@ -274,9 +318,9 @@ const Reports: React.FC = () => {
                                 </div>
 
                                 {/* METRIC: Reincidência (CPF Check) */}
-                                <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 print:bg-white print:border-black">
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 print:border-black">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Reincidência</p>
-                                    <p className="text-3xl font-black mt-1 text-rose-400 print:text-black">
+                                    <p className="text-3xl font-black mt-1 text-rose-600">
                                         {(() => {
                                             const cpfs = brain.patients.map(p => p.cpf).filter(c => c && c.length > 5);
                                             const uniqueCpfs = new Set(cpfs);
@@ -286,20 +330,20 @@ const Reports: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-8 pt-8 border-t border-white/10 print:border-black">
-                                <h3 className="text-sm font-bold uppercase mb-4">Custo per Capita (Estimado)</h3>
+                            <div className="mt-8 pt-8 border-t border-slate-200 print:border-black">
+                                <h3 className="text-sm font-bold uppercase mb-4 text-slate-800">Custo per Capita (Estimado)</h3>
                                 <div className="flex gap-4 items-end">
-                                    <p className="text-4xl font-black text-white print:text-black">
+                                    <p className="text-4xl font-black text-slate-900">
                                         {(financialData.reduce((acc, i) => acc + i.value, 0) / (activePatients.length || 1)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                     </p>
-                                    <span className="text-xs text-slate-400 mb-2 font-bold uppercase">/ Paciente Ativo</span>
-                                    <p className="text-xs text-slate-500 mb-2 ml-auto max-w-[200px] text-right">
+                                    <span className="text-xs text-slate-500 mb-2 font-bold uppercase">/ Paciente Ativo</span>
+                                    <p className="text-xs text-slate-400 mb-2 ml-auto max-w-[200px] text-right">
                                         *Cálculo baseado nas despesas totais divididas pelo número atual de acolhidos.
                                     </p>
                                 </div>
                             </div>
 
-                            <button onClick={() => window.print()} className="mt-8 bg-white text-slate-900 px-6 py-3 rounded-xl font-black uppercase text-xs hover:bg-slate-200 transition-colors print:hidden w-full md:w-auto">
+                            <button onClick={() => window.print()} className="mt-8 bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase text-xs hover:bg-slate-700 transition-colors print:hidden w-full md:w-auto">
                                 <Printer size={16} className="inline mr-2" /> Imprimir Relatório Oficial
                             </button>
                         </div>
