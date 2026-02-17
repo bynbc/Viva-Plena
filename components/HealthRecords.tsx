@@ -75,7 +75,7 @@ const HealthRecords: React.FC = () => {
             {/* MENU LATERAL */}
             <div className="w-full md:w-80 flex flex-col gap-4 md:h-full h-auto">
                 <div className="glass-card p-4 rounded-[24px] md:h-full h-auto flex flex-col">
-                    <h2 className="text-lg font-black text-slate-800 mb-2">Prontuários</h2>
+                    <h2 className="text-lg font-black text-white mb-2">Prontuários</h2>
                     <div className="relative mb-2">
                         <Search className="absolute left-3 top-3 text-slate-400" size={18} />
                         <input

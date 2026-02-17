@@ -69,7 +69,7 @@ const NewMedicationModal: React.FC = () => {
           await push('medications', {
             clinic_id: brain.session.clinicId,
             patient_id: patientId,
-            patient_name: activePatients.find(p => p.id === patientId)?.name,
+            patient_name: activePatients.find(p => p.id === patientId)?.name || 'Paciente',
             name: item.name,
             dosage: item.dosage,
             scheduled_time: item.time,
@@ -92,8 +92,8 @@ const NewMedicationModal: React.FC = () => {
       if (errorCount > 0) addToast(`${errorCount} erros ao salvar.`, "error");
 
     } catch (err) {
-      console.error('Erro geral:', err);
-      addToast("Erro crítico ao processar.", "error");
+      console.error('Erro geral ao salvar prescrição:', err);
+      addToast(`Erro crítico ao processar: ${(err as any).message || 'Desconhecido'}`, "error");
     } finally {
       setLoading(false);
     }

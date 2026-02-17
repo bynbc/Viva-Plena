@@ -38,7 +38,7 @@ const PTI: React.FC = () => {
         setDeadline('');
       }
     }
-  }, [selectedPatientId, brain.pti]);
+  }, [selectedPatientId]); // Removed brain.pti dependency to prevent overwriting user input while typing
 
   const handleSavePTI = async () => {
     if (!selectedPatientId) return;
@@ -88,8 +88,8 @@ const PTI: React.FC = () => {
       {/* SELEÇÃO DE PACIENTE */}
       <div className="w-full md:w-80 flex flex-col gap-4 md:h-full h-auto">
         <div className="glass-card p-4 rounded-[24px] md:h-full h-auto flex flex-col">
-          <h2 className="text-lg font-black text-slate-800 mb-1">PTI - Singular</h2>
-          <p className="text-xs text-slate-500 font-bold uppercase mb-4">Selecione o acolhido</p>
+          <h2 className="text-lg font-black text-white mb-1">PTI - Singular</h2>
+          <p className="text-xs text-indigo-200 font-bold uppercase mb-4">Selecione o acolhido</p>
 
           <div className="relative mb-4">
             <Search className="absolute left-3 top-3 text-slate-400" size={18} />
