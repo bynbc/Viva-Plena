@@ -215,18 +215,18 @@ const NewPatientModal: React.FC = () => {
         family_bond: formData.family_bond,
         family_contact: formData.family_contact,
 
-        // Referência
-        origin_city: formData.origin_city,
-        reference_service: formData.reference_service,
-        therapeutic_accompaniment: formData.therapeutic_accompaniment,
-        medication_responsible_name: formData.medication_responsible_name,
-        medication_responsible_contact: formData.medication_responsible_contact,
-        mental_health_recommendations: formData.mental_health_recommendations,
+        // Referência (Temporariamente desativado para garantir compatibilidade com DB)
+        // origin_city: formData.origin_city,
+        // reference_service: formData.reference_service,
+        // therapeutic_accompaniment: formData.therapeutic_accompaniment,
+        // medication_responsible_name: formData.medication_responsible_name,
+        // medication_responsible_contact: formData.medication_responsible_contact,
+        // mental_health_recommendations: formData.mental_health_recommendations,
 
         // Interno
         photo_url: formData.photo_url,
         payment_type: formData.payment_type || 'particular',
-        insurance_name: formData.insurance_name,
+        // insurance_name: formData.insurance_name,
 
         status: 'active',
         created_at: new Date().toISOString(),
